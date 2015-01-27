@@ -103,8 +103,17 @@ public class DBQuery {
                 Experiment experiment = new Experiment();
                 experiment.setId(resultSet.getString(1));
                 experiment.setCameraId(resultSet.getString(2));
-                experiment.setStartTime(resultSet.getString(3));
-                experiment.setEndTime(resultSet.getString(4));
+
+                //date and time format 'HH:MM DD-MM-YYYY'
+                String sqlDateTime[] = resultSet.getString(3).split("\\s");
+                String[] date = sqlDateTime[0].split("-");
+                String[] time = sqlDateTime[1].split(":");
+                experiment.setStartTime(time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0]);
+                sqlDateTime = resultSet.getString(4).split("\\s");
+                date = sqlDateTime[0].split("-");
+                time = sqlDateTime[1].split(":");
+                experiment.setEndTime(time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0]);
+
                 experiment.setDecNumber(resultSet.getString(5));
                 experiment.setName(resultSet.getString(6));
                 experiment.setSerialNumber(resultSet.getString(7));

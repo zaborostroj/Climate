@@ -27,25 +27,14 @@ public class MainWindow extends JFrame {
         internalFrame1.setSize(500, 300);
         internalFrame1.setLocation(200, 200);
         internalFrame1.setVisible(false);
-        JPanel internalPanel = new JPanel(new GridLayout());
-        String[] columnNames = {"id", "cam id", "start", "end", "dec num", "ser num", "name", "order", "desc"};
-        String[][] data = {
-                {"123", "123", "123", "123", "123", "123", "123", "123", "123"},
-                {"123", "123", "123", "123", "123", "123", "123", "123", "123"},
-                {"123", "123", "123", "123", "123", "123", "123", "123", "123"}
-        };
-        final JTable internalTable = new JTable(data, columnNames);
-        //internalTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
-        //internalTable.setFillsViewportHeight(true);
-        //internalPanel.add(table);
-        internalFrame1.add(internalTable);
-        internalFrame1.pack();
-        add(internalFrame1);
 
+        final JTable timeTable = new JTable();
+
+        add(internalFrame1);
         setJMenuBar(makeMenuBar());
 
         JPanel mainPanel = new JPanel(new FlowLayout());
-        mainPanel.setBorder(BorderFactory.createTitledBorder("Cameras"));
+        mainPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
 
         DBQuery dbQuery = new DBQuery();
         ArrayList<Tool> tools = dbQuery.getTools();
@@ -55,10 +44,22 @@ public class MainWindow extends JFrame {
                 ArrayList<Experiment> experiments = new DBQuery().getExperiments(e.getActionCommand());
                 for (Experiment experiment : experiments) {
                     experiment.println();
-                    //internalTable.
+                    //timeTable.
                 }
-                internalTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
-                internalTable.setFillsViewportHeight(true);
+                timeTable.setModel(new TimeTableModel(experiments));
+                timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
+                timeTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+                timeTable.getColumnModel().getColumn(2).setPreferredWidth(170);
+                timeTable.getColumnModel().getColumn(3).setPreferredWidth(170);
+                timeTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
+                timeTable.setFillsViewportHeight(true);
+                JScrollPane timeTableScrollPane = new JScrollPane(timeTable);
+                timeTableScrollPane.setWheelScrollingEnabled(true);
+                timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                timeTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                internalFrame1.add(timeTableScrollPane);
+
+
                 internalFrame1.setTitle("Timetable for camera #" + e.getActionCommand());
                 internalFrame1.setVisible(true);
             }
