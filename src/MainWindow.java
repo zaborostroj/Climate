@@ -24,49 +24,55 @@ public class MainWindow extends JFrame {
         }
 
         final JInternalFrame internalFrame1 = new JInternalFrame("Internal Frame 1", true, true, true, true);
-        internalFrame1.setSize(500, 300);
-        internalFrame1.setLocation(200, 200);
+        internalFrame1.setSize(800, 300);
+        internalFrame1.setLocation(20, 200);
         internalFrame1.setVisible(false);
 
         final JTable timeTable = new JTable();
-
+        final JScrollPane timeTableScrollPane = new JScrollPane(timeTable);
+        timeTableScrollPane.setWheelScrollingEnabled(true);
+        timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        timeTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         add(internalFrame1);
         setJMenuBar(makeMenuBar());
 
         JPanel mainPanel = new JPanel(new FlowLayout());
         mainPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
+        internalFrame1.add(timeTableScrollPane);
 
-        DBQuery dbQuery = new DBQuery();
-        ArrayList<Tool> tools = dbQuery.getTools();
         ActionListener cameraButtonsListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ArrayList<Experiment> experiments = new DBQuery().getExperiments(e.getActionCommand());
-                for (Experiment experiment : experiments) {
-                    experiment.println();
-                    //timeTable.
-                }
                 timeTable.setModel(new TimeTableModel(experiments));
                 timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
-                timeTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-                timeTable.getColumnModel().getColumn(2).setPreferredWidth(170);
-                timeTable.getColumnModel().getColumn(3).setPreferredWidth(170);
-                timeTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
-                timeTable.setFillsViewportHeight(true);
-                JScrollPane timeTableScrollPane = new JScrollPane(timeTable);
-                timeTableScrollPane.setWheelScrollingEnabled(true);
-                timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-                timeTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-                internalFrame1.add(timeTableScrollPane);
-
+                timeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
+                timeTable.getColumnModel().getColumn(2).setPreferredWidth(120);
+                timeTable.getColumnModel().getColumn(3).setPreferredWidth(120);
+                timeTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+                timeTable.getColumnModel().getColumn(5).setPreferredWidth(50);
+                timeTable.getColumnModel().getColumn(6).setPreferredWidth(170);
+                timeTable.getColumnModel().getColumn(7).setPreferredWidth(30);
+                timeTable.getColumnModel().getColumn(8).setPreferredWidth(100);
 
                 internalFrame1.setTitle("Timetable for camera #" + e.getActionCommand());
                 internalFrame1.setVisible(true);
             }
         };
+
+        DBQuery dbQuery = new DBQuery();
+        ArrayList<Tool> tools = dbQuery.getTools();
+        String[][] currentExperiments = new String[tools.size()][9];
+        currentExperiments = dbQuery.getCurrentExperiments(tools.size());
+
         for(Tool tool : tools) {
             JPanel panel = new JPanel(new CardLayout());
-            panel.setBorder(BorderFactory.createTitledBorder(tool.getName()));
+            if (currentExperiments[Integer.valueOf(tool.getId()) - 1][0] == null) {
+                panel.setBorder(BorderFactory.createTitledBorder(tool.getName() + "free!"));
+            } else {
+                panel.setBorder(BorderFactory.createTitledBorder(tool.getName()));
+            }
+
             JButton button = new JButton(tool.getName() + " button");
             button.setActionCommand(tool.getId());
             button.addActionListener(cameraButtonsListener);
@@ -75,12 +81,6 @@ public class MainWindow extends JFrame {
             panel.setVisible(true);
             mainPanel.add(panel);
         }
-
-        //JInternalFrame internalFrame2 = new JInternalFrame("Internal Frame 2", true, true, true, true);
-        //internalFrame2.setSize(100, 200);
-        //internalFrame2.setLocation(410, 210);
-        //internalFrame2.setVisible(true);
-        //add(internalFrame2);
 
         add(mainPanel);
         setVisible(true);

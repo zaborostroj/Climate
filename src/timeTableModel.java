@@ -1,7 +1,5 @@
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.StringTokenizer;
 
 /**
   Created by Evgeny Baskakov on 27.01.2015.
