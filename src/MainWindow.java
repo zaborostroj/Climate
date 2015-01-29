@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,8 @@ public class MainWindow extends JFrame {
         super("MainWnd");
         setSize(1024, 768);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setJMenuBar(makeMenuBar());
 
         try{
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -23,22 +26,49 @@ public class MainWindow extends JFrame {
             e.printStackTrace();
         }
 
-        final JInternalFrame internalFrame1 = new JInternalFrame("Internal Frame 1", true, true, true, true);
-        internalFrame1.setSize(800, 300);
-        internalFrame1.setLocation(20, 200);
-        internalFrame1.setVisible(false);
+        final JInternalFrame addToolFrame = new JInternalFrame("Add new tool", false, true);
+        JPanel addToolMainPanel = new JPanel();
+        JPanel addToolFieldsPanel = new JPanel(new GridLayout(4, 2));
+        JPanel addToolButtonsPanel = new JPanel(new FlowLayout());
+        addToolMainPanel.add(addToolFieldsPanel);
+        addToolMainPanel.add(addToolButtonsPanel);
+        addToolFrame.setSize(300, 200);
+        addToolFrame.setLocation(20, 400);
+        addToolFrame.setVisible(false);
+        add(addToolFrame);
+
+        final JInternalFrame timeTableFrame = new JInternalFrame("Internal Frame 1", true, true, true, true);
+        timeTableFrame.setSize(800, 300);
+        timeTableFrame.setLocation(20, 200);
+        timeTableFrame.setVisible(false);
 
         final JTable timeTable = new JTable();
         final JScrollPane timeTableScrollPane = new JScrollPane(timeTable);
         timeTableScrollPane.setWheelScrollingEnabled(true);
         timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         timeTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        add(internalFrame1);
-        setJMenuBar(makeMenuBar());
+        timeTableFrame.add(timeTableScrollPane);
+        add(timeTableFrame);
 
-        JPanel mainPanel = new JPanel(new FlowLayout());
-        mainPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
-        internalFrame1.add(timeTableScrollPane);
+
+        ActionListener addCameraButtonListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addToolFrame.setVisible(true);
+
+            }
+        };
+
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        JButton addToolButton = new JButton("Add new camera");
+        addToolButton.addActionListener(addCameraButtonListener);
+        addToolButton.setVisible(true);
+        addToolButton.setSize(100, 100);
+        buttonsPanel.add(addToolButton);
+
+        JPanel camerasPanel = new JPanel(new FlowLayout());
+        camerasPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
 
         ActionListener cameraButtonsListener = new ActionListener() {
             @Override
@@ -55,34 +85,48 @@ public class MainWindow extends JFrame {
                 timeTable.getColumnModel().getColumn(7).setPreferredWidth(30);
                 timeTable.getColumnModel().getColumn(8).setPreferredWidth(100);
 
-                internalFrame1.setTitle("Timetable for camera #" + e.getActionCommand());
-                internalFrame1.setVisible(true);
+                timeTableFrame.setTitle("Timetable for camera #" + e.getActionCommand());
+                timeTableFrame.setVisible(true);
             }
         };
 
         DBQuery dbQuery = new DBQuery();
         ArrayList<Tool> tools = dbQuery.getTools();
-        String[][] currentExperiments = new String[tools.size()][9];
-        currentExperiments = dbQuery.getCurrentExperiments(tools.size());
+        String[][] currentExperiments = dbQuery.getCurrentExperiments(tools.size());
 
         for(Tool tool : tools) {
-            JPanel panel = new JPanel(new CardLayout());
-            if (currentExperiments[Integer.valueOf(tool.getId()) - 1][0] == null) {
-                panel.setBorder(BorderFactory.createTitledBorder(tool.getName() + "free!"));
+            String[] currentExperiment = currentExperiments[Integer.valueOf(tool.getId()) - 1];
+            GridLayout gridLayout = new GridLayout(9, 1);
+            JPanel panel = new JPanel(gridLayout);
+
+            JLabel label = new JLabel();
+            label.setText(tool.getName());
+            label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+            panel.add(label);
+            for (int i = 2; i <= 8; i++) {
+                label = new JLabel(currentExperiment[i]);
+                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                panel.add(label);
+            }
+
+            if (currentExperiment[0] == null) {
+                panel.setBorder(BorderFactory.createLineBorder(Color.GREEN, 3, true));
             } else {
-                panel.setBorder(BorderFactory.createTitledBorder(tool.getName()));
+                panel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true));
             }
 
             JButton button = new JButton(tool.getName() + " button");
             button.setActionCommand(tool.getId());
             button.addActionListener(cameraButtonsListener);
             panel.add(button);
+
             panel.setSize(100, 100);
             panel.setVisible(true);
-            mainPanel.add(panel);
+            camerasPanel.add(panel);
         }
 
-        add(mainPanel);
+        add(camerasPanel, BorderLayout.CENTER);
+        add(buttonsPanel, BorderLayout.PAGE_END);
         setVisible(true);
     }
 

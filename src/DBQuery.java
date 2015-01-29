@@ -171,24 +171,24 @@ public class DBQuery {
 
             while (resultSet.next()) {
                 //date and time format 'HH:MM DD-MM-YYYY'
-                String sqlDateTime[] = resultSet.getString(3).split("\\s");
+                String sqlDateTime[] = resultSet.getString("start_time").split("\\s");
                 String[] date = sqlDateTime[0].split("-");
                 String[] time = sqlDateTime[1].split(":");
                 String experimentStartTime = time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0];
-                sqlDateTime = resultSet.getString(4).split("\\s");
+                sqlDateTime = resultSet.getString("end_time").split("\\s");
                 date = sqlDateTime[0].split("-");
                 time = sqlDateTime[1].split(":");
                 String experimentEndTime = time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0];
 
-                currentExperiments[resultSet.getInt("camera_id")][0] = resultSet.getString(1);
-                currentExperiments[resultSet.getInt("camera_id")][1] = resultSet.getString(2);
+                currentExperiments[resultSet.getInt("camera_id")][0] = resultSet.getString("id");
+                currentExperiments[resultSet.getInt("camera_id")][1] = resultSet.getString("camera_id");
                 currentExperiments[resultSet.getInt("camera_id")][2] = experimentStartTime;
                 currentExperiments[resultSet.getInt("camera_id")][3] = experimentEndTime;
-                currentExperiments[resultSet.getInt("camera_id")][4] = resultSet.getString(5);
-                currentExperiments[resultSet.getInt("camera_id")][5] = resultSet.getString(6);
-                currentExperiments[resultSet.getInt("camera_id")][6] = resultSet.getString(7);
-                currentExperiments[resultSet.getInt("camera_id")][7] = resultSet.getString(8);
-                currentExperiments[resultSet.getInt("camera_id")][8] = resultSet.getString(9);
+                currentExperiments[resultSet.getInt("camera_id")][4] = resultSet.getString("dec_number");
+                currentExperiments[resultSet.getInt("camera_id")][5] = resultSet.getString("name");
+                currentExperiments[resultSet.getInt("camera_id")][6] = resultSet.getString("serial_number");
+                currentExperiments[resultSet.getInt("camera_id")][7] = resultSet.getString("order");
+                currentExperiments[resultSet.getInt("camera_id")][8] = resultSet.getString("description");
             }
             int i = 0;
             while (i < currentExperiments.length) {
