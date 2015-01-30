@@ -15,7 +15,7 @@ public class DBQuery {
     private static String DBUser = "root";
     private static String DBPassword = "qweqwe!23";
     private static String toolsTableName = "tools";
-    //private String timeTableName = "timetable";
+    private String timeTableName = "timetable";
 
     public ResultSet makeQuery(String query) {
         Connection connection = null;
@@ -97,7 +97,7 @@ public class DBQuery {
 
         ArrayList<Experiment> experiments = new ArrayList<Experiment>();
 
-        String query = "SELECT * FROM `timetable` WHERE `camera_id` = " + cameraId + " ORDER BY `start_time`";
+        String query = "SELECT * FROM `" + timeTableName + "` WHERE `camera_id` = " + cameraId + " ORDER BY `start_time`";
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
@@ -158,7 +158,7 @@ public class DBQuery {
         //String currentDateTime = formatter.format(now);
         String currentDateTime = "2014-01-29 13:00:00";
 
-        String query = "SELECT * FROM `timetable` WHERE" +
+        String query = "SELECT * FROM `" + timeTableName + "` WHERE" +
                 " \'" + currentDateTime + "\' >= `start_time` " +
                 " AND \'" + currentDateTime + "\' < `end_time`" +
                 " ORDER BY `camera_id`";
@@ -220,5 +220,67 @@ public class DBQuery {
             }
         }
         return currentExperiments;
+    }
+
+    public String addCamera(ArrayList<String> values) {
+        String result;
+        String checkQuery = "SELECT * FROM" +
+                " `" + toolsTableName + "`" +
+                " WHERE" +
+                " `name` = \'" + values.get(0) + "\'";
+        String addQuery = "INSERT INTO" +
+                " `" + toolsTableName + "`" +
+                " (`name`, `description`, `tool_type`, `placement`)" +
+                " VALUES (";
+        for (int i = 0; i < values.size(); i++) {
+            if (i < values.size() - 1) {
+                addQuery += "\'" + values.get(i) + "\', ";
+            } else {
+                addQuery += "\'" + values.get(i) + "\'";
+            }
+        }
+        addQuery += ")";
+        result = addQuery;
+
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(checkQuery);
+            System.out.println(resultSet.getFetchSize());
+            while (resultSet.next()) {
+                System.out.println(resultSet.getString(1) + " " +
+                        resultSet.getString(2) + " " +
+                        resultSet.getString(3) + " " +
+                        resultSet.getString(4) + " " +
+                        resultSet.getString(5)
+                );
+            }
+
+            //statement.executeUpdate(addQuery);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
     }
 }

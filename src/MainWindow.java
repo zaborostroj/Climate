@@ -9,6 +9,8 @@ import java.util.ArrayList;
   Created by Evgeny Baskakov on 22.01.2015.
  */
 public class MainWindow extends JFrame {
+    private ArrayList<String> newToolParams;
+
     public static void main(String[] args) {
         new MainWindow();
     }
@@ -26,16 +28,90 @@ public class MainWindow extends JFrame {
             e.printStackTrace();
         }
 
-        final JInternalFrame addToolFrame = new JInternalFrame("Add new tool", false, true);
-        JPanel addToolMainPanel = new JPanel();
-        JPanel addToolFieldsPanel = new JPanel(new GridLayout(4, 2));
-        JPanel addToolButtonsPanel = new JPanel(new FlowLayout());
-        addToolMainPanel.add(addToolFieldsPanel);
-        addToolMainPanel.add(addToolButtonsPanel);
-        addToolFrame.setSize(300, 200);
-        addToolFrame.setLocation(20, 400);
-        addToolFrame.setVisible(false);
-        add(addToolFrame);
+        //=== New tools =========================
+
+        final JInternalFrame newToolFrame = new JInternalFrame("Add new tool", false, true);
+        final JPanel newToolMainPanel = new JPanel(new BorderLayout());
+        newToolMainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        final JPanel newToolFieldsPanel = new JPanel(new GridLayout(4, 2, 3, 3));
+        newToolFieldsPanel.setSize(200, 100);
+        newToolFieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        {
+            JLabel newToolNameLabel = new JLabel("Name");
+            JLabel newToolDescriptionLabel = new JLabel("Description");
+            JLabel newToolTypeLabel = new JLabel("Type");
+            JLabel newToolPlacementLabel = new JLabel("Placement");
+            JTextField newToolNameField = new JTextField();
+            JTextField newToolDescriptionField = new JTextField();
+            JTextField newToolTypeField = new JTextField();
+            JTextField newToolPlacementField = new JTextField();
+            newToolFieldsPanel.add(newToolNameLabel);
+            newToolFieldsPanel.add(newToolNameField);
+            newToolFieldsPanel.add(newToolDescriptionLabel);
+            newToolFieldsPanel.add(newToolDescriptionField);
+            newToolFieldsPanel.add(newToolTypeLabel);
+            newToolFieldsPanel.add(newToolTypeField);
+            newToolFieldsPanel.add(newToolPlacementLabel);
+            newToolFieldsPanel.add(newToolPlacementField);
+        }
+        JPanel newToolButtonsPanel = new JPanel(new FlowLayout());
+        newToolButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        ActionListener newToolAddButtonListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("add tool");
+                Component[] components = newToolFieldsPanel.getComponents();
+                newToolParams = new ArrayList<String>();
+                Boolean allFieldsFilled = true;
+                for (Component component : components) {
+                    if (component.getClass() == (new JTextField().getClass())) {
+                        JTextField textField = (JTextField) component;
+                        if (!textField.getText().equals("")) {
+                            // 171.173.179 - standart color
+                            textField.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
+                            newToolParams.add(textField.getText());
+                        } else {
+                            allFieldsFilled = false;
+                            textField.setBorder(BorderFactory.createLineBorder(Color.PINK));
+                            //newToolFieldsPanel.updateUI();
+                        }
+
+                    }
+                }
+
+                if (allFieldsFilled) {
+                    String result = new DBQuery().addCamera(newToolParams);
+                    System.out.println(result);
+                }
+            }
+        };
+
+        ActionListener newToolCancelButtonListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("cancel adding tool");
+                newToolFrame.setVisible(false);
+            }
+        };
+
+        {
+            JButton newToolAddButton = new JButton("Add");
+            newToolAddButton.addActionListener(newToolAddButtonListener);
+            JButton newToolCancelButton = new JButton("Cancel");
+            newToolCancelButton.addActionListener(newToolCancelButtonListener);
+            newToolButtonsPanel.add(newToolAddButton);
+            newToolButtonsPanel.add(newToolCancelButton);
+        }
+        newToolMainPanel.add(newToolFieldsPanel, BorderLayout.CENTER);
+        newToolMainPanel.add(newToolButtonsPanel, BorderLayout.PAGE_END);
+        newToolFrame.add(newToolMainPanel);
+        newToolFrame.setSize(300, 200);
+        newToolFrame.setLocation(20, 400);
+        newToolFrame.setVisible(true);
+        add(newToolFrame);
+
+        //=== Timetable =========================
 
         final JInternalFrame timeTableFrame = new JInternalFrame("Internal Frame 1", true, true, true, true);
         timeTableFrame.setSize(800, 300);
@@ -54,8 +130,7 @@ public class MainWindow extends JFrame {
         ActionListener addCameraButtonListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addToolFrame.setVisible(true);
-
+                newToolFrame.setVisible(true);
             }
         };
 
@@ -84,9 +159,9 @@ public class MainWindow extends JFrame {
                 timeTable.getColumnModel().getColumn(6).setPreferredWidth(170);
                 timeTable.getColumnModel().getColumn(7).setPreferredWidth(30);
                 timeTable.getColumnModel().getColumn(8).setPreferredWidth(100);
-
                 timeTableFrame.setTitle("Timetable for camera #" + e.getActionCommand());
                 timeTableFrame.setVisible(true);
+
             }
         };
 
@@ -142,4 +217,5 @@ public class MainWindow extends JFrame {
 
         return menuBar;
     }
+
 }
