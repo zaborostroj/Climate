@@ -190,15 +190,15 @@ public class DBQuery {
                 currentExperiments[resultSet.getInt("camera_id")][7] = resultSet.getString("order");
                 currentExperiments[resultSet.getInt("camera_id")][8] = resultSet.getString("description");
             }
-            int i = 0;
-            while (i < currentExperiments.length) {
-                System.out.print(i + ": ");
-                for (int j = 0; j < currentExperiments[i].length; j++){
-                    System.out.print(currentExperiments[i][j] + " ");
-                }
-                System.out.println("");
-                i++;
-            }
+            //int i = 0;
+            //while (i < currentExperiments.length) {
+            //    System.out.print(i + ": ");
+            //    for (int j = 0; j < currentExperiments[i].length; j++){
+            //        System.out.print(currentExperiments[i][j] + " ");
+            //    }
+            //    System.out.println("");
+            //    i++;
+            //}
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -224,23 +224,29 @@ public class DBQuery {
 
     public String addCamera(ArrayList<String> values) {
         String result;
-        String checkQuery = "SELECT * FROM" +
+        String checkQuery =
+                "SELECT * FROM" +
                 " `" + toolsTableName + "`" +
                 " WHERE" +
-                " `name` = \'" + values.get(0) + "\'";
-        String addQuery = "INSERT INTO" +
+                " `name` = \'" + values.get(0) + "\' AND" +
+                " `tool_type` = \'" + values.get(2) + "\' AND" +
+                " `placement` = \'" + values.get(3) + "\'";
+
+        String addQuery =
+                "INSERT INTO" +
                 " `" + toolsTableName + "`" +
                 " (`name`, `description`, `tool_type`, `placement`)" +
                 " VALUES (";
-        for (int i = 0; i < values.size(); i++) {
-            if (i < values.size() - 1) {
-                addQuery += "\'" + values.get(i) + "\', ";
-            } else {
-                addQuery += "\'" + values.get(i) + "\'";
-            }
-        }
-        addQuery += ")";
-        result = addQuery;
+                for (int i = 0; i < values.size(); i++) {
+                    if (i < values.size() - 1) {
+                        addQuery += "\'" + values.get(i) + "\', ";
+                    } else {
+                        addQuery += "\'" + values.get(i) + "\'";
+                    }
+                }
+                addQuery += ")";
+
+        result = checkQuery;
 
         Connection connection = null;
         Statement statement = null;
@@ -249,18 +255,18 @@ public class DBQuery {
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
             statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(checkQuery);
-            System.out.println(resultSet.getFetchSize());
-            while (resultSet.next()) {
-                System.out.println(resultSet.getString(1) + " " +
-                        resultSet.getString(2) + " " +
-                        resultSet.getString(3) + " " +
-                        resultSet.getString(4) + " " +
-                        resultSet.getString(5)
-                );
-            }
 
-            //statement.executeUpdate(addQuery);
+            ResultSet resultSet = statement.executeQuery(checkQuery);
+            if (resultSet.next()) {
+                System.out.println(resultSet.getString("id") + " " +
+                        resultSet.getString("name") + " " +
+                        resultSet.getString("description") + " " +
+                        resultSet.getString("tool_type") + " " +
+                        resultSet.getString("placement")
+                );
+            } else {
+                statement.executeUpdate(addQuery);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -60,38 +60,37 @@ public class MainWindow extends JFrame {
         ActionListener newToolAddButtonListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("add tool");
-                Component[] components = newToolFieldsPanel.getComponents();
-                newToolParams = new ArrayList<String>();
-                Boolean allFieldsFilled = true;
-                for (Component component : components) {
-                    if (component.getClass() == (new JTextField().getClass())) {
-                        JTextField textField = (JTextField) component;
-                        if (!textField.getText().equals("")) {
-                            // 171.173.179 - standart color
-                            textField.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
-                            newToolParams.add(textField.getText());
-                        } else {
-                            allFieldsFilled = false;
-                            textField.setBorder(BorderFactory.createLineBorder(Color.PINK));
-                            //newToolFieldsPanel.updateUI();
-                        }
-
+            Component[] components = newToolFieldsPanel.getComponents();
+            newToolParams = new ArrayList<String>();
+            Boolean allFieldsFilled = true;
+            for (Component component : components) {
+                if (component.getClass() == (new JTextField().getClass())) {
+                    JTextField textField = (JTextField) component;
+                    if (!textField.getText().equals("")) {
+                        // 171.173.179 - standart color
+                        textField.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
+                        newToolParams.add(textField.getText());
+                    } else {
+                        allFieldsFilled = false;
+                        textField.setBorder(BorderFactory.createLineBorder(Color.PINK));
+                        //newToolFieldsPanel.updateUI();
                     }
-                }
 
-                if (allFieldsFilled) {
-                    String result = new DBQuery().addCamera(newToolParams);
-                    System.out.println(result);
                 }
+            }
+
+            if (allFieldsFilled) {
+                String result = new DBQuery().addCamera(newToolParams);
+                System.out.println(result);
+            }
             }
         };
 
         ActionListener newToolCancelButtonListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("cancel adding tool");
-                newToolFrame.setVisible(false);
+            System.out.println("cancel adding tool");
+            newToolFrame.setVisible(false);
             }
         };
 
@@ -142,8 +141,10 @@ public class MainWindow extends JFrame {
         addToolButton.setSize(100, 100);
         buttonsPanel.add(addToolButton);
 
-        JPanel camerasPanel = new JPanel(new FlowLayout());
-        camerasPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
+        //=== Tools list ========================
+
+        JPanel toolsPanel = new JPanel(new FlowLayout());
+        toolsPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
 
         ActionListener cameraButtonsListener = new ActionListener() {
             @Override
@@ -197,10 +198,10 @@ public class MainWindow extends JFrame {
 
             panel.setSize(100, 100);
             panel.setVisible(true);
-            camerasPanel.add(panel);
+            toolsPanel.add(panel);
         }
 
-        add(camerasPanel, BorderLayout.CENTER);
+        add(toolsPanel, BorderLayout.CENTER);
         add(buttonsPanel, BorderLayout.PAGE_END);
         setVisible(true);
     }
