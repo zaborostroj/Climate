@@ -1,10 +1,8 @@
-import com.sun.org.apache.bcel.internal.generic.DREM;
-
 import java.sql.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+//import java.text.DateFormat;
+//import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
+//import java.util.Date;
 
 /**
   Created by Evgeny Baskakov on 26.01.2015.
@@ -17,7 +15,7 @@ public class DBQuery {
     private static String toolsTableName = "tools";
     private String timeTableName = "timetable";
 
-    public ResultSet makeQuery(String query) {
+    /*public ResultSet makeQuery(String query) {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -46,7 +44,7 @@ public class DBQuery {
             }
         }
         return resultSet;
-    }
+    }*/
 
     public ArrayList<Tool> getTools() {
         Connection connection = null;
@@ -148,13 +146,15 @@ public class DBQuery {
         return experiments;
     }
 
-    public String[][] getCurrentExperiments(int size) {
-        String[][] currentExperiments = new String[size][9];
+    public Map<String, String[]> getCurrentExperiments(/*int size*/) {
+
+        Map<String, String[]> curExp = new HashMap<String, String[]>();
+
         Connection connection = null;
         Statement statement = null;
 
-        java.util.Date now = new Date();
-        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //java.util.Date now = new Date();
+        //DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //String currentDateTime = formatter.format(now);
         String currentDateTime = "2014-01-29 13:00:00";
 
@@ -168,37 +168,36 @@ public class DBQuery {
             connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
+            String[] experiment = new String[9];
 
             while (resultSet.next()) {
-                //date and time format 'HH:MM DD-MM-YYYY'
-                String sqlDateTime[] = resultSet.getString("start_time").split("\\s");
-                String[] date = sqlDateTime[0].split("-");
-                String[] time = sqlDateTime[1].split(":");
-                String experimentStartTime = time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0];
-                sqlDateTime = resultSet.getString("end_time").split("\\s");
-                date = sqlDateTime[0].split("-");
-                time = sqlDateTime[1].split(":");
-                String experimentEndTime = time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0];
 
-                currentExperiments[resultSet.getInt("camera_id")][0] = resultSet.getString("id");
-                currentExperiments[resultSet.getInt("camera_id")][1] = resultSet.getString("camera_id");
-                currentExperiments[resultSet.getInt("camera_id")][2] = experimentStartTime;
-                currentExperiments[resultSet.getInt("camera_id")][3] = experimentEndTime;
-                currentExperiments[resultSet.getInt("camera_id")][4] = resultSet.getString("dec_number");
-                currentExperiments[resultSet.getInt("camera_id")][5] = resultSet.getString("name");
-                currentExperiments[resultSet.getInt("camera_id")][6] = resultSet.getString("serial_number");
-                currentExperiments[resultSet.getInt("camera_id")][7] = resultSet.getString("order");
-                currentExperiments[resultSet.getInt("camera_id")][8] = resultSet.getString("description");
+                if (resultSet.getString("id") != null) {
+                    //date and time format 'HH:MM DD-MM-YYYY'
+                    String sqlDateTime[] = resultSet.getString("start_time").split("\\s");
+                    String[] date = sqlDateTime[0].split("-");
+                    String[] time = sqlDateTime[1].split(":");
+                    String experimentStartTime = time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0];
+                    sqlDateTime = resultSet.getString("end_time").split("\\s");
+                    date = sqlDateTime[0].split("-");
+                    time = sqlDateTime[1].split(":");
+                    String experimentEndTime = time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0];
+
+                    experiment[0] = resultSet.getString("id");
+                    experiment[1] = resultSet.getString("camera_id");
+                    experiment[2] = experimentStartTime;
+                    experiment[3] = experimentEndTime;
+                    experiment[4] = resultSet.getString("dec_number");
+                    experiment[5] = resultSet.getString("name");
+                    experiment[6] = resultSet.getString("serial_number");
+                    experiment[7] = resultSet.getString("order");
+                    experiment[8] = resultSet.getString("description");
+
+                    curExp.put(resultSet.getString("camera_id"), experiment);
+                }
             }
-            //int i = 0;
-            //while (i < currentExperiments.length) {
-            //    System.out.print(i + ": ");
-            //    for (int j = 0; j < currentExperiments[i].length; j++){
-            //        System.out.print(currentExperiments[i][j] + " ");
-            //    }
-            //    System.out.println("");
-            //    i++;
-            //}
+            System.out.println(curExp);
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -219,7 +218,9 @@ public class DBQuery {
                 }
             }
         }
-        return currentExperiments;
+
+        //return currentExperiments;
+        return curExp;
     }
 
     public String addCamera(ArrayList<String> values) {
@@ -265,6 +266,7 @@ public class DBQuery {
                         resultSet.getString("placement")
                 );
             } else {
+                System.out.println("add query here");
                 statement.executeUpdate(addQuery);
             }
 
