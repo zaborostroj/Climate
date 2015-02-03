@@ -11,10 +11,14 @@ import java.util.Map;
 public class MainWindow extends JFrame {
     private JInternalFrame newToolFrame;
     private JPanel newToolFieldsPanel;
+    private JLabel newToolErrorLabel;
     private JPanel toolsPanel;
+
+    private JInternalFrame removeToolFrame;
 
     private JInternalFrame timeTableFrame;
     private JTable timeTable = new JTable();
+    static MainWindow mainWindow;
 
     ActionListener newToolAddButtonListener = new ActionListener() {
         @Override
@@ -29,6 +33,7 @@ public class MainWindow extends JFrame {
                         // 171.173.179 - standard color
                         textField.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
                         newToolParams.add(textField.getText());
+                        newToolErrorLabel.setText("Input data");
                     } else {
                         allFieldsFilled = false;
                         textField.setBorder(BorderFactory.createLineBorder(Color.PINK));
@@ -39,8 +44,27 @@ public class MainWindow extends JFrame {
 
             if (allFieldsFilled) {
                 String result = new DBQuery().addCamera(newToolParams);
-                toolsPanel = makeToolsPanel();
+                if (result.equals("")) {
+                    mainWindow.remove(toolsPanel);
+                    toolsPanel = makeToolsPanel();
+                    mainWindow.add(toolsPanel);
+                    mainWindow.validate();
+                    mainWindow.repaint();
+                    for (Component component : components) {
+                        if (component.getClass() == JTextField.class) {
+                            JTextField textField = (JTextField) component;
+                            textField.setText("");
+                        }
+                    }
+                    newToolFrame.setVisible(false);
+                } else {
+                    newToolErrorLabel.setText(result);
+                }
+
                 System.out.println(result);
+            } else {
+                newToolErrorLabel.setText("Fill info");
+
             }
         }
     };
@@ -72,15 +96,42 @@ public class MainWindow extends JFrame {
         }
     };
 
-    ActionListener addCameraButtonListener = new ActionListener() {
+    ActionListener addToolButtonListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            newToolFrame.setVisible(true);
+            if (newToolFrame.isVisible()) {
+                newToolFrame.setVisible(false);
+            } else {
+                newToolFrame.setVisible(true);
+            }
+        }
+    };
+
+    ActionListener removeToolButtonListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (removeToolFrame.isVisible()) {
+                removeToolFrame.setVisible(false);
+            } else {
+                removeToolFrame.setVisible(true);
+            }
+
+            String serialNumber = "";
+            Component[] components = removeToolFrame.getComponents();
+            for (Component component : components) {
+                if (component.getClass() == JTextField.class) {
+                    JTextField textField = (JTextField) component;
+                    serialNumber = textField.getText();
+                }
+            }
+
+            DBQuery dbQuery = new DBQuery();
+            dbQuery.removeTool(serialNumber);
         }
     };
 
     public static void main(String[] args) {
-        new MainWindow();
+        mainWindow = new MainWindow();
     }
 
     public MainWindow() {
@@ -97,21 +148,24 @@ public class MainWindow extends JFrame {
         }
 
         add(makeNewToolFrame());
-
         add(makeTimeTableFrame());
-
+        add(makeRemoveToolFrame());
         toolsPanel = makeToolsPanel();
         add(toolsPanel, BorderLayout.CENTER);
-
         add(makeButtonsPanel(), BorderLayout.PAGE_END);
-
         setVisible(true);
     }
 
     private JInternalFrame makeNewToolFrame() {
-        newToolFieldsPanel = new JPanel(new GridLayout(4, 2, 3, 3));
-        newToolFieldsPanel.setSize(200, 100);
+        JPanel newToolErrorPanel = new JPanel();
+        newToolErrorLabel = new JLabel("Input data");
+        newToolErrorPanel.add(newToolErrorLabel);
+
+        newToolFieldsPanel = new JPanel(new GridLayout(5, 2, 3, 3));
+        //newToolFieldsPanel.setSize(300, 300);
         newToolFieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        newToolFieldsPanel.add(new JLabel("Serial"));
+        newToolFieldsPanel.add(new JTextField());
         newToolFieldsPanel.add(new JLabel("Name"));
         newToolFieldsPanel.add(new JTextField());
         newToolFieldsPanel.add(new JLabel("Description"));
@@ -126,21 +180,24 @@ public class MainWindow extends JFrame {
 
         JButton newToolAddButton = new JButton("Add");
         newToolAddButton.addActionListener(newToolAddButtonListener);
+
         JButton newToolCancelButton = new JButton("Cancel");
         newToolCancelButton.addActionListener(newToolCancelButtonListener);
+
         newToolButtonsPanel.add(newToolAddButton);
         newToolButtonsPanel.add(newToolCancelButton);
 
         JPanel newToolMainPanel = new JPanel(new BorderLayout());
         newToolMainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        newToolMainPanel.add(newToolErrorPanel, BorderLayout.PAGE_START);
         newToolMainPanel.add(newToolFieldsPanel, BorderLayout.CENTER);
         newToolMainPanel.add(newToolButtonsPanel, BorderLayout.PAGE_END);
 
         newToolFrame = new JInternalFrame("Add new tool", false, true);
         newToolFrame.add(newToolMainPanel);
-        newToolFrame.setSize(300, 200);
+        newToolFrame.setSize(300, 250);
         newToolFrame.setLocation(20, 400);
-        newToolFrame.setVisible(true);
+        newToolFrame.setVisible(false);
 
         return newToolFrame;
     }
@@ -158,6 +215,32 @@ public class MainWindow extends JFrame {
         timeTableFrame.add(timeTableScrollPane);
 
         return timeTableFrame;
+    }
+
+    private JInternalFrame makeRemoveToolFrame() {
+        removeToolFrame = new JInternalFrame("Remove tool", true, true);
+        removeToolFrame.setSize(300, 60);
+        removeToolFrame.setLocation(30, 300);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+        JLabel serialNumberLabel = new JLabel("Serial number");
+        serialNumberLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
+        mainPanel.add(serialNumberLabel);
+
+        JTextField serialNumberField = new JTextField();
+        mainPanel.add(serialNumberField);
+
+        JButton removeToolSubmitButton = new JButton("Submit");
+        removeToolSubmitButton.addActionListener(removeToolButtonListener);
+        mainPanel.add(removeToolSubmitButton);
+
+        removeToolFrame.add(mainPanel);
+        removeToolFrame.setVisible(true);
+
+        return removeToolFrame;
     }
 
     private JPanel makeToolsPanel() {
@@ -202,11 +285,16 @@ public class MainWindow extends JFrame {
 
     private JPanel makeButtonsPanel() {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
         JButton addToolButton = new JButton("Add new camera");
-        addToolButton.addActionListener(addCameraButtonListener);
+        addToolButton.addActionListener(addToolButtonListener);
         addToolButton.setVisible(true);
-        addToolButton.setSize(100, 100);
         buttonsPanel.add(addToolButton);
+
+        JButton removeToolButton = new JButton("Remove camera");
+        removeToolButton.addActionListener(removeToolButtonListener);
+        removeToolButton.setVisible(true);
+        buttonsPanel.add(removeToolButton);
 
         return buttonsPanel;
     }

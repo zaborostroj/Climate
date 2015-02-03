@@ -15,36 +15,6 @@ public class DBQuery {
     private static String toolsTableName = "tools";
     private String timeTableName = "timetable";
 
-    /*public ResultSet makeQuery(String query) {
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return resultSet;
-    }*/
 
     public ArrayList<Tool> getTools() {
         Connection connection = null;
@@ -60,11 +30,12 @@ public class DBQuery {
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
                 Tool tool = new Tool();
-                tool.setId(resultSet.getString(1));
-                tool.setName(resultSet.getString(2));
-                tool.setDescription(resultSet.getString(3));
-                tool.setToolType(resultSet.getString(4));
-                tool.setPlacement(resultSet.getString(5));
+                tool.setId(resultSet.getString("id"));
+                tool.setSerialNumber(resultSet.getString("serial_number"));
+                tool.setName(resultSet.getString("name"));
+                tool.setDescription(resultSet.getString("description"));
+                tool.setToolType(resultSet.getString("tool_type"));
+                tool.setPlacement(resultSet.getString("placement"));
                 queryResult.add(tool);
             }
         } catch (Exception e) {
@@ -196,9 +167,6 @@ public class DBQuery {
                     curExp.put(resultSet.getString("camera_id"), experiment);
                 }
             }
-            System.out.println(curExp);
-
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -218,25 +186,24 @@ public class DBQuery {
                 }
             }
         }
-
-        //return currentExperiments;
         return curExp;
     }
 
     public String addCamera(ArrayList<String> values) {
-        String result;
+        String result = "";
         String checkQuery =
                 "SELECT * FROM" +
                 " `" + toolsTableName + "`" +
                 " WHERE" +
-                " `name` = \'" + values.get(0) + "\' AND" +
-                " `tool_type` = \'" + values.get(2) + "\' AND" +
-                " `placement` = \'" + values.get(3) + "\'";
+                " `serial_number` = \'" + values.get(0) + "\' AND" +
+                " `name` = \'" + values.get(1) + "\' AND" +
+                " `tool_type` = \'" + values.get(3) + "\' AND" +
+                " `placement` = \'" + values.get(4) + "\'";
 
         String addQuery =
                 "INSERT INTO" +
                 " `" + toolsTableName + "`" +
-                " (`name`, `description`, `tool_type`, `placement`)" +
+                " (`serial_number`, `name`, `description`, `tool_type`, `placement`)" +
                 " VALUES (";
                 for (int i = 0; i < values.size(); i++) {
                     if (i < values.size() - 1) {
@@ -246,8 +213,6 @@ public class DBQuery {
                     }
                 }
                 addQuery += ")";
-
-        result = checkQuery;
 
         Connection connection = null;
         Statement statement = null;
@@ -259,25 +224,21 @@ public class DBQuery {
 
             ResultSet resultSet = statement.executeQuery(checkQuery);
             if (resultSet.next()) {
-                System.out.println(resultSet.getString("id") + " " +
-                        resultSet.getString("name") + " " +
-                        resultSet.getString("description") + " " +
-                        resultSet.getString("tool_type") + " " +
-                        resultSet.getString("placement")
-                );
+                result = "Tool already exists";
             } else {
-                System.out.println("add query here");
                 statement.executeUpdate(addQuery);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+            result = e.getMessage();
         } finally {
             if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    result = e.getMessage();
                 }
             }
 
@@ -286,9 +247,27 @@ public class DBQuery {
                     connection.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    result = e.getMessage();
                 }
             }
         }
+        return result;
+    }
+
+    public String removeTool(String serialNumber) {
+        String result = "";
+
+        String getToolIdQuery = "SELECT id FROM `" + toolsTableName + "`" +
+                " WHERE serial_number = \'" + serialNumber + "\'";
+        String toolId = "";
+
+        String removeExperimentsQuery = "DELETE FROM `" + timeTableName + "`" +
+                " WHERE camera_id = " + toolId;
+
+        String removeToolQuery = "DELETE" +
+                " FROM `" + toolsTableName + "`" +
+                " WHERE serial_number = \'" + serialNumber + "\'";
+
         return result;
     }
 }

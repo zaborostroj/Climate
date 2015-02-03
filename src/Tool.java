@@ -1,8 +1,9 @@
 /**
- * Created by Evgeny Baskakov on 26.01.2015.
+  Created by Evgeny Baskakov on 26.01.2015.
  */
 public class Tool {
     private String id;
+    private String serialNumber;
     private String description;
     private String name;
     private String toolType;
@@ -14,6 +15,14 @@ public class Tool {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
     }
 
     public String getDescription() {
