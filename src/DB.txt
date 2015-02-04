@@ -1,7 +1,8 @@
 create database climate;
 use climate;
 
-CREATE TABLE CAMERAS (ID INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE TOOLS (ID INT NOT NULL AUTO_INCREMENT,
+SERIAL_NUMBER VARCHAR(30) NOT NULL,
 NAME VARCHAR(30) NOT NULL,
 DESCRIPTION TEXT,
 PRIMARY KEY (ID));
@@ -20,6 +21,6 @@ DESCRIPTION TEXT,
 PRIMARY KEY (ID));
 
 INSERT INTO
-`timetable` (`camera_id`, `start_time`, `end_time`, `dec_number`, `description`)
+`timetable` (`camera_id`, `start_time`, `end_time`, `dec_number`, `name`, `serial_number`, `order`, `description`)
 VALUES
-('1', '2014-01-29 12:00', '2014-01-29 15:00', 'КЖИС.1234.567', 'тепло');
+('30', '2014-01-30 12:00', '2014-01-31 15:00', 'КЖИС.1234.567', 'block1', '123456', '012', 'тепло');

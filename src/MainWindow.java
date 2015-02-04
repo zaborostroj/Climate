@@ -15,6 +15,7 @@ public class MainWindow extends JFrame {
     private JPanel toolsPanel;
 
     private JInternalFrame removeToolFrame;
+    private JPanel removeMainPanel;
 
     private JInternalFrame timeTableFrame;
     private JTable timeTable = new JTable();
@@ -64,7 +65,6 @@ public class MainWindow extends JFrame {
                 System.out.println(result);
             } else {
                 newToolErrorLabel.setText("Fill info");
-
             }
         }
     };
@@ -115,18 +115,36 @@ public class MainWindow extends JFrame {
             } else {
                 removeToolFrame.setVisible(true);
             }
+        }
+    };
 
+    ActionListener removeSubmitButtonListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
             String serialNumber = "";
-            Component[] components = removeToolFrame.getComponents();
+            JTextField textField = null;
+            Component[] components = removeMainPanel.getComponents();
             for (Component component : components) {
                 if (component.getClass() == JTextField.class) {
-                    JTextField textField = (JTextField) component;
+                    textField = (JTextField) component;
                     serialNumber = textField.getText();
                 }
             }
 
-            DBQuery dbQuery = new DBQuery();
-            dbQuery.removeTool(serialNumber);
+            String result = new DBQuery().removeTool(serialNumber);
+            if (result.equals("OK") &&
+                    textField != null)
+            {
+                textField.setText("");
+                removeToolFrame.setVisible(false);
+                mainWindow.remove(toolsPanel);
+                toolsPanel = makeToolsPanel();
+                mainWindow.add(toolsPanel);
+                mainWindow.validate();
+                mainWindow.repaint();
+            } else {
+                textField.setText(result);
+            }
         }
     };
 
@@ -208,11 +226,23 @@ public class MainWindow extends JFrame {
         timeTableFrame.setLocation(20, 200);
         timeTableFrame.setVisible(false);
 
+        JPanel mainPanel = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
+
+        mainPanel.setLayout(boxLayout);
+
+
         JScrollPane timeTableScrollPane = new JScrollPane(timeTable);
         timeTableScrollPane.setWheelScrollingEnabled(true);
         timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         timeTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        timeTableFrame.add(timeTableScrollPane);
+        mainPanel.add(timeTableScrollPane);
+
+        JPanel buttonsPanel = new JPanel();
+
+
+
+        timeTableFrame.add(mainPanel);
 
         return timeTableFrame;
     }
@@ -222,22 +252,22 @@ public class MainWindow extends JFrame {
         removeToolFrame.setSize(300, 60);
         removeToolFrame.setLocation(30, 300);
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        /*JPanel*/ removeMainPanel = new JPanel();
+        removeMainPanel.setLayout(new BoxLayout(removeMainPanel, BoxLayout.X_AXIS));
+        removeMainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         JLabel serialNumberLabel = new JLabel("Serial number");
         serialNumberLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
-        mainPanel.add(serialNumberLabel);
+        removeMainPanel.add(serialNumberLabel);
 
         JTextField serialNumberField = new JTextField();
-        mainPanel.add(serialNumberField);
+        removeMainPanel.add(serialNumberField);
 
         JButton removeToolSubmitButton = new JButton("Submit");
-        removeToolSubmitButton.addActionListener(removeToolButtonListener);
-        mainPanel.add(removeToolSubmitButton);
+        removeToolSubmitButton.addActionListener(removeSubmitButtonListener);
+        removeMainPanel.add(removeToolSubmitButton);
 
-        removeToolFrame.add(mainPanel);
+        removeToolFrame.add(removeMainPanel);
         removeToolFrame.setVisible(true);
 
         return removeToolFrame;

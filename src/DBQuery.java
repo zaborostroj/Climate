@@ -259,14 +259,54 @@ public class DBQuery {
 
         String getToolIdQuery = "SELECT id FROM `" + toolsTableName + "`" +
                 " WHERE serial_number = \'" + serialNumber + "\'";
-        String toolId = "";
+        String toolId;
 
-        String removeExperimentsQuery = "DELETE FROM `" + timeTableName + "`" +
-                " WHERE camera_id = " + toolId;
+        Statement statement = null;
+        Connection connection = null;
 
-        String removeToolQuery = "DELETE" +
-                " FROM `" + toolsTableName + "`" +
-                " WHERE serial_number = \'" + serialNumber + "\'";
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(getToolIdQuery);
+            if (resultSet.next()) {
+                toolId = resultSet.getString("id");
+            } else {
+                return "tool not found";
+            }
+
+            String removeExperimentsQuery = "DELETE FROM `" + timeTableName + "`" +
+                    " WHERE camera_id = \'" + toolId + "\'";
+
+            String removeToolQuery = "DELETE" +
+                    " FROM `" + toolsTableName + "`" +
+                    " WHERE serial_number = \'" + serialNumber + "\'";
+
+            System.out.println(statement.executeUpdate(removeExperimentsQuery));
+            System.out.println(statement.executeUpdate(removeToolQuery));
+            return "OK";
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    result = e.getMessage();
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    result = e.getMessage();
+                }
+            }
+        }
+
 
         return result;
     }
