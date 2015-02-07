@@ -310,4 +310,70 @@ public class DBQuery {
 
         return result;
     }
+
+    public String addExperiment(Map params) {
+        String cameraId = (String) params.get("cameraId");
+        String startTime = (String) params.get("startTime");
+        String endTime = (String) params.get("endTime");
+        String decNumber = (String) params.get("decNumber");
+        String name = (String) params.get("name");
+        String serialNumber = (String) params.get("serialNumber");
+        String order = (String) params.get("order");
+        String description = (String) params.get("description");
+
+        String result = "";
+        String checkQuery =
+                "SELECT *" +
+                    " FROM `" + timeTableName + "`" +
+                " WHERE" +
+                    " camera_id = \'" + cameraId + "\' AND" +
+                    " (" +
+                    " (start_time <= \'" + startTime + "\' AND" + " end_time >= \'" + startTime + "\') OR" +
+                    " (start_time <= \'" + endTime + "\' AND" + " end_time >= \'" + endTime + "\') OR" +
+                    " (start_time >= \'" + startTime + "\' AND" + " end_time <= \'" + endTime + "\')" +
+                    ")";
+
+        String addExperimentQuery = "INSERT" +
+                " INTO `timetable`" +
+                " (`camera_id`, `start_time`, `end_time`, `dec_number`, `name`, `serial_number`, `order`, `description`)" +
+                " VALUES" +
+                " (\'" + cameraId + "\', \'" + startTime + "\', \'" + endTime + "\', \'" +
+                decNumber + "\', \'" + name + "\', \'" + serialNumber + "\', \'" +
+                order + "\', \'" + description + "\')";
+
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(checkQuery);
+            if (resultSet.next()) {
+                return "this time is busy";
+            } else {
+                statement.executeUpdate(addExperimentQuery);
+                return "OK";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
+    }
 }

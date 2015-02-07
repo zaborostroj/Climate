@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,6 +20,8 @@ public class MainWindow extends JFrame {
 
     private JInternalFrame timeTableFrame;
     private JTable timeTable = new JTable();
+    private JButton addExperiment = new JButton("Add experiment");
+    private JButton removeExperiment = new JButton("Remove experiment");
     static MainWindow mainWindow;
 
     ActionListener newToolAddButtonListener = new ActionListener() {
@@ -80,19 +83,22 @@ public class MainWindow extends JFrame {
     ActionListener cameraButtonsListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            ArrayList<Experiment> experiments = new DBQuery().getExperiments(e.getActionCommand());
-            timeTable.setModel(new TimeTableModel(experiments));
-            timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
-            timeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
-            timeTable.getColumnModel().getColumn(2).setPreferredWidth(120);
-            timeTable.getColumnModel().getColumn(3).setPreferredWidth(120);
-            timeTable.getColumnModel().getColumn(4).setPreferredWidth(100);
-            timeTable.getColumnModel().getColumn(5).setPreferredWidth(50);
-            timeTable.getColumnModel().getColumn(6).setPreferredWidth(170);
-            timeTable.getColumnModel().getColumn(7).setPreferredWidth(30);
-            timeTable.getColumnModel().getColumn(8).setPreferredWidth(100);
+            //ArrayList<Experiment> experiments = new DBQuery().getExperiments(e.getActionCommand());
+            //timeTable.setModel(new TimeTableModel(experiments));
+            //timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
+            //timeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
+            //timeTable.getColumnModel().getColumn(2).setPreferredWidth(120);
+            //timeTable.getColumnModel().getColumn(3).setPreferredWidth(120);
+            //timeTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+            //timeTable.getColumnModel().getColumn(5).setPreferredWidth(50);
+            //timeTable.getColumnModel().getColumn(6).setPreferredWidth(170);
+            //timeTable.getColumnModel().getColumn(7).setPreferredWidth(30);
+            //timeTable.getColumnModel().getColumn(8).setPreferredWidth(100);
+            makeTimeTable(e.getActionCommand());
             timeTableFrame.setTitle("Timetable for camera #" + e.getActionCommand());
             timeTableFrame.setVisible(true);
+            addExperiment.setActionCommand(e.getActionCommand());
+            removeExperiment.setActionCommand(e.getActionCommand());
         }
     };
 
@@ -148,7 +154,44 @@ public class MainWindow extends JFrame {
         }
     };
 
+    ActionListener addExperimentButtonListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("cameraId", e.getActionCommand());
+            params.put("startTime", "2014-01-29 10:00:00");
+            params.put("endTime", "2014-01-29 10:30:00");
+            params.put("decNumber", "KJIS.123456");
+            params.put("name", "Block name");
+            params.put("serialNumber", "111222");
+            params.put("order", "012");
+            params.put("description", "Exp description");
+
+            String result = new DBQuery().addExperiment(params);
+            System.out.println(result);
+
+            if (result.equals("OK")) {
+                makeTimeTable(e.getActionCommand());
+                timeTableFrame.validate();
+                timeTableFrame.repaint();
+            }
+        }
+    };
+
+    ActionListener removeExperimentButtonListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("removeExperiment");
+        }
+    };
+
     public static void main(String[] args) {
+        try{
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         mainWindow = new MainWindow();
     }
 
@@ -158,13 +201,6 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setJMenuBar(makeMenuBar());
-
-        try{
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         add(makeNewToolFrame());
         add(makeTimeTableFrame());
         add(makeRemoveToolFrame());
@@ -231,20 +267,38 @@ public class MainWindow extends JFrame {
 
         mainPanel.setLayout(boxLayout);
 
-
         JScrollPane timeTableScrollPane = new JScrollPane(timeTable);
         timeTableScrollPane.setWheelScrollingEnabled(true);
-        timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        timeTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        timeTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mainPanel.add(timeTableScrollPane);
 
         JPanel buttonsPanel = new JPanel();
-
-
+        //JButton addExperiment = new JButton("New experiment");
+        addExperiment.addActionListener(addExperimentButtonListener);
+        //JButton removeExperiment = new JButton("Remove experiment");
+        removeExperiment.addActionListener(removeExperimentButtonListener);
+        buttonsPanel.add(addExperiment);
+        buttonsPanel.add(removeExperiment);
+        mainPanel.add(buttonsPanel);
 
         timeTableFrame.add(mainPanel);
 
         return timeTableFrame;
+    }
+
+    private void makeTimeTable (String cameraId) {
+        ArrayList<Experiment> experiments = new DBQuery().getExperiments(cameraId);
+        timeTable.setModel(new TimeTableModel(experiments));
+        timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
+        timeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
+        timeTable.getColumnModel().getColumn(2).setPreferredWidth(120);
+        timeTable.getColumnModel().getColumn(3).setPreferredWidth(120);
+        timeTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+        timeTable.getColumnModel().getColumn(5).setPreferredWidth(50);
+        timeTable.getColumnModel().getColumn(6).setPreferredWidth(170);
+        timeTable.getColumnModel().getColumn(7).setPreferredWidth(30);
+        timeTable.getColumnModel().getColumn(8).setPreferredWidth(100);
     }
 
     private JInternalFrame makeRemoveToolFrame() {
@@ -252,7 +306,7 @@ public class MainWindow extends JFrame {
         removeToolFrame.setSize(300, 60);
         removeToolFrame.setLocation(30, 300);
 
-        /*JPanel*/ removeMainPanel = new JPanel();
+        removeMainPanel = new JPanel();
         removeMainPanel.setLayout(new BoxLayout(removeMainPanel, BoxLayout.X_AXIS));
         removeMainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
@@ -268,7 +322,7 @@ public class MainWindow extends JFrame {
         removeMainPanel.add(removeToolSubmitButton);
 
         removeToolFrame.add(removeMainPanel);
-        removeToolFrame.setVisible(true);
+        removeToolFrame.setVisible(false);
 
         return removeToolFrame;
     }
