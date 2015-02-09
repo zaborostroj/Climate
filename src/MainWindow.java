@@ -24,6 +24,11 @@ public class MainWindow extends JFrame {
     private JButton removeExperiment = new JButton("Remove experiment");
     static MainWindow mainWindow;
 
+    private JInternalFrame addExperimentFrame;
+    private JButton addExperimentApplyButton;
+    private JPanel addExperimentFieldsPanel;
+    private JLabel addExperimentErrorLabel = new JLabel();
+
     ActionListener newToolAddButtonListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -83,17 +88,6 @@ public class MainWindow extends JFrame {
     ActionListener cameraButtonsListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            //ArrayList<Experiment> experiments = new DBQuery().getExperiments(e.getActionCommand());
-            //timeTable.setModel(new TimeTableModel(experiments));
-            //timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
-            //timeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
-            //timeTable.getColumnModel().getColumn(2).setPreferredWidth(120);
-            //timeTable.getColumnModel().getColumn(3).setPreferredWidth(120);
-            //timeTable.getColumnModel().getColumn(4).setPreferredWidth(100);
-            //timeTable.getColumnModel().getColumn(5).setPreferredWidth(50);
-            //timeTable.getColumnModel().getColumn(6).setPreferredWidth(170);
-            //timeTable.getColumnModel().getColumn(7).setPreferredWidth(30);
-            //timeTable.getColumnModel().getColumn(8).setPreferredWidth(100);
             makeTimeTable(e.getActionCommand());
             timeTableFrame.setTitle("Timetable for camera #" + e.getActionCommand());
             timeTableFrame.setVisible(true);
@@ -157,23 +151,11 @@ public class MainWindow extends JFrame {
     ActionListener addExperimentButtonListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("cameraId", e.getActionCommand());
-            params.put("startTime", "2014-01-29 10:00:00");
-            params.put("endTime", "2014-01-29 10:30:00");
-            params.put("decNumber", "KJIS.123456");
-            params.put("name", "Block name");
-            params.put("serialNumber", "111222");
-            params.put("order", "012");
-            params.put("description", "Exp description");
-
-            String result = new DBQuery().addExperiment(params);
-            System.out.println(result);
-
-            if (result.equals("OK")) {
-                makeTimeTable(e.getActionCommand());
-                timeTableFrame.validate();
-                timeTableFrame.repaint();
+            addExperimentApplyButton.setActionCommand(e.getActionCommand());
+            if (addExperimentFrame.isVisible()) {
+                addExperimentFrame.setVisible(false);
+            } else {
+                addExperimentFrame.setVisible(true);
             }
         }
     };
@@ -185,9 +167,52 @@ public class MainWindow extends JFrame {
         }
     };
 
+    ActionListener addExperimentApplyListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Map<String, String> params = new HashMap<String, String>();
+            Boolean allFieldsFilled = true;
+            params.put("cameraId", e.getActionCommand());
+            for (Component component : addExperimentFieldsPanel.getComponents()) {
+                if (component.getClass() == JTextField.class) {
+                    JTextField tf = (JTextField) component;
+                    if ( ! tf.getText().equals("")) {
+                        // 171.173.179 - standard color
+                        tf.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
+                        params.put(tf.getName(), tf.getText());
+                    } else {
+                        tf.setBorder(BorderFactory.createLineBorder(Color.PINK));
+                        allFieldsFilled = false;
+                    }
+                }
+            }
+
+            if (allFieldsFilled) {
+                String result = new DBQuery().addExperiment(params);
+
+                if (result.equals("OK")) {
+                    makeTimeTable(e.getActionCommand());
+                    timeTableFrame.validate();
+                    timeTableFrame.repaint();
+                    addExperimentErrorLabel.setText("asdf");
+                } else {
+                    addExperimentErrorLabel.setText(result);
+                }
+            }
+        }
+    };
+
+    ActionListener addExperimentCancelListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            addExperimentFrame.setVisible(false);
+            System.out.println("Cancel new experiment");
+        }
+    };
+
     public static void main(String[] args) {
         try{
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -204,6 +229,7 @@ public class MainWindow extends JFrame {
         add(makeNewToolFrame());
         add(makeTimeTableFrame());
         add(makeRemoveToolFrame());
+        add(makeAddExperimentFrame());
         toolsPanel = makeToolsPanel();
         add(toolsPanel, BorderLayout.CENTER);
         add(makeButtonsPanel(), BorderLayout.PAGE_END);
@@ -216,7 +242,6 @@ public class MainWindow extends JFrame {
         newToolErrorPanel.add(newToolErrorLabel);
 
         newToolFieldsPanel = new JPanel(new GridLayout(5, 2, 3, 3));
-        //newToolFieldsPanel.setSize(300, 300);
         newToolFieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         newToolFieldsPanel.add(new JLabel("Serial"));
         newToolFieldsPanel.add(new JTextField());
@@ -274,9 +299,7 @@ public class MainWindow extends JFrame {
         mainPanel.add(timeTableScrollPane);
 
         JPanel buttonsPanel = new JPanel();
-        //JButton addExperiment = new JButton("New experiment");
         addExperiment.addActionListener(addExperimentButtonListener);
-        //JButton removeExperiment = new JButton("Remove experiment");
         removeExperiment.addActionListener(removeExperimentButtonListener);
         buttonsPanel.add(addExperiment);
         buttonsPanel.add(removeExperiment);
@@ -394,6 +417,144 @@ public class MainWindow extends JFrame {
         menuBar.add(helpMenu);
 
         return menuBar;
+    }
+
+    private JInternalFrame makeAddExperimentFrame() {
+        addExperimentFrame = new JInternalFrame("Add experiment", true, true, true, true);
+
+        JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
+        JPanel addExperimentErrorPanel = new JPanel();
+        addExperimentFieldsPanel = new JPanel();
+        JPanel buttonsPanel = new JPanel();
+        addExperimentMainPanel.add(addExperimentErrorPanel, BorderLayout.PAGE_START);
+        addExperimentMainPanel.add(addExperimentFieldsPanel, BorderLayout.CENTER);
+        addExperimentMainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
+
+        addExperimentErrorLabel.setText("asdf");
+        addExperimentErrorPanel.add(addExperimentErrorLabel);
+
+        addExperimentFieldsPanel.setLayout(new GridBagLayout());
+        GridBagConstraints constraints;
+
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        addExperimentFieldsPanel.add(new JLabel("Start time"),constraints);
+
+        JTextField startTime = new JTextField("2014-02-01 08:00:00");
+        startTime.setName("startTime");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 100;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        addExperimentFieldsPanel.add(startTime, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        addExperimentFieldsPanel.add(new JLabel("End time"), constraints);
+
+        JTextField endTime = new JTextField("2014-02-01 09:00:00");
+        endTime.setName("endTime");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 100;
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        addExperimentFieldsPanel.add(endTime, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        addExperimentFieldsPanel.add(new JLabel("Dec number"), constraints);
+
+        JTextField decNumber = new JTextField();
+        decNumber.setName("decNumber");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 100;
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        addExperimentFieldsPanel.add(decNumber, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        addExperimentFieldsPanel.add(new JLabel("Name"), constraints);
+
+        JTextField name = new JTextField();
+        name.setName("name");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 100;
+        constraints.gridx = 1;
+        constraints.gridy = 3;
+        addExperimentFieldsPanel.add(name, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        addExperimentFieldsPanel.add(new JLabel("Serial number"), constraints);
+
+        JTextField serialNumber = new JTextField("asdf");
+        serialNumber.setName("serialNumber");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 100;
+        constraints.gridx = 1;
+        constraints.gridy = 4;
+        addExperimentFieldsPanel.add(serialNumber, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 5;
+        addExperimentFieldsPanel.add(new JLabel("Order"), constraints);
+
+        JTextField order = new JTextField();
+        order.setName("order");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 100;
+        constraints.gridx = 1;
+        constraints.gridy = 5;
+        addExperimentFieldsPanel.add(order, constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        addExperimentFieldsPanel.add(new JLabel("Description"), constraints);
+
+        JTextField  description = new JTextField();
+        description.setName("description");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 100;
+        constraints.gridx = 1;
+        constraints.gridy = 6;
+        addExperimentFieldsPanel.add(description, constraints);
+
+        addExperimentApplyButton = new JButton("Apply");
+        addExperimentApplyButton.addActionListener(addExperimentApplyListener);
+        buttonsPanel.add(addExperimentApplyButton);
+
+        JButton addExperimentCancelButton = new JButton("Cancel");
+        addExperimentCancelButton.addActionListener(addExperimentCancelListener);
+        buttonsPanel.add(addExperimentCancelButton);
+
+        addExperimentFrame.add(addExperimentMainPanel);
+        addExperimentFrame.setSize(500, 300);
+        addExperimentFrame.setLocation(100, 400);
+        addExperimentFrame.setVisible(false);
+
+        return addExperimentFrame;
     }
 
 }
