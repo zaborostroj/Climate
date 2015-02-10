@@ -29,7 +29,7 @@ public class MainWindow extends JFrame {
     private JPanel addExperimentFieldsPanel;
     private JLabel addExperimentErrorLabel = new JLabel();
 
-    ActionListener newToolAddButtonListener = new ActionListener() {
+    class newToolAddButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             Component[] components = newToolFieldsPanel.getComponents();
@@ -75,17 +75,17 @@ public class MainWindow extends JFrame {
                 newToolErrorLabel.setText("Fill info");
             }
         }
-    };
+    }
 
-    ActionListener newToolCancelButtonListener = new ActionListener() {
+    class newToolCancelButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("cancel adding tool");
             newToolFrame.setVisible(false);
         }
-    };
+    }
 
-    ActionListener cameraButtonsListener = new ActionListener() {
+    class cameraButtonsListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             makeTimeTable(e.getActionCommand());
@@ -94,9 +94,9 @@ public class MainWindow extends JFrame {
             addExperiment.setActionCommand(e.getActionCommand());
             removeExperiment.setActionCommand(e.getActionCommand());
         }
-    };
+    }
 
-    ActionListener addToolButtonListener = new ActionListener() {
+    class addToolButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (newToolFrame.isVisible()) {
@@ -105,9 +105,9 @@ public class MainWindow extends JFrame {
                 newToolFrame.setVisible(true);
             }
         }
-    };
+    }
 
-    ActionListener removeToolButtonListener = new ActionListener() {
+    class removeToolButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (removeToolFrame.isVisible()) {
@@ -118,7 +118,7 @@ public class MainWindow extends JFrame {
         }
     };
 
-    ActionListener removeSubmitButtonListener = new ActionListener() {
+    class removeToolSubmitListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             String serialNumber = "";
@@ -148,7 +148,7 @@ public class MainWindow extends JFrame {
         }
     };
 
-    ActionListener addExperimentButtonListener = new ActionListener() {
+    class addExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             addExperimentApplyButton.setActionCommand(e.getActionCommand());
@@ -158,16 +158,16 @@ public class MainWindow extends JFrame {
                 addExperimentFrame.setVisible(true);
             }
         }
-    };
+    }
 
-    ActionListener removeExperimentButtonListener = new ActionListener() {
+    class removeExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("removeExperiment");
         }
     };
 
-    ActionListener addExperimentApplyListener = new ActionListener() {
+    class addExperimentApplyListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             Map<String, String> params = new HashMap<String, String>();
@@ -200,15 +200,14 @@ public class MainWindow extends JFrame {
                 }
             }
         }
-    };
+    }
 
-    ActionListener addExperimentCancelListener = new ActionListener() {
-        @Override
+    class addExperimentCancelListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             addExperimentFrame.setVisible(false);
             System.out.println("Cancel new experiment");
         }
-    };
+    }
 
     public static void main(String[] args) {
         try{
@@ -258,10 +257,10 @@ public class MainWindow extends JFrame {
         newToolButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         JButton newToolAddButton = new JButton("Add");
-        newToolAddButton.addActionListener(newToolAddButtonListener);
+        newToolAddButton.addActionListener(new newToolAddButtonListener());
 
         JButton newToolCancelButton = new JButton("Cancel");
-        newToolCancelButton.addActionListener(newToolCancelButtonListener);
+        newToolCancelButton.addActionListener(new newToolCancelButtonListener());
 
         newToolButtonsPanel.add(newToolAddButton);
         newToolButtonsPanel.add(newToolCancelButton);
@@ -299,8 +298,8 @@ public class MainWindow extends JFrame {
         mainPanel.add(timeTableScrollPane);
 
         JPanel buttonsPanel = new JPanel();
-        addExperiment.addActionListener(addExperimentButtonListener);
-        removeExperiment.addActionListener(removeExperimentButtonListener);
+        addExperiment.addActionListener(new addExperimentButtonListener());
+        removeExperiment.addActionListener(new removeExperimentButtonListener());
         buttonsPanel.add(addExperiment);
         buttonsPanel.add(removeExperiment);
         mainPanel.add(buttonsPanel);
@@ -341,7 +340,7 @@ public class MainWindow extends JFrame {
         removeMainPanel.add(serialNumberField);
 
         JButton removeToolSubmitButton = new JButton("Submit");
-        removeToolSubmitButton.addActionListener(removeSubmitButtonListener);
+        removeToolSubmitButton.addActionListener(new removeToolSubmitListener());
         removeMainPanel.add(removeToolSubmitButton);
 
         removeToolFrame.add(removeMainPanel);
@@ -381,7 +380,7 @@ public class MainWindow extends JFrame {
 
             JButton button = new JButton(tool.getName() + " timetable");
             button.setActionCommand(tool.getId());
-            button.addActionListener(cameraButtonsListener);
+            button.addActionListener(new cameraButtonsListener());
             panel.add(button);
 
             toolsPanel.add(panel);
@@ -394,12 +393,12 @@ public class MainWindow extends JFrame {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         JButton addToolButton = new JButton("Add new camera");
-        addToolButton.addActionListener(addToolButtonListener);
+        addToolButton.addActionListener(new addToolButtonListener());
         addToolButton.setVisible(true);
         buttonsPanel.add(addToolButton);
 
         JButton removeToolButton = new JButton("Remove camera");
-        removeToolButton.addActionListener(removeToolButtonListener);
+        removeToolButton.addActionListener(new removeToolButtonListener());
         removeToolButton.setVisible(true);
         buttonsPanel.add(removeToolButton);
 
@@ -542,11 +541,11 @@ public class MainWindow extends JFrame {
         addExperimentFieldsPanel.add(description, constraints);
 
         addExperimentApplyButton = new JButton("Apply");
-        addExperimentApplyButton.addActionListener(addExperimentApplyListener);
+        addExperimentApplyButton.addActionListener(new addExperimentApplyListener());
         buttonsPanel.add(addExperimentApplyButton);
 
         JButton addExperimentCancelButton = new JButton("Cancel");
-        addExperimentCancelButton.addActionListener(addExperimentCancelListener);
+        addExperimentCancelButton.addActionListener(new addExperimentCancelListener());
         buttonsPanel.add(addExperimentCancelButton);
 
         addExperimentFrame.add(addExperimentMainPanel);
