@@ -29,6 +29,10 @@ public class MainWindow extends JFrame {
     private JPanel addExperimentFieldsPanel;
     private JLabel addExperimentErrorLabel = new JLabel();
 
+	private JInternalFrame removeExperimentFrame;
+	private JButton removeExperimentApplyButton;
+	private JTextField removeExperimentId;
+
     class newToolAddButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -116,7 +120,7 @@ public class MainWindow extends JFrame {
                 removeToolFrame.setVisible(true);
             }
         }
-    };
+    }
 
     class removeToolSubmitListener implements ActionListener {
         @Override
@@ -146,7 +150,17 @@ public class MainWindow extends JFrame {
                 textField.setText(result);
             }
         }
-    };
+    }
+
+	class refreshButtonListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			mainWindow.remove(toolsPanel);
+			toolsPanel = makeToolsPanel();
+			mainWindow.add(toolsPanel);
+			mainWindow.validate();
+			mainWindow.repaint();
+		}
+	}
 
     class addExperimentButtonListener implements ActionListener {
         @Override
@@ -163,9 +177,22 @@ public class MainWindow extends JFrame {
     class removeExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("removeExperiment");
+			removeExperimentApplyButton.setActionCommand(e.getActionCommand());
+	        if (removeExperimentFrame.isVisible()) {
+		        removeExperimentFrame.setVisible(false);
+	        } else {
+		        removeExperimentFrame.setVisible(true);
+	        }
         }
-    };
+    }
+
+	class removeExperimentSubmitListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			String experimentId = removeExperimentId.getText();
+
+			String result = new DBQuery().removeExperiment(e.getActionCommand(), experimentId);
+		}
+	}
 
     class addExperimentApplyListener implements ActionListener {
         @Override
@@ -195,6 +222,13 @@ public class MainWindow extends JFrame {
                     timeTableFrame.validate();
                     timeTableFrame.repaint();
                     addExperimentErrorLabel.setText("asdf");
+	                for (Component component : addExperimentFieldsPanel.getComponents()) {
+		                if (component.getClass() == JTextField.class) {
+			                JTextField tf = (JTextField) component;
+			                tf.setText("");
+		                }
+	                }
+	                addExperimentFrame.setVisible(false);
                 } else {
                     addExperimentErrorLabel.setText(result);
                 }
@@ -205,6 +239,14 @@ public class MainWindow extends JFrame {
     class addExperimentCancelListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             addExperimentFrame.setVisible(false);
+	        for (Component component : addExperimentFieldsPanel.getComponents()) {
+		        if (component.getClass() == JTextField.class) {
+			        JTextField tf = (JTextField) component;
+			        tf.setText("");
+					// 171.173.179 - standard color
+			        tf.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
+		        }
+	        }
             System.out.println("Cancel new experiment");
         }
     }
@@ -228,7 +270,9 @@ public class MainWindow extends JFrame {
         add(makeNewToolFrame());
         add(makeTimeTableFrame());
         add(makeRemoveToolFrame());
-        add(makeAddExperimentFrame());
+	    add(makeAddExperimentFrame());
+	    removeExperimentFrame = makeRemoveExperimentFrame();
+	    add(removeExperimentFrame);
         toolsPanel = makeToolsPanel();
         add(toolsPanel, BorderLayout.CENTER);
         add(makeButtonsPanel(), BorderLayout.PAGE_END);
@@ -394,13 +438,15 @@ public class MainWindow extends JFrame {
 
         JButton addToolButton = new JButton("Add new camera");
         addToolButton.addActionListener(new addToolButtonListener());
-        addToolButton.setVisible(true);
         buttonsPanel.add(addToolButton);
 
         JButton removeToolButton = new JButton("Remove camera");
         removeToolButton.addActionListener(new removeToolButtonListener());
-        removeToolButton.setVisible(true);
         buttonsPanel.add(removeToolButton);
+
+	    JButton refreshButton = new JButton("Refresh");
+	    refreshButton.addActionListener(new refreshButtonListener());
+	    buttonsPanel.add(refreshButton);
 
         return buttonsPanel;
     }
@@ -424,7 +470,7 @@ public class MainWindow extends JFrame {
         JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
         JPanel addExperimentErrorPanel = new JPanel();
         addExperimentFieldsPanel = new JPanel();
-        JPanel buttonsPanel = new JPanel();
+	    JPanel buttonsPanel = new JPanel();
         addExperimentMainPanel.add(addExperimentErrorPanel, BorderLayout.PAGE_START);
         addExperimentMainPanel.add(addExperimentFieldsPanel, BorderLayout.CENTER);
         addExperimentMainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
@@ -555,5 +601,41 @@ public class MainWindow extends JFrame {
 
         return addExperimentFrame;
     }
+
+	private JInternalFrame makeRemoveExperimentFrame() {
+		JInternalFrame rmExperimentFrame = new JInternalFrame("Remove experiment", false, true, false, false);
+		rmExperimentFrame.setSize(300, 60);
+		rmExperimentFrame.setLocation(100, 400);
+		rmExperimentFrame.setVisible(false);
+
+		JPanel mainPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c;
+		rmExperimentFrame.add(mainPanel);
+
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		mainPanel.add(new JLabel("Experiment ID"), c);
+
+		removeExperimentId = new JTextField();
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 0;
+		c.ipadx = 60;
+		c.insets = new Insets(10,10,10,20);
+		mainPanel.add(removeExperimentId, c);
+
+		removeExperimentApplyButton = new JButton("Apply");
+		removeExperimentApplyButton.addActionListener(new removeExperimentSubmitListener());
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 2;
+		c.gridy = 0;
+		mainPanel.add(removeExperimentApplyButton, c);
+
+		return rmExperimentFrame;
+	}
 
 }

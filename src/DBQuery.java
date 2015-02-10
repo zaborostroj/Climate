@@ -376,4 +376,41 @@ public class DBQuery {
         }
         return result;
     }
+
+	public String removeExperiment(String cameraId, String experimentId) {
+		String query = "DELETE" +
+				" FROM `" + timeTableName + "`" +
+				" WHERE id = \'" + experimentId + "\' AND camera_id = \'" + cameraId + "\'";
+
+		Connection connection = null;
+		Statement statement = null;
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+			statement = connection.createStatement();
+			Integer result = statement.executeUpdate(query);
+			System.out.println(query);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return "";
+	}
 }
