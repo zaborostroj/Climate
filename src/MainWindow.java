@@ -1,16 +1,19 @@
+import sun.util.calendar.LocalGregorianCalendar;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
   Created by Evgeny Baskakov on 22.01.2015.
  */
 public class MainWindow extends JFrame {
-    private JInternalFrame newToolFrame;
+	private static final Color STD_COLOR = new Color(171, 173, 179);
+
+	private JInternalFrame newToolFrame;
     private JPanel newToolFieldsPanel;
     private JLabel newToolErrorLabel;
     private JPanel toolsPanel;
@@ -23,6 +26,7 @@ public class MainWindow extends JFrame {
     private JButton addExperiment = new JButton("Add experiment");
     private JButton removeExperiment = new JButton("Remove experiment");
     static MainWindow mainWindow;
+	private ArrayList<Experiment> experiments;
 
     private JInternalFrame addExperimentFrame;
     private JButton addExperimentApplyButton;
@@ -43,8 +47,7 @@ public class MainWindow extends JFrame {
                 if (component.getClass() == JTextField.class) {
                     JTextField textField = (JTextField) component;
                     if (!textField.getText().equals("")) {
-                        // 171.173.179 - standard color
-                        textField.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
+                        textField.setBorder(BorderFactory.createLineBorder(STD_COLOR));
                         newToolParams.add(textField.getText());
                         newToolErrorLabel.setText("Input data");
                     } else {
@@ -204,8 +207,7 @@ public class MainWindow extends JFrame {
                 if (component.getClass() == JTextField.class) {
                     JTextField tf = (JTextField) component;
                     if ( ! tf.getText().equals("")) {
-                        // 171.173.179 - standard color
-                        tf.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
+                        tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
                         params.put(tf.getName(), tf.getText());
                     } else {
                         tf.setBorder(BorderFactory.createLineBorder(Color.PINK));
@@ -243,8 +245,7 @@ public class MainWindow extends JFrame {
 		        if (component.getClass() == JTextField.class) {
 			        JTextField tf = (JTextField) component;
 			        tf.setText("");
-					// 171.173.179 - standard color
-			        tf.setBorder(BorderFactory.createLineBorder(new Color(171, 173, 179)));
+					tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
 		        }
 	        }
             System.out.println("Cancel new experiment");
@@ -266,16 +267,16 @@ public class MainWindow extends JFrame {
         setSize(1024, 768);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        setJMenuBar(makeMenuBar());
-        add(makeNewToolFrame());
-        add(makeTimeTableFrame());
-        add(makeRemoveToolFrame());
+	    setJMenuBar(makeMenuBar());
+	    add(makeNewToolFrame());
+	    add(makeTimeTableFrame(), BorderLayout.PAGE_END);
+	    add(makeRemoveToolFrame());
 	    add(makeAddExperimentFrame());
 	    removeExperimentFrame = makeRemoveExperimentFrame();
 	    add(removeExperimentFrame);
-        toolsPanel = makeToolsPanel();
-        add(toolsPanel, BorderLayout.CENTER);
-        add(makeButtonsPanel(), BorderLayout.PAGE_END);
+	    toolsPanel = makeToolsPanel();
+	    add(toolsPanel, BorderLayout.CENTER);
+	    add(makeButtonsPanel(), BorderLayout.PAGE_END);
         setVisible(true);
     }
 
@@ -327,7 +328,7 @@ public class MainWindow extends JFrame {
     private JInternalFrame makeTimeTableFrame() {
         timeTableFrame = new JInternalFrame("Internal Frame 1", true, true, true, true);
         timeTableFrame.setSize(800, 300);
-        timeTableFrame.setLocation(20, 200);
+        timeTableFrame.setLocation(20, 100);
         timeTableFrame.setVisible(false);
 
         JPanel mainPanel = new JPanel();
@@ -353,8 +354,13 @@ public class MainWindow extends JFrame {
         return timeTableFrame;
     }
 
+	private ArrayList<Experiment> getExperiments(String cameraId) {
+		experiments = new DBQuery().getExperiments(cameraId);
+		return experiments;
+	}
+
     private void makeTimeTable (String cameraId) {
-        ArrayList<Experiment> experiments = new DBQuery().getExperiments(cameraId);
+        experiments = getExperiments(cameraId);
         timeTable.setModel(new TimeTableModel(experiments));
         timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
         timeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
@@ -481,35 +487,77 @@ public class MainWindow extends JFrame {
         addExperimentFieldsPanel.setLayout(new GridBagLayout());
         GridBagConstraints constraints;
 
+	    GregorianCalendar calendar = new GregorianCalendar();
+	    System.out.println(calendar.getTime());
+
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 0;
         addExperimentFieldsPanel.add(new JLabel("Start time"),constraints);
 
-        JTextField startTime = new JTextField("2014-02-01 08:00:00");
-        startTime.setName("startTime");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridx = 1;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(startTime, constraints);
+	    JSpinner startHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
+	    startHours.setName("startHours");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 1;
+	    constraints.gridy = 0;
+	    addExperimentFieldsPanel.add(startHours, constraints);
 
-        constraints = new GridBagConstraints();
+	    JSpinner startMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 55, 5));
+	    startMinutes.setName("startMinutes");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 2;
+	    constraints.gridy = 0;
+	    addExperimentFieldsPanel.add(startMinutes, constraints);
+
+	    JSpinner startDay = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.DAY_OF_MONTH), 1, 31, 1));
+	    startDay.setName("startDay");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 3;
+	    constraints.gridy = 0;
+	    addExperimentFieldsPanel.add(startDay, constraints);
+
+	    JSpinner startMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
+	    startMonth.setName("startTime");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 4;
+	    constraints.gridy = 0;
+	    addExperimentFieldsPanel.add(startMonth, constraints);
+
+	    JSpinner startYear = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.YEAR),
+			    calendar.get(GregorianCalendar.YEAR),
+			    calendar.get(GregorianCalendar.YEAR) + 1,
+			    1));
+	    startYear.setName("startTime");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 5;
+	    constraints.gridy = 0;
+	    addExperimentFieldsPanel.add(startYear, constraints);
+
+	    constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 1;
         addExperimentFieldsPanel.add(new JLabel("End time"), constraints);
 
-        JTextField endTime = new JTextField("2014-02-01 09:00:00");
-        endTime.setName("endTime");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridx = 1;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(endTime, constraints);
+	    JSpinner endHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
+	    endHours.setName("endDay");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 1;
+	    constraints.gridy = 1;
+	    addExperimentFieldsPanel.add(startHours, constraints);
 
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -522,7 +570,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-        constraints.gridx = 1;
+	    constraints.gridwidth = 5;
+	    constraints.gridx = 1;
         constraints.gridy = 2;
         addExperimentFieldsPanel.add(decNumber, constraints);
 
@@ -537,7 +586,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-        constraints.gridx = 1;
+	    constraints.gridwidth = 5;
+	    constraints.gridx = 1;
         constraints.gridy = 3;
         addExperimentFieldsPanel.add(name, constraints);
 
@@ -547,12 +597,13 @@ public class MainWindow extends JFrame {
         constraints.gridy = 4;
         addExperimentFieldsPanel.add(new JLabel("Serial number"), constraints);
 
-        JTextField serialNumber = new JTextField("asdf");
+        JTextField serialNumber = new JTextField();
         serialNumber.setName("serialNumber");
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-        constraints.gridx = 1;
+	    constraints.gridwidth = 5;
+	    constraints.gridx = 1;
         constraints.gridy = 4;
         addExperimentFieldsPanel.add(serialNumber, constraints);
 
@@ -567,7 +618,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-        constraints.gridx = 1;
+	    constraints.gridwidth = 5;
+	    constraints.gridx = 1;
         constraints.gridy = 5;
         addExperimentFieldsPanel.add(order, constraints);
 
@@ -582,7 +634,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-        constraints.gridx = 1;
+	    constraints.gridwidth = 5;
+	    constraints.gridx = 1;
         constraints.gridy = 6;
         addExperimentFieldsPanel.add(description, constraints);
 
