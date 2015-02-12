@@ -28,7 +28,7 @@ public class MainWindow extends JFrame {
     private JInternalFrame addExperimentFrame;
     private JButton addExperimentApplyButton;
     private JPanel addExperimentFieldsPanel;
-    private JLabel addExperimentErrorLabel = new JLabel();
+    private JLabel addExperimentErrorLabel;
 
 	private JInternalFrame removeExperimentFrame;
 	private JButton removeExperimentApplyButton;
@@ -212,11 +212,12 @@ public class MainWindow extends JFrame {
 	            if (component.getClass() == JTextField.class) {
                     JTextField tf = (JTextField) component;
                     if ( ! tf.getText().equals("")) {
-                        tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
+                        //tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
                         params.put(tf.getName(), tf.getText());
                     } else {
-                        tf.setBorder(BorderFactory.createLineBorder(Color.PINK));
-                        allFieldsFilled = false;
+                        //tf.setBorder(BorderFactory.createLineBorder(Color.PINK));
+                        addExperimentErrorLabel.setText("Fill all fields");
+	                    allFieldsFilled = false;
                     }
                 } else if (component.getClass() == JSpinner.class) {
 		            JSpinner sp = (JSpinner) component;
@@ -231,8 +232,8 @@ public class MainWindow extends JFrame {
                     makeTimeTable(e.getActionCommand());
                     timeTableFrame.validate();
                     timeTableFrame.repaint();
-                    addExperimentErrorLabel.setText("Enter data");
 
+	                addExperimentErrorLabel.setText("Enter data");
 	                for (Component component : addExperimentFieldsPanel.getComponents()) {
 		                if (component.getClass() == JTextField.class) {
 			                JTextField tf = (JTextField) component;
@@ -241,9 +242,11 @@ public class MainWindow extends JFrame {
 	                }
 	                addExperimentFrame.validate();
 	                addExperimentFrame.repaint();
-	                addExperimentFrame.setVisible(false);
+	                //addExperimentFrame.setVisible(false);
                 } else {
                     addExperimentErrorLabel.setText(result);
+	                addExperimentFrame.validate();
+	                addExperimentFrame.repaint();
                 }
             }
         }
@@ -483,6 +486,7 @@ public class MainWindow extends JFrame {
 
     private JInternalFrame makeAddExperimentFrame() {
         addExperimentFrame = new JInternalFrame("Add experiment", true, true, true, true);
+	    addExperimentErrorLabel = new JLabel();
 
         JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
         JPanel addExperimentErrorPanel = new JPanel();

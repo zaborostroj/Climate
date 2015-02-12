@@ -1,5 +1,8 @@
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 
 /**
   Created by Evgeny Baskakov on 26.01.2015.
@@ -310,16 +313,33 @@ public class DBQuery {
 
     public String addExperiment(Map params) {
         String cameraId = (String) params.get("cameraId");
+
 	    String startTime = params.get("startYear") + "-" +
 			    params.get("startMonth") + "-" +
 			    params.get("startDay") + " " +
 			    params.get("startHours") + ":" +
 			    params.get("startMinutes") + ":00";
-        String endTime = params.get("endYear") + "-" +
+	    String endTime = params.get("endYear") + "-" +
 			    params.get("endMonth") + "-" +
 			    params.get("endDay") + " " +
 			    params.get("endHours") + ":" +
 			    params.get("endMinutes") + ":00";
+	    System.out.println(startTime);
+	    System.out.println(endTime);
+
+	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    try {
+		    Date startDate = df.parse(startTime);
+		    Date endDate = df.parse(endTime);
+		    if (startDate.after(endDate)) {
+			    System.out.println(startDate);
+			    System.out.println(endDate);
+			    return "Start date error";
+		    }
+	    } catch (Exception e) {
+		    e.printStackTrace();
+	    }
+
 	    String decNumber = (String) params.get("decNumber");
         String name = (String) params.get("name");
         String serialNumber = (String) params.get("serialNumber");
