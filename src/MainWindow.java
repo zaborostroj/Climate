@@ -1,10 +1,7 @@
-import sun.util.calendar.LocalGregorianCalendar;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -194,6 +191,14 @@ public class MainWindow extends JFrame {
 			String experimentId = removeExperimentId.getText();
 
 			String result = new DBQuery().removeExperiment(e.getActionCommand(), experimentId);
+			if (result.equals("OK")) {
+				makeTimeTable(e.getActionCommand());
+				timeTableFrame.validate();
+				timeTableFrame.repaint();
+
+				removeExperimentId.setText("");
+				removeExperimentFrame.setVisible(false);
+			}
 		}
 	}
 
@@ -204,7 +209,7 @@ public class MainWindow extends JFrame {
             Boolean allFieldsFilled = true;
             params.put("cameraId", e.getActionCommand());
             for (Component component : addExperimentFieldsPanel.getComponents()) {
-                if (component.getClass() == JTextField.class) {
+	            if (component.getClass() == JTextField.class) {
                     JTextField tf = (JTextField) component;
                     if ( ! tf.getText().equals("")) {
                         tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
@@ -213,7 +218,10 @@ public class MainWindow extends JFrame {
                         tf.setBorder(BorderFactory.createLineBorder(Color.PINK));
                         allFieldsFilled = false;
                     }
-                }
+                } else if (component.getClass() == JSpinner.class) {
+		            JSpinner sp = (JSpinner) component;
+		            params.put(sp.getName(), sp.getValue().toString());
+	            }
             }
 
             if (allFieldsFilled) {
@@ -223,13 +231,16 @@ public class MainWindow extends JFrame {
                     makeTimeTable(e.getActionCommand());
                     timeTableFrame.validate();
                     timeTableFrame.repaint();
-                    addExperimentErrorLabel.setText("asdf");
+                    addExperimentErrorLabel.setText("Enter data");
+
 	                for (Component component : addExperimentFieldsPanel.getComponents()) {
 		                if (component.getClass() == JTextField.class) {
 			                JTextField tf = (JTextField) component;
 			                tf.setText("");
 		                }
 	                }
+	                addExperimentFrame.validate();
+	                addExperimentFrame.repaint();
 	                addExperimentFrame.setVisible(false);
                 } else {
                     addExperimentErrorLabel.setText(result);
@@ -481,7 +492,7 @@ public class MainWindow extends JFrame {
         addExperimentMainPanel.add(addExperimentFieldsPanel, BorderLayout.CENTER);
         addExperimentMainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
 
-        addExperimentErrorLabel.setText("asdf");
+        addExperimentErrorLabel.setText("Enter data");
         addExperimentErrorPanel.add(addExperimentErrorLabel);
 
         addExperimentFieldsPanel.setLayout(new GridBagLayout());
@@ -524,7 +535,7 @@ public class MainWindow extends JFrame {
 	    addExperimentFieldsPanel.add(startDay, constraints);
 
 	    JSpinner startMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
-	    startMonth.setName("startTime");
+	    startMonth.setName("startMonth");
 	    constraints = new GridBagConstraints();
 	    constraints.fill = GridBagConstraints.HORIZONTAL;
 	    constraints.ipadx = 30;
@@ -532,11 +543,12 @@ public class MainWindow extends JFrame {
 	    constraints.gridy = 0;
 	    addExperimentFieldsPanel.add(startMonth, constraints);
 
-	    JSpinner startYear = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.YEAR),
+	    JSpinner startYear = new JSpinner(new SpinnerNumberModel(
+			    calendar.get(GregorianCalendar.YEAR),
 			    calendar.get(GregorianCalendar.YEAR),
 			    calendar.get(GregorianCalendar.YEAR) + 1,
 			    1));
-	    startYear.setName("startTime");
+	    startYear.setName("startYear");
 	    constraints = new GridBagConstraints();
 	    constraints.fill = GridBagConstraints.HORIZONTAL;
 	    constraints.ipadx = 30;
@@ -551,15 +563,55 @@ public class MainWindow extends JFrame {
         addExperimentFieldsPanel.add(new JLabel("End time"), constraints);
 
 	    JSpinner endHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
-	    endHours.setName("endDay");
+	    endHours.setName("endHours");
 	    constraints = new GridBagConstraints();
 	    constraints.fill = GridBagConstraints.HORIZONTAL;
 	    constraints.ipadx = 30;
 	    constraints.gridx = 1;
 	    constraints.gridy = 1;
-	    addExperimentFieldsPanel.add(startHours, constraints);
+	    addExperimentFieldsPanel.add(endHours, constraints);
 
-        constraints = new GridBagConstraints();
+	    JSpinner endMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 59, 5));
+	    endMinutes.setName("endMinutes");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 2;
+	    constraints.gridy = 1;
+	    addExperimentFieldsPanel.add(endMinutes, constraints);
+
+	    JSpinner endDay = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.DAY_OF_MONTH), 1, 31, 1));
+	    endDay.setName("endDay");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 3;
+	    constraints.gridy = 1;
+	    addExperimentFieldsPanel.add(endDay, constraints);
+
+	    JSpinner endMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
+	    endMonth.setName("endMonth");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 4;
+	    constraints.gridy = 1;
+	    addExperimentFieldsPanel.add(endMonth, constraints);
+
+	    JSpinner endYear = new JSpinner(new SpinnerNumberModel(
+			    calendar.get(GregorianCalendar.YEAR),
+			    calendar.get(GregorianCalendar.YEAR),
+			    calendar.get(GregorianCalendar.YEAR) + 1,
+			    1));
+	    endYear.setName("endYear");
+	    constraints = new GridBagConstraints();
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.ipadx = 30;
+	    constraints.gridx = 5;
+	    constraints.gridy = 1;
+	    addExperimentFieldsPanel.add(endYear, constraints);
+
+	    constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 2;

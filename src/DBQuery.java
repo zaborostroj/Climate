@@ -1,8 +1,5 @@
 import java.sql.*;
-//import java.text.DateFormat;
-//import java.text.SimpleDateFormat;
 import java.util.*;
-//import java.util.Date;
 
 /**
   Created by Evgeny Baskakov on 26.01.2015.
@@ -313,15 +310,22 @@ public class DBQuery {
 
     public String addExperiment(Map params) {
         String cameraId = (String) params.get("cameraId");
-        String startTime = (String) params.get("startTime");
-        String endTime = (String) params.get("endTime");
-        String decNumber = (String) params.get("decNumber");
+	    String startTime = params.get("startYear") + "-" +
+			    params.get("startMonth") + "-" +
+			    params.get("startDay") + " " +
+			    params.get("startHours") + ":" +
+			    params.get("startMinutes") + ":00";
+        String endTime = params.get("endYear") + "-" +
+			    params.get("endMonth") + "-" +
+			    params.get("endDay") + " " +
+			    params.get("endHours") + ":" +
+			    params.get("endMinutes") + ":00";
+	    String decNumber = (String) params.get("decNumber");
         String name = (String) params.get("name");
         String serialNumber = (String) params.get("serialNumber");
         String order = (String) params.get("order");
         String description = (String) params.get("description");
 
-        String result = "";
         String checkQuery =
                 "SELECT *" +
                     " FROM `" + timeTableName + "`" +
@@ -356,7 +360,9 @@ public class DBQuery {
                 return "OK";
             }
         } catch (Exception e) {
-            e.printStackTrace();
+	        System.out.println("date error");
+	        e.printStackTrace();
+	        return "Date format error";
         } finally {
             if (statement != null) {
                 try {
@@ -374,7 +380,6 @@ public class DBQuery {
                 }
             }
         }
-        return result;
     }
 
 	public String removeExperiment(String cameraId, String experimentId) {
@@ -389,7 +394,7 @@ public class DBQuery {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
 			statement = connection.createStatement();
-			Integer result = statement.executeUpdate(query);
+			statement.executeUpdate(query);
 			System.out.println(query);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -411,6 +416,6 @@ public class DBQuery {
 			}
 		}
 
-		return "";
+		return "OK";
 	}
 }
