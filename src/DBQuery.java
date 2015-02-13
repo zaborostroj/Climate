@@ -15,6 +15,78 @@ public class DBQuery {
     private static String toolsTableName = "tools";
     private String timeTableName = "timetable";
 
+    public ArrayList<String> getToolTypes() {
+        ArrayList<String> toolTypes = new ArrayList<String>();
+        String query = "SELECT * FROM `tooltype`";
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                toolTypes.add(resultSet.getString("name"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return toolTypes;
+    }
+
+    public ArrayList<String> getToolPlacements() {
+        ArrayList<String> toolPlacements = new ArrayList<String>();
+        Connection connection = null;
+        Statement statement = null;
+        String query = "SELECT * FROM `toolplacement`";
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                toolPlacements.add(resultSet.getString("name"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return toolPlacements;
+    }
 
     public ArrayList<Tool> getTools() {
         Connection connection = null;
@@ -117,17 +189,17 @@ public class DBQuery {
         return experiments;
     }
 
-    public Map<String, String[]> getCurrentExperiments(/*int size*/) {
+    public Map<String, String[]> getCurrentExperiments() {
 
         Map<String, String[]> curExp = new HashMap<String, String[]>();
 
         Connection connection = null;
         Statement statement = null;
 
-        //java.util.Date now = new Date();
-        //DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        //String currentDateTime = formatter.format(now);
-        String currentDateTime = "2014-01-29 13:00:00";
+        java.util.Date now = new Date();
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentDateTime = formatter.format(now);
+        //String currentDateTime = "2014-01-29 13:00:00";
 
         String query = "SELECT * FROM `" + timeTableName + "` WHERE" +
                 " \'" + currentDateTime + "\' >= `start_time` " +
@@ -189,30 +261,36 @@ public class DBQuery {
         return curExp;
     }
 
-    public String addCamera(ArrayList<String> values) {
+    public String addTool(Map<String, String> values) {
         String result = "";
         String checkQuery =
                 "SELECT * FROM" +
                 " `" + toolsTableName + "`" +
                 " WHERE" +
-                " `serial_number` = \'" + values.get(0) + "\' AND" +
-                " `name` = \'" + values.get(1) + "\' AND" +
-                " `tool_type` = \'" + values.get(3) + "\' AND" +
-                " `placement` = \'" + values.get(4) + "\'";
+                " `serial_number` = \'" + values.get("serial_number") + "\' AND" +
+                " `name` = \'" + values.get("name") + "\' AND" +
+                " `tool_type` = \'" + values.get("tool_type") + "\' AND" +
+                " `placement` = \'" + values.get("placement") + "\'";
 
         String addQuery =
                 "INSERT INTO" +
                 " `" + toolsTableName + "`" +
                 " (`serial_number`, `name`, `description`, `tool_type`, `placement`)" +
-                " VALUES (";
-                for (int i = 0; i < values.size(); i++) {
-                    if (i < values.size() - 1) {
-                        addQuery += "\'" + values.get(i) + "\', ";
-                    } else {
-                        addQuery += "\'" + values.get(i) + "\'";
-                    }
-                }
-                addQuery += ")";
+                " VALUES (" +
+                        "\'" + values.get("serial_number") + "\', " +
+                        "\'" + values.get("name") + "\', " +
+                        "\'" + values.get("description") + "\', " +
+                        "\'" + values.get("tool_type") + "\', " +
+                        "\'" + values.get("placement") + "\')";
+
+                //for (int i = 0; i < values.size(); i++) {
+                //    if (i < values.size() - 1) {
+                //        addQuery += "\'" + values.get(i) + "\', ";
+                //    } else {
+                //        addQuery += "\'" + values.get(i) + "\'";
+                //    }
+                //}
+                //addQuery += ")";
 
         Connection connection = null;
         Statement statement = null;
@@ -282,8 +360,8 @@ public class DBQuery {
                     " FROM `" + toolsTableName + "`" +
                     " WHERE serial_number = \'" + serialNumber + "\'";
 
-            System.out.println(statement.executeUpdate(removeExperimentsQuery));
-            System.out.println(statement.executeUpdate(removeToolQuery));
+            statement.executeUpdate(removeExperimentsQuery);
+            statement.executeUpdate(removeToolQuery);
             return "OK";
         } catch (Exception e) {
             e.printStackTrace();
@@ -324,16 +402,12 @@ public class DBQuery {
 			    params.get("endDay") + " " +
 			    params.get("endHours") + ":" +
 			    params.get("endMinutes") + ":00";
-	    System.out.println(startTime);
-	    System.out.println(endTime);
 
 	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	    try {
 		    Date startDate = df.parse(startTime);
 		    Date endDate = df.parse(endTime);
 		    if (startDate.after(endDate)) {
-			    System.out.println(startDate);
-			    System.out.println(endDate);
 			    return "Start date error";
 		    }
 	    } catch (Exception e) {
@@ -380,7 +454,6 @@ public class DBQuery {
                 return "OK";
             }
         } catch (Exception e) {
-	        System.out.println("date error");
 	        e.printStackTrace();
 	        return "Date format error";
         } finally {
@@ -402,40 +475,39 @@ public class DBQuery {
         }
     }
 
-	public String removeExperiment(String cameraId, String experimentId) {
-		String query = "DELETE" +
-				" FROM `" + timeTableName + "`" +
-				" WHERE id = \'" + experimentId + "\' AND camera_id = \'" + cameraId + "\'";
+    public String removeExperiment(String cameraId, String experimentId) {
+        String query = "DELETE" +
+                " FROM `" + timeTableName + "`" +
+                " WHERE id = \'" + experimentId + "\' AND camera_id = \'" + cameraId + "\'";
 
-		Connection connection = null;
-		Statement statement = null;
+        Connection connection = null;
+        Statement statement = null;
 
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
-			statement = connection.createStatement();
-			statement.executeUpdate(query);
-			System.out.println(query);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (statement != null) {
-				try {
-					statement.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+            statement.executeUpdate(query);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
 
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-		return "OK";
-	}
+        return "OK";
+    }
 }

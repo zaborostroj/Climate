@@ -8,9 +8,12 @@ import java.util.*;
   Created by Evgeny Baskakov on 22.01.2015.
  */
 public class MainWindow extends JFrame {
-	private static final Color STD_COLOR = new Color(171, 173, 179);
+    private static final Color STD_COLOR = new Color(171, 173, 179);
 
-	private JInternalFrame newToolFrame;
+    private static ArrayList<String> toolTypes;
+    private static ArrayList<String> toolPlacements;
+
+    private JInternalFrame newToolFrame;
     private JPanel newToolFieldsPanel;
     private JLabel newToolErrorLabel;
     private JPanel toolsPanel;
@@ -23,40 +26,73 @@ public class MainWindow extends JFrame {
     private JButton addExperiment = new JButton("Add experiment");
     private JButton removeExperiment = new JButton("Remove experiment");
     static MainWindow mainWindow;
-	private ArrayList<Experiment> experiments;
+    private ArrayList<Experiment> experiments;
 
     private JInternalFrame addExperimentFrame;
     private JButton addExperimentApplyButton;
     private JPanel addExperimentFieldsPanel;
     private JLabel addExperimentErrorLabel;
 
-	private JInternalFrame removeExperimentFrame;
-	private JButton removeExperimentApplyButton;
-	private JTextField removeExperimentId;
+    private JInternalFrame removeExperimentFrame;
+    private JButton removeExperimentApplyButton;
+    private JTextField removeExperimentId;
+
+    public static void main(String[] args) {
+		try{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		mainWindow = new MainWindow();
+	}
+
+    public MainWindow() {
+        super("MainWnd");
+
+        getToolTypes();
+        getToolPlacements();
+        setSize(1024, 768);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setJMenuBar(makeMenuBar());
+        add(makeNewToolFrame());
+        add(makeTimeTableFrame(), BorderLayout.PAGE_END);
+        add(makeRemoveToolFrame());
+        add(makeAddExperimentFrame());
+        removeExperimentFrame = makeRemoveExperimentFrame();
+        add(removeExperimentFrame);
+        toolsPanel = makeToolsPanel();
+        add(toolsPanel, BorderLayout.CENTER);
+        add(makeButtonsPanel(), BorderLayout.PAGE_END);
+        setVisible(true);
+    }
 
     class newToolAddButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             Component[] components = newToolFieldsPanel.getComponents();
-            ArrayList<String> newToolParams = new ArrayList<String>();
+            Map<String, String> newToolParams = new HashMap<String, String>();
             Boolean allFieldsFilled = true;
             for (Component component : components) {
                 if (component.getClass() == JTextField.class) {
                     JTextField textField = (JTextField) component;
                     if (!textField.getText().equals("")) {
-                        textField.setBorder(BorderFactory.createLineBorder(STD_COLOR));
-                        newToolParams.add(textField.getText());
+                        //textField.setBorder(BorderFactory.createLineBorder(STD_COLOR));
+                        newToolParams.put(textField.getName(), textField.getText());
                         newToolErrorLabel.setText("Input data");
                     } else {
                         allFieldsFilled = false;
-                        textField.setBorder(BorderFactory.createLineBorder(Color.PINK));
+                        //textField.setBorder(BorderFactory.createLineBorder(Color.PINK));
                     }
 
+                } else if (component.getClass() == JComboBox.class) {
+                    JComboBox cb = (JComboBox) component;
                 }
             }
 
             if (allFieldsFilled) {
-                String result = new DBQuery().addCamera(newToolParams);
+                String result = new DBQuery().addTool(newToolParams);
                 if (result.equals("")) {
                     mainWindow.remove(toolsPanel);
                     toolsPanel = makeToolsPanel();
@@ -74,7 +110,6 @@ public class MainWindow extends JFrame {
                     newToolErrorLabel.setText(result);
                 }
 
-                System.out.println(result);
             } else {
                 newToolErrorLabel.setText("Fill info");
             }
@@ -84,7 +119,6 @@ public class MainWindow extends JFrame {
     class newToolCancelButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("cancel adding tool");
             newToolFrame.setVisible(false);
         }
     }
@@ -152,7 +186,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-	class refreshButtonListener implements ActionListener {
+    class refreshButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			mainWindow.remove(toolsPanel);
 			toolsPanel = makeToolsPanel();
@@ -186,21 +220,27 @@ public class MainWindow extends JFrame {
         }
     }
 
-	class removeExperimentSubmitListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			String experimentId = removeExperimentId.getText();
+    class removeExperimentSubmitListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String experimentId = removeExperimentId.getText();
 
-			String result = new DBQuery().removeExperiment(e.getActionCommand(), experimentId);
-			if (result.equals("OK")) {
-				makeTimeTable(e.getActionCommand());
-				timeTableFrame.validate();
-				timeTableFrame.repaint();
+            String result = new DBQuery().removeExperiment(e.getActionCommand(), experimentId);
+            if (result.equals("OK")) {
+                mainWindow.remove(toolsPanel);
+                toolsPanel = makeToolsPanel();
+                mainWindow.add(toolsPanel);
+                mainWindow.validate();
+                mainWindow.repaint();
 
-				removeExperimentId.setText("");
-				removeExperimentFrame.setVisible(false);
-			}
-		}
-	}
+                makeTimeTable(e.getActionCommand());
+                timeTableFrame.validate();
+                timeTableFrame.repaint();
+
+                removeExperimentId.setText("");
+                removeExperimentFrame.setVisible(false);
+            }
+    }
+    }
 
     class addExperimentApplyListener implements ActionListener {
         @Override
@@ -229,6 +269,12 @@ public class MainWindow extends JFrame {
                 String result = new DBQuery().addExperiment(params);
 
                 if (result.equals("OK")) {
+	                mainWindow.remove(toolsPanel);
+	                toolsPanel = makeToolsPanel();
+	                mainWindow.add(toolsPanel);
+	                mainWindow.validate();
+	                mainWindow.repaint();
+
                     makeTimeTable(e.getActionCommand());
                     timeTableFrame.validate();
                     timeTableFrame.repaint();
@@ -262,36 +308,15 @@ public class MainWindow extends JFrame {
 					tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
 		        }
 	        }
-            System.out.println("Cancel new experiment");
         }
     }
 
-    public static void main(String[] args) {
-        try{
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        mainWindow = new MainWindow();
+    private void getToolTypes() {
+        toolTypes = new DBQuery().getToolTypes();
     }
 
-    public MainWindow() {
-        super("MainWnd");
-        setSize(1024, 768);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-	    setJMenuBar(makeMenuBar());
-	    add(makeNewToolFrame());
-	    add(makeTimeTableFrame(), BorderLayout.PAGE_END);
-	    add(makeRemoveToolFrame());
-	    add(makeAddExperimentFrame());
-	    removeExperimentFrame = makeRemoveExperimentFrame();
-	    add(removeExperimentFrame);
-	    toolsPanel = makeToolsPanel();
-	    add(toolsPanel, BorderLayout.CENTER);
-	    add(makeButtonsPanel(), BorderLayout.PAGE_END);
-        setVisible(true);
+    private void getToolPlacements() {
+        toolPlacements = new DBQuery().getToolPlacements();
     }
 
     private JInternalFrame makeNewToolFrame() {
@@ -299,18 +324,36 @@ public class MainWindow extends JFrame {
         newToolErrorLabel = new JLabel("Input data");
         newToolErrorPanel.add(newToolErrorLabel);
 
+        JComboBox typeComboBox = new JComboBox();
+        typeComboBox.setName("tool_type");
+        for (String toolType : toolTypes) {
+            typeComboBox.addItem(toolType);
+        }
+        JComboBox placementComboBox = new JComboBox();
+        placementComboBox.setName("placement");
+        for (String toolPlacement: toolPlacements) {
+            placementComboBox.addItem(toolPlacement);
+        }
+
+        JTextField textField;
         newToolFieldsPanel = new JPanel(new GridLayout(5, 2, 3, 3));
         newToolFieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         newToolFieldsPanel.add(new JLabel("Serial"));
-        newToolFieldsPanel.add(new JTextField());
+        textField = new JTextField();
+        textField.setName("serial_number");
+        newToolFieldsPanel.add(textField);
         newToolFieldsPanel.add(new JLabel("Name"));
-        newToolFieldsPanel.add(new JTextField());
+        textField = new JTextField();
+        textField.setName("name");
+        newToolFieldsPanel.add(textField);
         newToolFieldsPanel.add(new JLabel("Description"));
-        newToolFieldsPanel.add(new JTextField());
+        textField = new JTextField();
+        textField.setName("description");
+        newToolFieldsPanel.add(textField);
         newToolFieldsPanel.add(new JLabel("Type"));
-        newToolFieldsPanel.add(new JTextField());
+        newToolFieldsPanel.add(typeComboBox);
         newToolFieldsPanel.add(new JLabel(("Placement")));
-        newToolFieldsPanel.add(new JTextField());
+        newToolFieldsPanel.add(placementComboBox);
 
         JPanel newToolButtonsPanel = new JPanel(new FlowLayout());
         newToolButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -368,9 +411,13 @@ public class MainWindow extends JFrame {
         return timeTableFrame;
     }
 
-	private ArrayList<Experiment> getExperiments(String cameraId) {
+    private ArrayList<Experiment> getExperiments(String cameraId) {
 		experiments = new DBQuery().getExperiments(cameraId);
 		return experiments;
+	}
+
+    private Map<String, String[]> getCurrentExperiments() {
+		return new DBQuery().getCurrentExperiments();
 	}
 
     private void makeTimeTable (String cameraId) {
@@ -413,10 +460,13 @@ public class MainWindow extends JFrame {
         return removeToolFrame;
     }
 
+    private ArrayList<Tool> getTools() {
+		return new DBQuery().getTools();
+	}
+
     private JPanel makeToolsPanel() {
-        DBQuery dbQuery = new DBQuery();
-        ArrayList<Tool> tools = dbQuery.getTools();
-        Map<String, String[]> currentExperiments = dbQuery.getCurrentExperiments();
+        ArrayList<Tool> tools = getTools();
+        Map<String, String[]> currentExperiments = getCurrentExperiments();
 
         JPanel toolsPanel = new JPanel(new FlowLayout());
         toolsPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
@@ -503,7 +553,6 @@ public class MainWindow extends JFrame {
         GridBagConstraints constraints;
 
 	    GregorianCalendar calendar = new GregorianCalendar();
-	    System.out.println(calendar.getTime());
 
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -520,7 +569,7 @@ public class MainWindow extends JFrame {
 	    constraints.gridy = 0;
 	    addExperimentFieldsPanel.add(startHours, constraints);
 
-	    JSpinner startMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 55, 5));
+	    JSpinner startMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 59, 5));
 	    startMinutes.setName("startMinutes");
 	    constraints = new GridBagConstraints();
 	    constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -711,7 +760,7 @@ public class MainWindow extends JFrame {
         return addExperimentFrame;
     }
 
-	private JInternalFrame makeRemoveExperimentFrame() {
+    private JInternalFrame makeRemoveExperimentFrame() {
 		JInternalFrame rmExperimentFrame = new JInternalFrame("Remove experiment", false, true, false, false);
 		rmExperimentFrame.setSize(300, 60);
 		rmExperimentFrame.setLocation(100, 400);
@@ -746,5 +795,7 @@ public class MainWindow extends JFrame {
 
 		return rmExperimentFrame;
 	}
+
+
 
 }
