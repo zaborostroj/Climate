@@ -283,15 +283,6 @@ public class DBQuery {
                         "\'" + values.get("tool_type") + "\', " +
                         "\'" + values.get("placement") + "\')";
 
-                //for (int i = 0; i < values.size(); i++) {
-                //    if (i < values.size() - 1) {
-                //        addQuery += "\'" + values.get(i) + "\', ";
-                //    } else {
-                //        addQuery += "\'" + values.get(i) + "\'";
-                //    }
-                //}
-                //addQuery += ")";
-
         Connection connection = null;
         Statement statement = null;
 
@@ -392,29 +383,29 @@ public class DBQuery {
     public String addExperiment(Map params) {
         String cameraId = (String) params.get("cameraId");
 
-	    String startTime = params.get("startYear") + "-" +
-			    params.get("startMonth") + "-" +
-			    params.get("startDay") + " " +
-			    params.get("startHours") + ":" +
-			    params.get("startMinutes") + ":00";
-	    String endTime = params.get("endYear") + "-" +
-			    params.get("endMonth") + "-" +
-			    params.get("endDay") + " " +
-			    params.get("endHours") + ":" +
-			    params.get("endMinutes") + ":00";
+        String startTime = params.get("startYear") + "-" +
+                params.get("startMonth") + "-" +
+                params.get("startDay") + " " +
+                params.get("startHours") + ":" +
+                params.get("startMinutes") + ":00";
+        String endTime = params.get("endYear") + "-" +
+                params.get("endMonth") + "-" +
+                params.get("endDay") + " " +
+                params.get("endHours") + ":" +
+                params.get("endMinutes") + ":00";
 
-	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	    try {
-		    Date startDate = df.parse(startTime);
-		    Date endDate = df.parse(endTime);
-		    if (startDate.after(endDate)) {
-			    return "Start date error";
-		    }
-	    } catch (Exception e) {
-		    e.printStackTrace();
-	    }
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date startDate = df.parse(startTime);
+            Date endDate = df.parse(endTime);
+            if (startDate.after(endDate)) {
+                return "Start date error";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	    String decNumber = (String) params.get("decNumber");
+        String decNumber = (String) params.get("decNumber");
         String name = (String) params.get("name");
         String serialNumber = (String) params.get("serialNumber");
         String order = (String) params.get("order");
@@ -454,8 +445,8 @@ public class DBQuery {
                 return "OK";
             }
         } catch (Exception e) {
-	        e.printStackTrace();
-	        return "Date format error";
+            e.printStackTrace();
+            return "Date format error";
         } finally {
             if (statement != null) {
                 try {

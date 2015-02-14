@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +11,10 @@ import java.util.*;
  */
 public class MainWindow extends JFrame {
     private static final Color STD_COLOR = new Color(171, 173, 179);
+    //private static final String CAMERA_TYPE = "камера";
+    //private static final String VIBRO_TYPE = "вибростенд";
+    //private static final String SBMC_PLACEMENT = "СбМЦ";
+    //private static final String OI_PLACEMENT = "ОИ";
 
     private static ArrayList<String> toolTypes;
     private static ArrayList<String> toolPlacements;
@@ -32,20 +38,26 @@ public class MainWindow extends JFrame {
     private JButton addExperimentApplyButton;
     private JPanel addExperimentFieldsPanel;
     private JLabel addExperimentErrorLabel;
+    private JSpinner addExperimentStartDay;
+    private JSpinner addExperimentStartMonth;
+    private JSpinner addExperimentStartYear;
+    private JSpinner addExperimentEndDay;
+    private JSpinner addExperimentEndMonth;
+    private JSpinner addExperimentEndYear;
 
     private JInternalFrame removeExperimentFrame;
     private JButton removeExperimentApplyButton;
     private JTextField removeExperimentId;
 
     public static void main(String[] args) {
-		try{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        try{
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		mainWindow = new MainWindow();
-	}
+        mainWindow = new MainWindow();
+    }
 
     public MainWindow() {
         super("MainWnd");
@@ -87,7 +99,8 @@ public class MainWindow extends JFrame {
                     }
 
                 } else if (component.getClass() == JComboBox.class) {
-                    JComboBox cb = (JComboBox) component;
+                    JComboBox comboBox = (JComboBox) component;
+                    newToolParams.put(comboBox.getName(), (String) comboBox.getSelectedItem());
                 }
             }
 
@@ -123,7 +136,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    class cameraButtonsListener implements ActionListener {
+    class toolButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             makeTimeTable(e.getActionCommand());
@@ -187,14 +200,14 @@ public class MainWindow extends JFrame {
     }
 
     class refreshButtonListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			mainWindow.remove(toolsPanel);
-			toolsPanel = makeToolsPanel();
-			mainWindow.add(toolsPanel);
-			mainWindow.validate();
-			mainWindow.repaint();
-		}
-	}
+        public void actionPerformed(ActionEvent e) {
+            mainWindow.remove(toolsPanel);
+            toolsPanel = makeToolsPanel();
+            mainWindow.add(toolsPanel);
+            mainWindow.validate();
+            mainWindow.repaint();
+        }
+    }
 
     class addExperimentButtonListener implements ActionListener {
         @Override
@@ -211,12 +224,12 @@ public class MainWindow extends JFrame {
     class removeExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-			removeExperimentApplyButton.setActionCommand(e.getActionCommand());
-	        if (removeExperimentFrame.isVisible()) {
-		        removeExperimentFrame.setVisible(false);
-	        } else {
-		        removeExperimentFrame.setVisible(true);
-	        }
+            removeExperimentApplyButton.setActionCommand(e.getActionCommand());
+            if (removeExperimentFrame.isVisible()) {
+                removeExperimentFrame.setVisible(false);
+            } else {
+                removeExperimentFrame.setVisible(true);
+            }
         }
     }
 
@@ -239,7 +252,7 @@ public class MainWindow extends JFrame {
                 removeExperimentId.setText("");
                 removeExperimentFrame.setVisible(false);
             }
-    }
+        }
     }
 
     class addExperimentApplyListener implements ActionListener {
@@ -249,7 +262,7 @@ public class MainWindow extends JFrame {
             Boolean allFieldsFilled = true;
             params.put("cameraId", e.getActionCommand());
             for (Component component : addExperimentFieldsPanel.getComponents()) {
-	            if (component.getClass() == JTextField.class) {
+                if (component.getClass() == JTextField.class) {
                     JTextField tf = (JTextField) component;
                     if ( ! tf.getText().equals("")) {
                         //tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
@@ -257,42 +270,42 @@ public class MainWindow extends JFrame {
                     } else {
                         //tf.setBorder(BorderFactory.createLineBorder(Color.PINK));
                         addExperimentErrorLabel.setText("Fill all fields");
-	                    allFieldsFilled = false;
+                        allFieldsFilled = false;
                     }
                 } else if (component.getClass() == JSpinner.class) {
-		            JSpinner sp = (JSpinner) component;
-		            params.put(sp.getName(), sp.getValue().toString());
-	            }
+                    JSpinner sp = (JSpinner) component;
+                    params.put(sp.getName(), sp.getValue().toString());
+                }
             }
 
             if (allFieldsFilled) {
                 String result = new DBQuery().addExperiment(params);
 
                 if (result.equals("OK")) {
-	                mainWindow.remove(toolsPanel);
-	                toolsPanel = makeToolsPanel();
-	                mainWindow.add(toolsPanel);
-	                mainWindow.validate();
-	                mainWindow.repaint();
+                    mainWindow.remove(toolsPanel);
+                    toolsPanel = makeToolsPanel();
+                    mainWindow.add(toolsPanel);
+                    mainWindow.validate();
+                    mainWindow.repaint();
 
                     makeTimeTable(e.getActionCommand());
                     timeTableFrame.validate();
                     timeTableFrame.repaint();
 
-	                addExperimentErrorLabel.setText("Enter data");
-	                for (Component component : addExperimentFieldsPanel.getComponents()) {
-		                if (component.getClass() == JTextField.class) {
-			                JTextField tf = (JTextField) component;
-			                tf.setText("");
-		                }
-	                }
-	                addExperimentFrame.validate();
-	                addExperimentFrame.repaint();
-	                //addExperimentFrame.setVisible(false);
+                    addExperimentErrorLabel.setText("Enter data");
+                    for (Component component : addExperimentFieldsPanel.getComponents()) {
+                        if (component.getClass() == JTextField.class) {
+                            JTextField tf = (JTextField) component;
+                            tf.setText("");
+                        }
+                    }
+                    addExperimentFrame.validate();
+                    addExperimentFrame.repaint();
+                    //addExperimentFrame.setVisible(false);
                 } else {
                     addExperimentErrorLabel.setText(result);
-	                addExperimentFrame.validate();
-	                addExperimentFrame.repaint();
+                    addExperimentFrame.validate();
+                    addExperimentFrame.repaint();
                 }
             }
         }
@@ -301,16 +314,65 @@ public class MainWindow extends JFrame {
     class addExperimentCancelListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             addExperimentFrame.setVisible(false);
-	        for (Component component : addExperimentFieldsPanel.getComponents()) {
-		        if (component.getClass() == JTextField.class) {
-			        JTextField tf = (JTextField) component;
-			        tf.setText("");
-					tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
-		        }
-	        }
+            for (Component component : addExperimentFieldsPanel.getComponents()) {
+                if (component.getClass() == JTextField.class) {
+                    JTextField tf = (JTextField) component;
+                    tf.setText("");
+                    tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
+                }
+            }
         }
     }
 
+    class startDateListener implements ChangeListener {
+        public void stateChanged(ChangeEvent e) {
+            Integer selectedMonth = (Integer) addExperimentStartMonth.getValue();
+            Integer selectedYear = (Integer) addExperimentStartYear.getValue();
+            switch (selectedMonth) {
+                case 1:case 3:case 5:case 7:case 8:case 10:case 12:
+                    addExperimentStartDay.setModel(new SpinnerNumberModel(1,1,31,1));
+                    break;
+                case 4:case 6:case 9:case 11:
+                    addExperimentStartDay.setModel(new SpinnerNumberModel(1,1,30,1));
+                    break;
+                case 2:
+                    if (selectedYear % 4 == 0) {
+                        addExperimentStartDay.setModel(new SpinnerNumberModel(1,1,29,1));
+                    } else {
+                        addExperimentStartDay.setModel(new SpinnerNumberModel(1, 1, 28, 1));
+                    }
+                    break;
+                default:
+                    addExperimentStartDay.setModel(new SpinnerNumberModel(1,1,30,1));
+                    break;
+            }
+        }
+    }
+
+    class endDateListener implements ChangeListener {
+        public void stateChanged(ChangeEvent e) {
+            Integer selectedMonth = (Integer) addExperimentEndMonth.getValue();
+            Integer selectedYear = (Integer) addExperimentEndYear.getValue();
+            switch (selectedMonth) {
+                case 1:case 3:case 5:case 7:case 8:case 10:case 12:
+                    addExperimentEndDay.setModel(new SpinnerNumberModel(1,1,31,1));
+                    break;
+                case 4:case 6:case 9:case 11:
+                    addExperimentEndDay.setModel(new SpinnerNumberModel(1,1,30,1));
+                    break;
+                case 2:
+                    if (selectedYear % 4 == 0) {
+                        addExperimentEndDay.setModel(new SpinnerNumberModel(1,1,29,1));
+                    } else {
+                        addExperimentEndDay.setModel(new SpinnerNumberModel(1, 1, 28, 1));
+                    }
+                    break;
+                default:
+                    addExperimentEndDay.setModel(new SpinnerNumberModel(1,1,30,1));
+                    break;
+            }
+        }
+    }
     private void getToolTypes() {
         toolTypes = new DBQuery().getToolTypes();
     }
@@ -324,12 +386,12 @@ public class MainWindow extends JFrame {
         newToolErrorLabel = new JLabel("Input data");
         newToolErrorPanel.add(newToolErrorLabel);
 
-        JComboBox typeComboBox = new JComboBox();
+        JComboBox<String> typeComboBox = new JComboBox<String>();
         typeComboBox.setName("tool_type");
         for (String toolType : toolTypes) {
             typeComboBox.addItem(toolType);
         }
-        JComboBox placementComboBox = new JComboBox();
+        JComboBox<String> placementComboBox = new JComboBox<String>();
         placementComboBox.setName("placement");
         for (String toolPlacement: toolPlacements) {
             placementComboBox.addItem(toolPlacement);
@@ -412,13 +474,13 @@ public class MainWindow extends JFrame {
     }
 
     private ArrayList<Experiment> getExperiments(String cameraId) {
-		experiments = new DBQuery().getExperiments(cameraId);
-		return experiments;
-	}
+        experiments = new DBQuery().getExperiments(cameraId);
+        return experiments;
+    }
 
     private Map<String, String[]> getCurrentExperiments() {
-		return new DBQuery().getCurrentExperiments();
-	}
+        return new DBQuery().getCurrentExperiments();
+    }
 
     private void makeTimeTable (String cameraId) {
         experiments = getExperiments(cameraId);
@@ -461,8 +523,8 @@ public class MainWindow extends JFrame {
     }
 
     private ArrayList<Tool> getTools() {
-		return new DBQuery().getTools();
-	}
+        return new DBQuery().getTools();
+    }
 
     private JPanel makeToolsPanel() {
         ArrayList<Tool> tools = getTools();
@@ -494,7 +556,7 @@ public class MainWindow extends JFrame {
 
             JButton button = new JButton(tool.getName() + " timetable");
             button.setActionCommand(tool.getId());
-            button.addActionListener(new cameraButtonsListener());
+            button.addActionListener(new toolButtonListener());
             panel.add(button);
 
             toolsPanel.add(panel);
@@ -514,9 +576,9 @@ public class MainWindow extends JFrame {
         removeToolButton.addActionListener(new removeToolButtonListener());
         buttonsPanel.add(removeToolButton);
 
-	    JButton refreshButton = new JButton("Refresh");
-	    refreshButton.addActionListener(new refreshButtonListener());
-	    buttonsPanel.add(refreshButton);
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.addActionListener(new refreshButtonListener());
+        buttonsPanel.add(refreshButton);
 
         return buttonsPanel;
     }
@@ -536,12 +598,12 @@ public class MainWindow extends JFrame {
 
     private JInternalFrame makeAddExperimentFrame() {
         addExperimentFrame = new JInternalFrame("Add experiment", true, true, true, true);
-	    addExperimentErrorLabel = new JLabel();
+        addExperimentErrorLabel = new JLabel();
 
         JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
         JPanel addExperimentErrorPanel = new JPanel();
         addExperimentFieldsPanel = new JPanel();
-	    JPanel buttonsPanel = new JPanel();
+        JPanel buttonsPanel = new JPanel();
         addExperimentMainPanel.add(addExperimentErrorPanel, BorderLayout.PAGE_START);
         addExperimentMainPanel.add(addExperimentFieldsPanel, BorderLayout.CENTER);
         addExperimentMainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
@@ -552,7 +614,7 @@ public class MainWindow extends JFrame {
         addExperimentFieldsPanel.setLayout(new GridBagLayout());
         GridBagConstraints constraints;
 
-	    GregorianCalendar calendar = new GregorianCalendar();
+        GregorianCalendar calendar = new GregorianCalendar();
 
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -560,111 +622,139 @@ public class MainWindow extends JFrame {
         constraints.gridy = 0;
         addExperimentFieldsPanel.add(new JLabel("Start time"),constraints);
 
-	    JSpinner startHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
-	    startHours.setName("startHours");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 1;
-	    constraints.gridy = 0;
-	    addExperimentFieldsPanel.add(startHours, constraints);
+        JSpinner startHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
+        startHours.setName("startHours");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        addExperimentFieldsPanel.add(startHours, constraints);
 
-	    JSpinner startMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 59, 5));
-	    startMinutes.setName("startMinutes");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 2;
-	    constraints.gridy = 0;
-	    addExperimentFieldsPanel.add(startMinutes, constraints);
+        JSpinner startMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 59, 5));
+        startMinutes.setName("startMinutes");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 2;
+        constraints.gridy = 0;
+        addExperimentFieldsPanel.add(startMinutes, constraints);
 
-	    JSpinner startDay = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.DAY_OF_MONTH), 1, 31, 1));
-	    startDay.setName("startDay");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 3;
-	    constraints.gridy = 0;
-	    addExperimentFieldsPanel.add(startDay, constraints);
+        int lastDayOfMonth;
+        switch (calendar.get(GregorianCalendar.MONTH) + 1) {
+            case 1:case 3:case 5:case 7:case 8:case 10:case 12:
+                lastDayOfMonth = 31;
+                break;
+            case 4:case 6:case 9:case 11:
+                lastDayOfMonth = 30;
+                break;
+            case 2:
+                if (calendar.get(GregorianCalendar.YEAR) % 4 == 0)
+                    lastDayOfMonth = 29;
+                else
+                    lastDayOfMonth = 28;
+                break;
+            default: lastDayOfMonth = 31;
+        }
+        addExperimentStartDay = new JSpinner(new SpinnerNumberModel(
+                calendar.get(GregorianCalendar.DAY_OF_MONTH),
+                1,
+                lastDayOfMonth,
+                1));
+        addExperimentStartDay.setName("startDay");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 3;
+        constraints.gridy = 0;
+        addExperimentFieldsPanel.add(addExperimentStartDay, constraints);
 
-	    JSpinner startMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
-	    startMonth.setName("startMonth");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 4;
-	    constraints.gridy = 0;
-	    addExperimentFieldsPanel.add(startMonth, constraints);
+        addExperimentStartMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
+        addExperimentStartMonth.setName("startMonth");
+        addExperimentStartMonth.addChangeListener(new startDateListener());
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 4;
+        constraints.gridy = 0;
+        addExperimentFieldsPanel.add(addExperimentStartMonth, constraints);
 
-	    JSpinner startYear = new JSpinner(new SpinnerNumberModel(
-			    calendar.get(GregorianCalendar.YEAR),
-			    calendar.get(GregorianCalendar.YEAR),
-			    calendar.get(GregorianCalendar.YEAR) + 1,
-			    1));
-	    startYear.setName("startYear");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 5;
-	    constraints.gridy = 0;
-	    addExperimentFieldsPanel.add(startYear, constraints);
+        addExperimentStartYear = new JSpinner(new SpinnerNumberModel(
+                calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.YEAR) + 1,
+                1));
+        addExperimentStartYear.setName("startYear");
+        addExperimentStartYear.addChangeListener(new startDateListener());
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 5;
+        constraints.gridy = 0;
+        addExperimentFieldsPanel.add(addExperimentStartYear, constraints);
 
-	    constraints = new GridBagConstraints();
+        constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 1;
         addExperimentFieldsPanel.add(new JLabel("End time"), constraints);
 
-	    JSpinner endHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
-	    endHours.setName("endHours");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 1;
-	    constraints.gridy = 1;
-	    addExperimentFieldsPanel.add(endHours, constraints);
+        JSpinner endHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
+        endHours.setName("endHours");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        addExperimentFieldsPanel.add(endHours, constraints);
 
-	    JSpinner endMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 59, 5));
-	    endMinutes.setName("endMinutes");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 2;
-	    constraints.gridy = 1;
-	    addExperimentFieldsPanel.add(endMinutes, constraints);
+        JSpinner endMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 59, 5));
+        endMinutes.setName("endMinutes");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 2;
+        constraints.gridy = 1;
+        addExperimentFieldsPanel.add(endMinutes, constraints);
 
-	    JSpinner endDay = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.DAY_OF_MONTH), 1, 31, 1));
-	    endDay.setName("endDay");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 3;
-	    constraints.gridy = 1;
-	    addExperimentFieldsPanel.add(endDay, constraints);
+        addExperimentEndDay = new JSpinner(new SpinnerNumberModel(
+                calendar.get(GregorianCalendar.DAY_OF_MONTH),
+                1,
+                lastDayOfMonth,
+                1));
+        addExperimentEndDay.setName("endDay");
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 3;
+        constraints.gridy = 1;
+        addExperimentFieldsPanel.add(addExperimentEndDay, constraints);
 
-	    JSpinner endMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
-	    endMonth.setName("endMonth");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 4;
-	    constraints.gridy = 1;
-	    addExperimentFieldsPanel.add(endMonth, constraints);
+        addExperimentEndMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
+        addExperimentEndMonth.setName("endMonth");
+        addExperimentEndMonth.addChangeListener(new endDateListener());
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 4;
+        constraints.gridy = 1;
+        addExperimentFieldsPanel.add(addExperimentEndMonth, constraints);
 
-	    JSpinner endYear = new JSpinner(new SpinnerNumberModel(
-			    calendar.get(GregorianCalendar.YEAR),
-			    calendar.get(GregorianCalendar.YEAR),
-			    calendar.get(GregorianCalendar.YEAR) + 1,
-			    1));
-	    endYear.setName("endYear");
-	    constraints = new GridBagConstraints();
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	    constraints.ipadx = 30;
-	    constraints.gridx = 5;
-	    constraints.gridy = 1;
-	    addExperimentFieldsPanel.add(endYear, constraints);
+        addExperimentEndYear = new JSpinner(new SpinnerNumberModel(
+                calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.YEAR) + 1,
+                1));
+        addExperimentEndYear.setName("endYear");
+        addExperimentEndYear.addChangeListener(new endDateListener());
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx = 30;
+        constraints.gridx = 5;
+        constraints.gridy = 1;
+        addExperimentFieldsPanel.add(addExperimentEndYear, constraints);
 
-	    constraints = new GridBagConstraints();
+        constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 2;
@@ -675,8 +765,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-	    constraints.gridwidth = 5;
-	    constraints.gridx = 1;
+        constraints.gridwidth = 5;
+        constraints.gridx = 1;
         constraints.gridy = 2;
         addExperimentFieldsPanel.add(decNumber, constraints);
 
@@ -691,8 +781,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-	    constraints.gridwidth = 5;
-	    constraints.gridx = 1;
+        constraints.gridwidth = 5;
+        constraints.gridx = 1;
         constraints.gridy = 3;
         addExperimentFieldsPanel.add(name, constraints);
 
@@ -707,8 +797,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-	    constraints.gridwidth = 5;
-	    constraints.gridx = 1;
+        constraints.gridwidth = 5;
+        constraints.gridx = 1;
         constraints.gridy = 4;
         addExperimentFieldsPanel.add(serialNumber, constraints);
 
@@ -723,8 +813,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-	    constraints.gridwidth = 5;
-	    constraints.gridx = 1;
+        constraints.gridwidth = 5;
+        constraints.gridx = 1;
         constraints.gridy = 5;
         addExperimentFieldsPanel.add(order, constraints);
 
@@ -739,8 +829,8 @@ public class MainWindow extends JFrame {
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
-	    constraints.gridwidth = 5;
-	    constraints.gridx = 1;
+        constraints.gridwidth = 5;
+        constraints.gridx = 1;
         constraints.gridy = 6;
         addExperimentFieldsPanel.add(description, constraints);
 
@@ -761,41 +851,38 @@ public class MainWindow extends JFrame {
     }
 
     private JInternalFrame makeRemoveExperimentFrame() {
-		JInternalFrame rmExperimentFrame = new JInternalFrame("Remove experiment", false, true, false, false);
-		rmExperimentFrame.setSize(300, 60);
-		rmExperimentFrame.setLocation(100, 400);
-		rmExperimentFrame.setVisible(false);
+        JInternalFrame rmExperimentFrame = new JInternalFrame("Remove experiment", false, true, false, false);
+        rmExperimentFrame.setSize(300, 60);
+        rmExperimentFrame.setLocation(100, 400);
+        rmExperimentFrame.setVisible(false);
 
-		JPanel mainPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints c;
-		rmExperimentFrame.add(mainPanel);
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c;
+        rmExperimentFrame.add(mainPanel);
 
-		c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 0;
-		mainPanel.add(new JLabel("Experiment ID"), c);
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 0;
+        mainPanel.add(new JLabel("Experiment ID"), c);
 
-		removeExperimentId = new JTextField();
-		c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 0;
-		c.ipadx = 60;
-		c.insets = new Insets(10,10,10,20);
-		mainPanel.add(removeExperimentId, c);
+        removeExperimentId = new JTextField();
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 1;
+        c.gridy = 0;
+        c.ipadx = 60;
+        c.insets = new Insets(10,10,10,20);
+        mainPanel.add(removeExperimentId, c);
 
-		removeExperimentApplyButton = new JButton("Apply");
-		removeExperimentApplyButton.addActionListener(new removeExperimentSubmitListener());
-		c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 2;
-		c.gridy = 0;
-		mainPanel.add(removeExperimentApplyButton, c);
+        removeExperimentApplyButton = new JButton("Apply");
+        removeExperimentApplyButton.addActionListener(new removeExperimentSubmitListener());
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 2;
+        c.gridy = 0;
+        mainPanel.add(removeExperimentApplyButton, c);
 
-		return rmExperimentFrame;
-	}
-
-
-
+        return rmExperimentFrame;
+    }
 }
