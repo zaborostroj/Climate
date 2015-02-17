@@ -108,6 +108,7 @@ public class DBQuery {
                 tool.setDescription(resultSet.getString("description"));
                 tool.setToolType(resultSet.getString("tool_type"));
                 tool.setPlacement(resultSet.getString("placement"));
+                tool.setStatement(resultSet.getString("statement"));
                 queryResult.add(tool);
             }
         } catch (Exception e) {
@@ -275,13 +276,14 @@ public class DBQuery {
         String addQuery =
                 "INSERT INTO" +
                 " `" + toolsTableName + "`" +
-                " (`serial_number`, `name`, `description`, `tool_type`, `placement`)" +
+                " (`serial_number`, `name`, `description`, `tool_type`, `placement`, `statement`)" +
                 " VALUES (" +
                         "\'" + values.get("serial_number") + "\', " +
                         "\'" + values.get("name") + "\', " +
                         "\'" + values.get("description") + "\', " +
                         "\'" + values.get("tool_type") + "\', " +
-                        "\'" + values.get("placement") + "\')";
+                        "\'" + values.get("placement") + "\', " +
+                        "\'\')";
 
         Connection connection = null;
         Statement statement = null;

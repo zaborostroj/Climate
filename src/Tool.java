@@ -8,6 +8,7 @@ public class Tool {
     private String name;
     private String toolType;
     private String placement;
+    private String statement;
 
     public String getId() {
         return id;
@@ -55,5 +56,13 @@ public class Tool {
 
     public void setPlacement(String placement) {
         this.placement = placement;
+    }
+
+    public String getStatement() {
+        return statement;
+    }
+
+    public void setStatement(String statement) {
+        this.statement = statement;
     }
 }

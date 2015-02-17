@@ -373,6 +373,7 @@ public class MainWindow extends JFrame {
             }
         }
     }
+
     private void getToolTypes() {
         toolTypes = new DBQuery().getToolTypes();
     }
@@ -527,11 +528,21 @@ public class MainWindow extends JFrame {
     }
 
     private JPanel makeToolsPanel() {
+        JPanel toolsPanel = new JPanel();
+        toolsPanel.setLayout(new BoxLayout(toolsPanel, BoxLayout.Y_AXIS));
+
         ArrayList<Tool> tools = getTools();
         Map<String, String[]> currentExperiments = getCurrentExperiments();
 
-        JPanel toolsPanel = new JPanel(new FlowLayout());
-        toolsPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
+        Map<String, JPanel> panels = new HashMap<String, JPanel>();
+        for (Object placement : toolPlacements) {
+            JPanel panel = new JPanel();
+            panel.setBorder(BorderFactory.createTitledBorder((String) placement));
+            panel.setLayout(new FlowLayout());
+            panels.put((String) placement, panel);
+            toolsPanel.add(panel);
+        }
+
 
         for (Tool tool : tools) {
 
@@ -540,7 +551,7 @@ public class MainWindow extends JFrame {
             JPanel panel = new JPanel(gridLayout);
 
             JLabel label = new JLabel();
-            label.setText(tool.getName());
+            label.setText(tool.getName() + "   s/n:" + tool.getSerialNumber());
             label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
             panel.add(label);
             if (currentExperiments.get(tool.getId()) != null) {
@@ -549,9 +560,13 @@ public class MainWindow extends JFrame {
                     label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
                     panel.add(label);
                 }
-                panel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true));
+                panel.setBorder(BorderFactory.createLineBorder(Color.RED, 3, true));
             } else {
                 panel.setBorder(BorderFactory.createLineBorder(Color.GREEN, 3, true));
+            }
+
+            if (! tool.getStatement().equals("")) {
+                panel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true));
             }
 
             JButton button = new JButton(tool.getName() + " timetable");
@@ -559,7 +574,15 @@ public class MainWindow extends JFrame {
             button.addActionListener(new toolButtonListener());
             panel.add(button);
 
-            toolsPanel.add(panel);
+
+            panels.get(tool.getPlacement()).add(panel);
+        }
+
+        for (String toolPlacement : toolPlacements) {
+            JPanel panel = panels.get(toolPlacement);
+            JScrollPane toolScrollPane = new JScrollPane(panel);
+            toolScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            toolsPanel.add(toolScrollPane);
         }
 
         return toolsPanel;
