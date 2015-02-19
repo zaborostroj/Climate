@@ -4,7 +4,10 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
   Created by Evgeny Baskakov on 22.01.2015.
@@ -29,8 +32,8 @@ public class MainWindow extends JFrame {
 
     private JInternalFrame timeTableFrame;
     private JTable timeTable = new JTable();
-    private JButton addExperiment = new JButton("Add experiment");
-    private JButton removeExperiment = new JButton("Remove experiment");
+    private JButton addExperiment = new JButton("Добавить испытание");
+    private JButton removeExperiment = new JButton("Удалить испытание");
     static MainWindow mainWindow;
     private ArrayList<Experiment> experiments;
 
@@ -60,7 +63,7 @@ public class MainWindow extends JFrame {
     }
 
     public MainWindow() {
-        super("MainWnd");
+        super("Технологические испытания");
 
         getToolTypes();
         getToolPlacements();
@@ -69,7 +72,7 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
         setJMenuBar(makeMenuBar());
         add(makeNewToolFrame());
-        add(makeTimeTableFrame(), BorderLayout.PAGE_END);
+        add(makeTimeTableFrame());
         add(makeRemoveToolFrame());
         add(makeAddExperimentFrame());
         removeExperimentFrame = makeRemoveExperimentFrame();
@@ -90,12 +93,10 @@ public class MainWindow extends JFrame {
                 if (component.getClass() == JTextField.class) {
                     JTextField textField = (JTextField) component;
                     if (!textField.getText().equals("")) {
-                        //textField.setBorder(BorderFactory.createLineBorder(STD_COLOR));
                         newToolParams.put(textField.getName(), textField.getText());
-                        newToolErrorLabel.setText("Input data");
+                        newToolErrorLabel.setText("Заполните данные эксперимента");
                     } else {
                         allFieldsFilled = false;
-                        //textField.setBorder(BorderFactory.createLineBorder(Color.PINK));
                     }
 
                 } else if (component.getClass() == JComboBox.class) {
@@ -124,7 +125,7 @@ public class MainWindow extends JFrame {
                 }
 
             } else {
-                newToolErrorLabel.setText("Fill info");
+                newToolErrorLabel.setText("Заполните данные эксперимента");
             }
         }
     }
@@ -136,14 +137,23 @@ public class MainWindow extends JFrame {
         }
     }
 
-    class toolButtonListener implements ActionListener {
+    class toolTimeTableButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             makeTimeTable(e.getActionCommand());
-            timeTableFrame.setTitle("Timetable for camera #" + e.getActionCommand());
+            timeTableFrame.setTitle("Расписание экспериментов #" + e.getActionCommand());
             timeTableFrame.setVisible(true);
             addExperiment.setActionCommand(e.getActionCommand());
             removeExperiment.setActionCommand(e.getActionCommand());
+        }
+    }
+
+    class toolInfoButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            HashMap<String, String> toolInfo = new DBQuery().getToolInfo(e.getActionCommand());
+            makeToolInfoDialog(toolInfo);
+            System.out.println(toolInfo);
         }
     }
 
@@ -269,7 +279,7 @@ public class MainWindow extends JFrame {
                         params.put(tf.getName(), tf.getText());
                     } else {
                         //tf.setBorder(BorderFactory.createLineBorder(Color.PINK));
-                        addExperimentErrorLabel.setText("Fill all fields");
+                        addExperimentErrorLabel.setText("Все поля должны быть заполнены");
                         allFieldsFilled = false;
                     }
                 } else if (component.getClass() == JSpinner.class) {
@@ -292,7 +302,7 @@ public class MainWindow extends JFrame {
                     timeTableFrame.validate();
                     timeTableFrame.repaint();
 
-                    addExperimentErrorLabel.setText("Enter data");
+                    addExperimentErrorLabel.setText("Заполните данные эксперимента");
                     for (Component component : addExperimentFieldsPanel.getComponents()) {
                         if (component.getClass() == JTextField.class) {
                             JTextField tf = (JTextField) component;
@@ -384,7 +394,7 @@ public class MainWindow extends JFrame {
 
     private JInternalFrame makeNewToolFrame() {
         JPanel newToolErrorPanel = new JPanel();
-        newToolErrorLabel = new JLabel("Input data");
+        newToolErrorLabel = new JLabel("Заполните данные");
         newToolErrorPanel.add(newToolErrorLabel);
 
         JComboBox<String> typeComboBox = new JComboBox<String>();
@@ -401,30 +411,30 @@ public class MainWindow extends JFrame {
         JTextField textField;
         newToolFieldsPanel = new JPanel(new GridLayout(5, 2, 3, 3));
         newToolFieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        newToolFieldsPanel.add(new JLabel("Serial"));
+        newToolFieldsPanel.add(new JLabel("Зав. №"));
         textField = new JTextField();
         textField.setName("serial_number");
         newToolFieldsPanel.add(textField);
-        newToolFieldsPanel.add(new JLabel("Name"));
+        newToolFieldsPanel.add(new JLabel("Название"));
         textField = new JTextField();
         textField.setName("name");
         newToolFieldsPanel.add(textField);
-        newToolFieldsPanel.add(new JLabel("Description"));
+        newToolFieldsPanel.add(new JLabel("Описание"));
         textField = new JTextField();
         textField.setName("description");
         newToolFieldsPanel.add(textField);
-        newToolFieldsPanel.add(new JLabel("Type"));
+        newToolFieldsPanel.add(new JLabel("Тип"));
         newToolFieldsPanel.add(typeComboBox);
-        newToolFieldsPanel.add(new JLabel(("Placement")));
+        newToolFieldsPanel.add(new JLabel(("Размещение")));
         newToolFieldsPanel.add(placementComboBox);
 
         JPanel newToolButtonsPanel = new JPanel(new FlowLayout());
         newToolButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        JButton newToolAddButton = new JButton("Add");
+        JButton newToolAddButton = new JButton("Добавить");
         newToolAddButton.addActionListener(new newToolAddButtonListener());
 
-        JButton newToolCancelButton = new JButton("Cancel");
+        JButton newToolCancelButton = new JButton("Отмена");
         newToolCancelButton.addActionListener(new newToolCancelButtonListener());
 
         newToolButtonsPanel.add(newToolAddButton);
@@ -436,7 +446,7 @@ public class MainWindow extends JFrame {
         newToolMainPanel.add(newToolFieldsPanel, BorderLayout.CENTER);
         newToolMainPanel.add(newToolButtonsPanel, BorderLayout.PAGE_END);
 
-        newToolFrame = new JInternalFrame("Add new tool", false, true);
+        newToolFrame = new JInternalFrame("Добавить новое оборудование", false, true);
         newToolFrame.add(newToolMainPanel);
         newToolFrame.setSize(300, 250);
         newToolFrame.setLocation(20, 400);
@@ -447,7 +457,7 @@ public class MainWindow extends JFrame {
 
     private JInternalFrame makeTimeTableFrame() {
         timeTableFrame = new JInternalFrame("Internal Frame 1", true, true, true, true);
-        timeTableFrame.setSize(800, 300);
+        timeTableFrame.setSize(900, 300);
         timeTableFrame.setLocation(20, 100);
         timeTableFrame.setVisible(false);
 
@@ -487,18 +497,18 @@ public class MainWindow extends JFrame {
         experiments = getExperiments(cameraId);
         timeTable.setModel(new TimeTableModel(experiments));
         timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
-        timeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
-        timeTable.getColumnModel().getColumn(2).setPreferredWidth(120);
-        timeTable.getColumnModel().getColumn(3).setPreferredWidth(120);
-        timeTable.getColumnModel().getColumn(4).setPreferredWidth(100);
-        timeTable.getColumnModel().getColumn(5).setPreferredWidth(50);
-        timeTable.getColumnModel().getColumn(6).setPreferredWidth(170);
-        timeTable.getColumnModel().getColumn(7).setPreferredWidth(30);
-        timeTable.getColumnModel().getColumn(8).setPreferredWidth(100);
+        timeTable.getColumnModel().getColumn(1).setPreferredWidth(30);
+        timeTable.getColumnModel().getColumn(2).setPreferredWidth(110);
+        timeTable.getColumnModel().getColumn(3).setPreferredWidth(110);
+        timeTable.getColumnModel().getColumn(4).setPreferredWidth(120);
+        timeTable.getColumnModel().getColumn(5).setPreferredWidth(80);
+        timeTable.getColumnModel().getColumn(6).setPreferredWidth(50);
+        timeTable.getColumnModel().getColumn(7).setPreferredWidth(150);
+        timeTable.getColumnModel().getColumn(8).setPreferredWidth(30);
     }
 
     private JInternalFrame makeRemoveToolFrame() {
-        removeToolFrame = new JInternalFrame("Remove tool", true, true);
+        removeToolFrame = new JInternalFrame("Удалить оборудование", true, true);
         removeToolFrame.setSize(300, 60);
         removeToolFrame.setLocation(30, 300);
 
@@ -506,14 +516,14 @@ public class MainWindow extends JFrame {
         removeMainPanel.setLayout(new BoxLayout(removeMainPanel, BoxLayout.X_AXIS));
         removeMainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        JLabel serialNumberLabel = new JLabel("Serial number");
+        JLabel serialNumberLabel = new JLabel("Зав. №");
         serialNumberLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
         removeMainPanel.add(serialNumberLabel);
 
         JTextField serialNumberField = new JTextField();
         removeMainPanel.add(serialNumberField);
 
-        JButton removeToolSubmitButton = new JButton("Submit");
+        JButton removeToolSubmitButton = new JButton("Удалить");
         removeToolSubmitButton.addActionListener(new removeToolSubmitListener());
         removeMainPanel.add(removeToolSubmitButton);
 
@@ -547,11 +557,11 @@ public class MainWindow extends JFrame {
         for (Tool tool : tools) {
 
             String[] experiment = currentExperiments.get(tool.getId());
-            GridLayout gridLayout = new GridLayout(9, 1);
+            GridLayout gridLayout = new GridLayout(10, 1);
             JPanel panel = new JPanel(gridLayout);
 
             JLabel label = new JLabel();
-            label.setText(tool.getName() + "   s/n:" + tool.getSerialNumber());
+            label.setText(tool.getName() + "   зав. №:" + tool.getSerialNumber());
             label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
             panel.add(label);
             if (currentExperiments.get(tool.getId()) != null) {
@@ -569,11 +579,15 @@ public class MainWindow extends JFrame {
                 panel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true));
             }
 
-            JButton button = new JButton(tool.getName() + " timetable");
+            JButton button = new JButton(/*tool.getName() + */ "Расписание");
             button.setActionCommand(tool.getId());
-            button.addActionListener(new toolButtonListener());
+            button.addActionListener(new toolTimeTableButtonListener());
             panel.add(button);
 
+            button = new JButton(/*tool.getName() + */"Справка");
+            button.setActionCommand(tool.getId());
+            button.addActionListener(new toolInfoButtonListener());
+            panel.add(button);
 
             panels.get(tool.getPlacement()).add(panel);
         }
@@ -591,15 +605,15 @@ public class MainWindow extends JFrame {
     private JPanel makeButtonsPanel() {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        JButton addToolButton = new JButton("Add new camera");
+        JButton addToolButton = new JButton("Добавить оборудование");
         addToolButton.addActionListener(new addToolButtonListener());
         buttonsPanel.add(addToolButton);
 
-        JButton removeToolButton = new JButton("Remove camera");
+        JButton removeToolButton = new JButton("Удалить оборудование");
         removeToolButton.addActionListener(new removeToolButtonListener());
         buttonsPanel.add(removeToolButton);
 
-        JButton refreshButton = new JButton("Refresh");
+        JButton refreshButton = new JButton("Обновить данные");
         refreshButton.addActionListener(new refreshButtonListener());
         buttonsPanel.add(refreshButton);
 
@@ -608,11 +622,11 @@ public class MainWindow extends JFrame {
 
     private JMenuBar makeMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-        JMenu helpMenu = new JMenu("Help");
-        JMenuItem aboutItem = new JMenuItem("About");
+        JMenu helpMenu = new JMenu("Справка");
+        JMenuItem aboutItem = new JMenuItem("О программе");
         helpMenu.add(aboutItem);
         helpMenu.addSeparator();
-        JMenuItem closeItem = new JMenuItem("Close");
+        JMenuItem closeItem = new JMenuItem("Закрыть");
         helpMenu.add(closeItem);
         menuBar.add(helpMenu);
 
@@ -620,7 +634,7 @@ public class MainWindow extends JFrame {
     }
 
     private JInternalFrame makeAddExperimentFrame() {
-        addExperimentFrame = new JInternalFrame("Add experiment", true, true, true, true);
+        addExperimentFrame = new JInternalFrame("Добавить испытание", true, true, true, true);
         addExperimentErrorLabel = new JLabel();
 
         JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
@@ -631,7 +645,7 @@ public class MainWindow extends JFrame {
         addExperimentMainPanel.add(addExperimentFieldsPanel, BorderLayout.CENTER);
         addExperimentMainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
 
-        addExperimentErrorLabel.setText("Enter data");
+        addExperimentErrorLabel.setText("Заполните данные испытания");
         addExperimentErrorPanel.add(addExperimentErrorLabel);
 
         addExperimentFieldsPanel.setLayout(new GridBagLayout());
@@ -643,7 +657,7 @@ public class MainWindow extends JFrame {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        addExperimentFieldsPanel.add(new JLabel("Start time"),constraints);
+        addExperimentFieldsPanel.add(new JLabel("Начало испытания"),constraints);
 
         JSpinner startHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
         startHours.setName("startHours");
@@ -720,7 +734,7 @@ public class MainWindow extends JFrame {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 1;
-        addExperimentFieldsPanel.add(new JLabel("End time"), constraints);
+        addExperimentFieldsPanel.add(new JLabel("Окончание испытания"), constraints);
 
         JSpinner endHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
         endHours.setName("endHours");
@@ -781,7 +795,7 @@ public class MainWindow extends JFrame {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 2;
-        addExperimentFieldsPanel.add(new JLabel("Dec number"), constraints);
+        addExperimentFieldsPanel.add(new JLabel("Децимальный номер"), constraints);
 
         JTextField decNumber = new JTextField();
         decNumber.setName("decNumber");
@@ -797,7 +811,7 @@ public class MainWindow extends JFrame {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 3;
-        addExperimentFieldsPanel.add(new JLabel("Name"), constraints);
+        addExperimentFieldsPanel.add(new JLabel("Название"), constraints);
 
         JTextField name = new JTextField();
         name.setName("name");
@@ -813,7 +827,7 @@ public class MainWindow extends JFrame {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 4;
-        addExperimentFieldsPanel.add(new JLabel("Serial number"), constraints);
+        addExperimentFieldsPanel.add(new JLabel("Заводской номер"), constraints);
 
         JTextField serialNumber = new JTextField();
         serialNumber.setName("serialNumber");
@@ -829,7 +843,7 @@ public class MainWindow extends JFrame {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 5;
-        addExperimentFieldsPanel.add(new JLabel("Order"), constraints);
+        addExperimentFieldsPanel.add(new JLabel("Заказ"), constraints);
 
         JTextField order = new JTextField();
         order.setName("order");
@@ -845,7 +859,7 @@ public class MainWindow extends JFrame {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 6;
-        addExperimentFieldsPanel.add(new JLabel("Description"), constraints);
+        addExperimentFieldsPanel.add(new JLabel("Описание"), constraints);
 
         JTextField  description = new JTextField();
         description.setName("description");
@@ -857,16 +871,16 @@ public class MainWindow extends JFrame {
         constraints.gridy = 6;
         addExperimentFieldsPanel.add(description, constraints);
 
-        addExperimentApplyButton = new JButton("Apply");
+        addExperimentApplyButton = new JButton("Добавить");
         addExperimentApplyButton.addActionListener(new addExperimentApplyListener());
         buttonsPanel.add(addExperimentApplyButton);
 
-        JButton addExperimentCancelButton = new JButton("Cancel");
+        JButton addExperimentCancelButton = new JButton("Отменить");
         addExperimentCancelButton.addActionListener(new addExperimentCancelListener());
         buttonsPanel.add(addExperimentCancelButton);
 
         addExperimentFrame.add(addExperimentMainPanel);
-        addExperimentFrame.setSize(500, 300);
+        addExperimentFrame.setSize(600, 300);
         addExperimentFrame.setLocation(100, 400);
         addExperimentFrame.setVisible(false);
 
@@ -874,7 +888,7 @@ public class MainWindow extends JFrame {
     }
 
     private JInternalFrame makeRemoveExperimentFrame() {
-        JInternalFrame rmExperimentFrame = new JInternalFrame("Remove experiment", false, true, false, false);
+        JInternalFrame rmExperimentFrame = new JInternalFrame("Удалить испытание", false, true, false, false);
         rmExperimentFrame.setSize(300, 60);
         rmExperimentFrame.setLocation(100, 400);
         rmExperimentFrame.setVisible(false);
@@ -887,7 +901,7 @@ public class MainWindow extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 0;
-        mainPanel.add(new JLabel("Experiment ID"), c);
+        mainPanel.add(new JLabel("ID испытания"), c);
 
         removeExperimentId = new JTextField();
         c = new GridBagConstraints();
@@ -898,7 +912,7 @@ public class MainWindow extends JFrame {
         c.insets = new Insets(10,10,10,20);
         mainPanel.add(removeExperimentId, c);
 
-        removeExperimentApplyButton = new JButton("Apply");
+        removeExperimentApplyButton = new JButton("Удалить");
         removeExperimentApplyButton.addActionListener(new removeExperimentSubmitListener());
         c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -907,5 +921,51 @@ public class MainWindow extends JFrame {
         mainPanel.add(removeExperimentApplyButton, c);
 
         return rmExperimentFrame;
+    }
+
+    private JDialog makeToolInfoDialog(HashMap<String, String> toolInfo) {
+        JDialog toolInfoDialog = new JDialog(mainWindow);
+
+        GridBagLayout gbl = new GridBagLayout();
+        GridBagConstraints gbc;
+
+        JPanel panel = new JPanel(gbl);
+        toolInfoDialog.add(panel);
+
+        JLabel nameLabel = new JLabel("Название: " + toolInfo.get("name"));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(nameLabel, gbc);
+
+        JLabel serialLabel = new JLabel("Зав. №: " + toolInfo.get("serial_number"));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        panel.add(serialLabel, gbc);
+
+        JLabel typeLabel = new JLabel("Тип оборудования: " + toolInfo.get("tool_type"));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(typeLabel, gbc);
+
+        JLabel placementLabel = new JLabel("Размещение: " + toolInfo.get("placement"));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        panel.add(placementLabel, gbc);
+
+        JLabel descriptionLabel = new JLabel("Описание: " + toolInfo.get("description"));
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        panel.add(descriptionLabel, gbc);
+
+        toolInfoDialog.setSize(300, 300);
+        toolInfoDialog.setLocation(200, 200);
+        toolInfoDialog.setVisible(true);
+        return toolInfoDialog;
     }
 }

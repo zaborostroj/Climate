@@ -5,7 +5,16 @@ import java.util.ArrayList;
   Created by Evgeny Baskakov on 27.01.2015.
  */
 public class TimeTableModel extends AbstractTableModel{
-    final String[] columnNames = {"ID", "Camera ID", "Start time", "End time", "Dec number", "Serial number", "Name", "Order", "Description"};
+    final String[] columnNames = {
+            "ID",
+            "Camera ID",
+            "Начало испытаний",
+            "Окончание испытаний",
+            "Название",
+            "Децим. №",
+            "Зав. №",
+            "Описание",
+            "Заказ"};
     private ArrayList<Experiment> data;
 
     @Override
@@ -26,11 +35,11 @@ public class TimeTableModel extends AbstractTableModel{
             case 1: return experiment.getCameraId();
             case 2: return experiment.getStartTime();
             case 3: return experiment.getEndTime();
-            case 4: return experiment.getDecNumber();
-            case 5: return experiment.getSerialNumber();
-            case 6: return experiment.getName();
-            case 7: return experiment.getOrder();
-            case 8: return experiment.getDescription();
+            case 4: return experiment.getName();
+            case 5: return experiment.getDecNumber();
+            case 6: return experiment.getSerialNumber();
+            case 7: return experiment.getDescription();
+            case 8: return experiment.getOrder();
             default: return "";
         }
     }

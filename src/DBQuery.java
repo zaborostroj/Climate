@@ -1,8 +1,10 @@
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
   Created by Evgeny Baskakov on 26.01.2015.
@@ -260,6 +262,49 @@ public class DBQuery {
             }
         }
         return curExp;
+    }
+
+    public HashMap<String, String> getToolInfo(String toolId) {
+        String query = "SELECT *" +
+                " FROM `" + toolsTableName + "`" +
+                " WHERE id = " + toolId;
+        Connection connection = null;
+        Statement statement = null;
+        HashMap<String, String> toolInfo = new HashMap<String, String>();
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                toolInfo.put("name", resultSet.getString("name"));
+                toolInfo.put("serial_number", resultSet.getString("serial_number"));
+                toolInfo.put("tool_type", resultSet.getString("tool_type"));
+                toolInfo.put("placement", resultSet.getString("placement"));
+                toolInfo.put("description", resultSet.getString("description"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return toolInfo;
     }
 
     public String addTool(Map<String, String> values) {
