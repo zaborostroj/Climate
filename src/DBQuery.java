@@ -90,6 +90,44 @@ public class DBQuery {
         return toolPlacements;
     }
 
+    public ArrayList<String> getExperimentTypes() {
+        ArrayList<String> experimentTypes = new ArrayList<String>();
+        String query = "SELECT * FROM `experimenttype`";
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                experimentTypes.add(resultSet.getString("name"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return experimentTypes;
+    }
+
     public ArrayList<Tool> getTools() {
         Connection connection = null;
         Statement statement = null;

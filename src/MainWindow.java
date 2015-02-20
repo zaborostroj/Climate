@@ -153,7 +153,6 @@ public class MainWindow extends JFrame {
         public void actionPerformed(ActionEvent e) {
             HashMap<String, String> toolInfo = new DBQuery().getToolInfo(e.getActionCommand());
             makeToolInfoDialog(toolInfo);
-            System.out.println(toolInfo);
         }
     }
 
@@ -203,9 +202,9 @@ public class MainWindow extends JFrame {
                 mainWindow.add(toolsPanel);
                 mainWindow.validate();
                 mainWindow.repaint();
-            } else {
+            }/* else {
                 textField.setText(result);
-            }
+            }*/
         }
     }
 
@@ -275,16 +274,17 @@ public class MainWindow extends JFrame {
                 if (component.getClass() == JTextField.class) {
                     JTextField tf = (JTextField) component;
                     if ( ! tf.getText().equals("")) {
-                        //tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
                         params.put(tf.getName(), tf.getText());
                     } else {
-                        //tf.setBorder(BorderFactory.createLineBorder(Color.PINK));
                         addExperimentErrorLabel.setText("Все поля должны быть заполнены");
                         allFieldsFilled = false;
                     }
                 } else if (component.getClass() == JSpinner.class) {
                     JSpinner sp = (JSpinner) component;
                     params.put(sp.getName(), sp.getValue().toString());
+                } else if (component.getClass() == JComboBox.class) {
+                    JComboBox cb = (JComboBox) component;
+                    params.put(cb.getName(), (String) cb.getSelectedItem());
                 }
             }
 
@@ -633,7 +633,13 @@ public class MainWindow extends JFrame {
         return menuBar;
     }
 
+    private ArrayList<String> getExperimentTypes() {
+        return new DBQuery().getExperimentTypes();
+    }
+
     private JInternalFrame makeAddExperimentFrame() {
+        ArrayList<String> experimentTypes = getExperimentTypes();
+
         addExperimentFrame = new JInternalFrame("Добавить испытание", true, true, true, true);
         addExperimentErrorLabel = new JLabel();
 
@@ -861,8 +867,13 @@ public class MainWindow extends JFrame {
         constraints.gridy = 6;
         addExperimentFieldsPanel.add(new JLabel("Описание"), constraints);
 
-        JTextField  description = new JTextField();
+        JComboBox<String> description = new JComboBox<String>();
         description.setName("description");
+        for (String type : experimentTypes) {
+            description.addItem(type);
+        }
+        //JTextField  description = new JTextField();
+        //description.setName("description");
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.ipadx = 100;
@@ -934,30 +945,39 @@ public class MainWindow extends JFrame {
 
         JLabel nameLabel = new JLabel("Название: " + toolInfo.get("name"));
         gbc = new GridBagConstraints();
+        gbc.weightx = 20;
+        gbc.anchor = GridBagConstraints.LINE_START;
         gbc.gridx = 0;
         gbc.gridy = 0;
         panel.add(nameLabel, gbc);
 
         JLabel serialLabel = new JLabel("Зав. №: " + toolInfo.get("serial_number"));
         gbc = new GridBagConstraints();
+        gbc.weightx = 80;
+        gbc.anchor = GridBagConstraints.LINE_START;
         gbc.gridx = 1;
         gbc.gridy = 0;
         panel.add(serialLabel, gbc);
 
         JLabel typeLabel = new JLabel("Тип оборудования: " + toolInfo.get("tool_type"));
         gbc = new GridBagConstraints();
+        gbc.weightx = 20;
+        gbc.anchor = GridBagConstraints.LINE_START;
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(typeLabel, gbc);
 
         JLabel placementLabel = new JLabel("Размещение: " + toolInfo.get("placement"));
         gbc = new GridBagConstraints();
+        gbc.weightx = 80;
+        gbc.anchor = GridBagConstraints.LINE_START;
         gbc.gridx = 1;
         gbc.gridy = 1;
         panel.add(placementLabel, gbc);
 
         JLabel descriptionLabel = new JLabel("Описание: " + toolInfo.get("description"));
         gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.LINE_START;
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
