@@ -48,7 +48,7 @@ public class MainWindow extends JFrame {
     private JSpinner addExperimentEndMonth;
     private JSpinner addExperimentEndYear;
 
-    private JInternalFrame removeExperimentFrame;
+    private JDialog removeExperimentFrame;
     private JButton removeExperimentApplyButton;
     private JTextField removeExperimentId;
 
@@ -76,7 +76,7 @@ public class MainWindow extends JFrame {
         add(makeRemoveToolFrame());
         add(makeAddExperimentFrame());
         removeExperimentFrame = makeRemoveExperimentFrame();
-        add(removeExperimentFrame);
+        //add(removeExperimentFrame);
         toolsPanel = makeToolsPanel();
         add(toolsPanel, BorderLayout.CENTER);
         add(makeButtonsPanel(), BorderLayout.PAGE_END);
@@ -898,8 +898,9 @@ public class MainWindow extends JFrame {
         return addExperimentFrame;
     }
 
-    private JInternalFrame makeRemoveExperimentFrame() {
-        JInternalFrame rmExperimentFrame = new JInternalFrame("Удалить испытание", false, true, false, false);
+    private JDialog makeRemoveExperimentFrame() {
+        //JInternalFrame rmExperimentFrame = new JInternalFrame("Удалить испытание", false, true, false, false);
+        JDialog rmExperimentFrame = new JDialog(mainWindow, "Удалить испытание");
         rmExperimentFrame.setSize(300, 60);
         rmExperimentFrame.setLocation(100, 400);
         rmExperimentFrame.setVisible(false);
@@ -936,6 +937,11 @@ public class MainWindow extends JFrame {
 
     private JDialog makeToolInfoDialog(HashMap<String, String> toolInfo) {
         JDialog toolInfoDialog = new JDialog(mainWindow);
+        String title = toolInfo.get("name") +
+                " №" + toolInfo.get("serial_number") +
+                " (" + toolInfo.get("placement") + ")";
+
+        toolInfoDialog.setTitle(title);
 
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbc;
@@ -943,7 +949,10 @@ public class MainWindow extends JFrame {
         JPanel panel = new JPanel(gbl);
         toolInfoDialog.add(panel);
 
+        /*Font boldFont = new Font("Consolas", Font.BOLD, 14);
+
         JLabel nameLabel = new JLabel("Название: " + toolInfo.get("name"));
+        nameLabel.setFont(boldFont);
         gbc = new GridBagConstraints();
         gbc.weightx = 20;
         gbc.anchor = GridBagConstraints.LINE_START;
@@ -974,17 +983,20 @@ public class MainWindow extends JFrame {
         gbc.gridx = 1;
         gbc.gridy = 1;
         panel.add(placementLabel, gbc);
-
+*/
         JLabel descriptionLabel = new JLabel("Описание: " + toolInfo.get("description"));
         gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.gridx = 0;
         gbc.gridy = 2;
+        gbc.ipadx = 50;
+        gbc.ipady = 50;
         gbc.gridwidth = 2;
         panel.add(descriptionLabel, gbc);
 
-        toolInfoDialog.setSize(300, 300);
+        //toolInfoDialog.setSize(300, 300);
         toolInfoDialog.setLocation(200, 200);
+        toolInfoDialog.pack();
         toolInfoDialog.setVisible(true);
         return toolInfoDialog;
     }
