@@ -252,11 +252,12 @@ public class DBQuery {
             connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
-            String[] experiment = new String[9];
 
             while (resultSet.next()) {
 
                 if (resultSet.getString("id") != null) {
+                    String[] experiment = new String[9];
+                    String camera_id = resultSet.getString("camera_id");
                     //date and time format 'HH:MM DD-MM-YYYY'
                     String sqlDateTime[] = resultSet.getString("start_time").split("\\s");
                     String[] date = sqlDateTime[0].split("-");
@@ -268,7 +269,7 @@ public class DBQuery {
                     String experimentEndTime = time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0];
 
                     experiment[0] = resultSet.getString("id");
-                    experiment[1] = resultSet.getString("camera_id");
+                    experiment[1] = camera_id;
                     experiment[2] = experimentStartTime;
                     experiment[3] = experimentEndTime;
                     experiment[4] = resultSet.getString("dec_number");
@@ -277,7 +278,7 @@ public class DBQuery {
                     experiment[7] = resultSet.getString("order");
                     experiment[8] = resultSet.getString("description");
 
-                    curExp.put(resultSet.getString("camera_id"), experiment);
+                    curExp.put(camera_id, experiment);
                 }
             }
         } catch (Exception e) {

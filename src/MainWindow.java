@@ -30,7 +30,7 @@ public class MainWindow extends JFrame {
     private JInternalFrame removeToolFrame;
     private JPanel removeMainPanel;
 
-    private JInternalFrame timeTableFrame;
+    private JDialog timeTableDialog;
     private JTable timeTable = new JTable();
     private JButton addExperiment = new JButton("Добавить испытание");
     private JButton removeExperiment = new JButton("Удалить испытание");
@@ -48,7 +48,7 @@ public class MainWindow extends JFrame {
     private JSpinner addExperimentEndMonth;
     private JSpinner addExperimentEndYear;
 
-    private JDialog removeExperimentFrame;
+    private JDialog removeExperimentDialog;
     private JButton removeExperimentApplyButton;
     private JTextField removeExperimentId;
 
@@ -72,11 +72,11 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
         setJMenuBar(makeMenuBar());
         add(makeNewToolFrame());
-        add(makeTimeTableFrame());
+        //add(makeTimeTableFrame());
         add(makeRemoveToolFrame());
         add(makeAddExperimentFrame());
-        removeExperimentFrame = makeRemoveExperimentFrame();
-        //add(removeExperimentFrame);
+        //removeExperimentDialog = makeRemoveExperimentFrame();
+        //add(removeExperimentDialog);
         toolsPanel = makeToolsPanel();
         add(toolsPanel, BorderLayout.CENTER);
         add(makeButtonsPanel(), BorderLayout.PAGE_END);
@@ -141,8 +141,13 @@ public class MainWindow extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             makeTimeTable(e.getActionCommand());
-            timeTableFrame.setTitle("Расписание экспериментов #" + e.getActionCommand());
-            timeTableFrame.setVisible(true);
+            if (timeTableDialog != null) {
+                timeTableDialog.setVisible(false);
+                timeTableDialog = null;
+            }
+            timeTableDialog = makeTimeTableDialog();
+            timeTableDialog.setTitle("Расписание экспериментов #" + e.getActionCommand());
+            timeTableDialog.setVisible(true);
             addExperiment.setActionCommand(e.getActionCommand());
             removeExperiment.setActionCommand(e.getActionCommand());
         }
@@ -233,12 +238,12 @@ public class MainWindow extends JFrame {
     class removeExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            removeExperimentApplyButton.setActionCommand(e.getActionCommand());
-            if (removeExperimentFrame.isVisible()) {
-                removeExperimentFrame.setVisible(false);
-            } else {
-                removeExperimentFrame.setVisible(true);
+            if (removeExperimentDialog != null) {
+                removeExperimentDialog.setVisible(false);
+                removeExperimentDialog = null;
             }
+            removeExperimentDialog = makeRemoveExperimentDialog();
+            removeExperimentApplyButton.setActionCommand(e.getActionCommand());
         }
     }
 
@@ -255,11 +260,11 @@ public class MainWindow extends JFrame {
                 mainWindow.repaint();
 
                 makeTimeTable(e.getActionCommand());
-                timeTableFrame.validate();
-                timeTableFrame.repaint();
+                timeTableDialog.validate();
+                timeTableDialog.repaint();
 
                 removeExperimentId.setText("");
-                removeExperimentFrame.setVisible(false);
+                removeExperimentDialog.setVisible(false);
             }
         }
     }
@@ -299,8 +304,8 @@ public class MainWindow extends JFrame {
                     mainWindow.repaint();
 
                     makeTimeTable(e.getActionCommand());
-                    timeTableFrame.validate();
-                    timeTableFrame.repaint();
+                    timeTableDialog.validate();
+                    timeTableDialog.repaint();
 
                     addExperimentErrorLabel.setText("Заполните данные эксперимента");
                     for (Component component : addExperimentFieldsPanel.getComponents()) {
@@ -455,11 +460,19 @@ public class MainWindow extends JFrame {
         return newToolFrame;
     }
 
-    private JInternalFrame makeTimeTableFrame() {
-        timeTableFrame = new JInternalFrame("Internal Frame 1", true, true, true, true);
-        timeTableFrame.setSize(900, 300);
-        timeTableFrame.setLocation(20, 100);
-        timeTableFrame.setVisible(false);
+    private ArrayList<Experiment> getExperiments(String cameraId) {
+        return new DBQuery().getExperiments(cameraId);
+    }
+
+    private Map<String, String[]> getCurrentExperiments() {
+        return new DBQuery().getCurrentExperiments();
+    }
+
+    private JDialog makeTimeTableDialog() {
+        //timeTableDialog = new JInternalFrame("Internal Frame 1", true, true, true, true);
+        JDialog timeTableDialog = new JDialog(mainWindow);
+        timeTableDialog.setSize(900, 300);
+        timeTableDialog.setLocation(20, 100);
 
         JPanel mainPanel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
@@ -479,18 +492,10 @@ public class MainWindow extends JFrame {
         buttonsPanel.add(removeExperiment);
         mainPanel.add(buttonsPanel);
 
-        timeTableFrame.add(mainPanel);
+        timeTableDialog.add(mainPanel);
 
-        return timeTableFrame;
-    }
-
-    private ArrayList<Experiment> getExperiments(String cameraId) {
-        experiments = new DBQuery().getExperiments(cameraId);
-        return experiments;
-    }
-
-    private Map<String, String[]> getCurrentExperiments() {
-        return new DBQuery().getCurrentExperiments();
+        timeTableDialog.setVisible(true);
+        return timeTableDialog;
     }
 
     private void makeTimeTable (String cameraId) {
@@ -553,7 +558,6 @@ public class MainWindow extends JFrame {
             toolsPanel.add(panel);
         }
 
-
         for (Tool tool : tools) {
 
             String[] experiment = currentExperiments.get(tool.getId());
@@ -562,7 +566,7 @@ public class MainWindow extends JFrame {
 
             JLabel label = new JLabel();
             label.setText(tool.getName() + "   зав. №:" + tool.getSerialNumber());
-            label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+            label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             panel.add(label);
             if (currentExperiments.get(tool.getId()) != null) {
                 for (int i = 2; i <= 8; i++){
@@ -898,12 +902,12 @@ public class MainWindow extends JFrame {
         return addExperimentFrame;
     }
 
-    private JDialog makeRemoveExperimentFrame() {
-        //JInternalFrame rmExperimentFrame = new JInternalFrame("Удалить испытание", false, true, false, false);
-        JDialog rmExperimentFrame = new JDialog(mainWindow, "Удалить испытание");
+    private JDialog makeRemoveExperimentDialog() {
+        JDialog rmExperimentFrame = new JDialog(mainWindow);
+        rmExperimentFrame.setTitle("Удалить испытание");
+        rmExperimentFrame.setResizable(false);
         rmExperimentFrame.setSize(300, 60);
         rmExperimentFrame.setLocation(100, 400);
-        rmExperimentFrame.setVisible(false);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints c;
@@ -932,6 +936,7 @@ public class MainWindow extends JFrame {
         c.gridy = 0;
         mainPanel.add(removeExperimentApplyButton, c);
 
+        rmExperimentFrame.setVisible(true);
         return rmExperimentFrame;
     }
 
