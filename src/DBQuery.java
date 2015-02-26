@@ -525,7 +525,7 @@ public class DBQuery {
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(checkQuery);
             if (resultSet.next()) {
-                return "this time is busy";
+                return "Это время занято";
             } else {
                 statement.executeUpdate(addExperimentQuery);
                 return "OK";

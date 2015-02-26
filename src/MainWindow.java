@@ -22,12 +22,12 @@ public class MainWindow extends JFrame {
     private static ArrayList<String> toolTypes;
     private static ArrayList<String> toolPlacements;
 
-    private JInternalFrame newToolFrame;
+    private JDialog newToolDialog;
     private JPanel newToolFieldsPanel;
     private JLabel newToolErrorLabel;
     private JPanel toolsPanel;
 
-    private JInternalFrame removeToolFrame;
+    private JDialog removeToolDialog;
     private JPanel removeMainPanel;
 
     private JDialog timeTableDialog;
@@ -35,9 +35,8 @@ public class MainWindow extends JFrame {
     private JButton addExperiment = new JButton("Добавить испытание");
     private JButton removeExperiment = new JButton("Удалить испытание");
     static MainWindow mainWindow;
-    private ArrayList<Experiment> experiments;
 
-    private JInternalFrame addExperimentFrame;
+    private JDialog addExperimentDialog;
     private JButton addExperimentApplyButton;
     private JPanel addExperimentFieldsPanel;
     private JLabel addExperimentErrorLabel;
@@ -71,10 +70,10 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setJMenuBar(makeMenuBar());
-        add(makeNewToolFrame());
+        //add(makeNewToolFrame());
         //add(makeTimeTableFrame());
-        add(makeRemoveToolFrame());
-        add(makeAddExperimentFrame());
+        //add(makeRemoveToolFrame());
+        //add(makeAddExperimentFrame());
         //removeExperimentDialog = makeRemoveExperimentFrame();
         //add(removeExperimentDialog);
         toolsPanel = makeToolsPanel();
@@ -94,7 +93,7 @@ public class MainWindow extends JFrame {
                     JTextField textField = (JTextField) component;
                     if (!textField.getText().equals("")) {
                         newToolParams.put(textField.getName(), textField.getText());
-                        newToolErrorLabel.setText("Заполните данные эксперимента");
+                        newToolErrorLabel.setText("Заполните данные");
                     } else {
                         allFieldsFilled = false;
                     }
@@ -119,13 +118,13 @@ public class MainWindow extends JFrame {
                             textField.setText("");
                         }
                     }
-                    newToolFrame.setVisible(false);
+                    newToolDialog.setVisible(false);
                 } else {
                     newToolErrorLabel.setText(result);
                 }
 
             } else {
-                newToolErrorLabel.setText("Заполните данные эксперимента");
+                newToolErrorLabel.setText("Все данные необходимо заполнить");
             }
         }
     }
@@ -133,7 +132,7 @@ public class MainWindow extends JFrame {
     class newToolCancelButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            newToolFrame.setVisible(false);
+            newToolDialog.setVisible(false);
         }
     }
 
@@ -164,22 +163,27 @@ public class MainWindow extends JFrame {
     class addToolButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (newToolFrame.isVisible()) {
-                newToolFrame.setVisible(false);
-            } else {
-                newToolFrame.setVisible(true);
+            if (newToolDialog != null) {
+                newToolDialog.setVisible(false);
+                newToolDialog = null;
             }
+            newToolDialog = makeNewToolDialog();
         }
     }
 
     class removeToolButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (removeToolFrame.isVisible()) {
-                removeToolFrame.setVisible(false);
-            } else {
-                removeToolFrame.setVisible(true);
+            if (removeToolDialog != null) {
+                removeToolDialog.setVisible(false);
+                removeToolDialog = null;
             }
+            removeToolDialog = makeRemoveToolDialog();
+            //if (removeToolDialog.isVisible()) {
+            //    removeToolDialog.setVisible(false);
+            //} else {
+            //    removeToolDialog.setVisible(true);
+            //}
         }
     }
 
@@ -201,7 +205,7 @@ public class MainWindow extends JFrame {
                     textField != null)
             {
                 textField.setText("");
-                removeToolFrame.setVisible(false);
+                //removeToolDialog.setVisible(false);
                 mainWindow.remove(toolsPanel);
                 toolsPanel = makeToolsPanel();
                 mainWindow.add(toolsPanel);
@@ -226,12 +230,13 @@ public class MainWindow extends JFrame {
     class addExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            addExperimentApplyButton.setActionCommand(e.getActionCommand());
-            if (addExperimentFrame.isVisible()) {
-                addExperimentFrame.setVisible(false);
-            } else {
-                addExperimentFrame.setVisible(true);
+            if (addExperimentDialog != null) {
+                addExperimentDialog.setVisible(false);
+
+                addExperimentDialog = null;
             }
+            addExperimentDialog = makeAddExperimentDialog();
+            addExperimentApplyButton.setActionCommand(e.getActionCommand());
         }
     }
 
@@ -314,13 +319,13 @@ public class MainWindow extends JFrame {
                             tf.setText("");
                         }
                     }
-                    addExperimentFrame.validate();
-                    addExperimentFrame.repaint();
-                    //addExperimentFrame.setVisible(false);
+                    addExperimentDialog.validate();
+                    addExperimentDialog.repaint();
+                    //addExperimentDialog.setVisible(false);
                 } else {
                     addExperimentErrorLabel.setText(result);
-                    addExperimentFrame.validate();
-                    addExperimentFrame.repaint();
+                    addExperimentDialog.validate();
+                    addExperimentDialog.repaint();
                 }
             }
         }
@@ -328,7 +333,7 @@ public class MainWindow extends JFrame {
 
     class addExperimentCancelListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            addExperimentFrame.setVisible(false);
+            addExperimentDialog.setVisible(false);
             for (Component component : addExperimentFieldsPanel.getComponents()) {
                 if (component.getClass() == JTextField.class) {
                     JTextField tf = (JTextField) component;
@@ -397,7 +402,7 @@ public class MainWindow extends JFrame {
         toolPlacements = new DBQuery().getToolPlacements();
     }
 
-    private JInternalFrame makeNewToolFrame() {
+    private JDialog makeNewToolDialog() {
         JPanel newToolErrorPanel = new JPanel();
         newToolErrorLabel = new JLabel("Заполните данные");
         newToolErrorPanel.add(newToolErrorLabel);
@@ -451,13 +456,14 @@ public class MainWindow extends JFrame {
         newToolMainPanel.add(newToolFieldsPanel, BorderLayout.CENTER);
         newToolMainPanel.add(newToolButtonsPanel, BorderLayout.PAGE_END);
 
-        newToolFrame = new JInternalFrame("Добавить новое оборудование", false, true);
-        newToolFrame.add(newToolMainPanel);
-        newToolFrame.setSize(300, 250);
-        newToolFrame.setLocation(20, 400);
-        newToolFrame.setVisible(false);
+        JDialog newToolDialog = new JDialog(mainWindow, "Добавить новое оборудование");
+        newToolDialog.setResizable(false);
+        newToolDialog.add(newToolMainPanel);
+        newToolDialog.setSize(300, 250);
+        newToolDialog.setLocation(20, 400);
+        newToolDialog.setVisible(true);
 
-        return newToolFrame;
+        return newToolDialog;
     }
 
     private ArrayList<Experiment> getExperiments(String cameraId) {
@@ -499,7 +505,7 @@ public class MainWindow extends JFrame {
     }
 
     private void makeTimeTable (String cameraId) {
-        experiments = getExperiments(cameraId);
+        ArrayList<Experiment> experiments = getExperiments(cameraId);
         timeTable.setModel(new TimeTableModel(experiments));
         timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
         timeTable.getColumnModel().getColumn(1).setPreferredWidth(30);
@@ -512,10 +518,10 @@ public class MainWindow extends JFrame {
         timeTable.getColumnModel().getColumn(8).setPreferredWidth(30);
     }
 
-    private JInternalFrame makeRemoveToolFrame() {
-        removeToolFrame = new JInternalFrame("Удалить оборудование", true, true);
-        removeToolFrame.setSize(300, 60);
-        removeToolFrame.setLocation(30, 300);
+    private JDialog makeRemoveToolDialog() {
+        JDialog removeToolDialog = new JDialog(mainWindow, "Удалить оборудование");
+        removeToolDialog.setSize(300, 70);
+        removeToolDialog.setLocation(30, 300);
 
         removeMainPanel = new JPanel();
         removeMainPanel.setLayout(new BoxLayout(removeMainPanel, BoxLayout.X_AXIS));
@@ -532,10 +538,10 @@ public class MainWindow extends JFrame {
         removeToolSubmitButton.addActionListener(new removeToolSubmitListener());
         removeMainPanel.add(removeToolSubmitButton);
 
-        removeToolFrame.add(removeMainPanel);
-        removeToolFrame.setVisible(false);
+        removeToolDialog.add(removeMainPanel);
+        removeToolDialog.setVisible(true);
 
-        return removeToolFrame;
+        return removeToolDialog;
     }
 
     private ArrayList<Tool> getTools() {
@@ -641,10 +647,10 @@ public class MainWindow extends JFrame {
         return new DBQuery().getExperimentTypes();
     }
 
-    private JInternalFrame makeAddExperimentFrame() {
+    private JDialog makeAddExperimentDialog() {
         ArrayList<String> experimentTypes = getExperimentTypes();
 
-        addExperimentFrame = new JInternalFrame("Добавить испытание", true, true, true, true);
+        JDialog addExperimentDialog = new JDialog(timeTableDialog, "Добавить испытание");
         addExperimentErrorLabel = new JLabel();
 
         JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
@@ -894,12 +900,12 @@ public class MainWindow extends JFrame {
         addExperimentCancelButton.addActionListener(new addExperimentCancelListener());
         buttonsPanel.add(addExperimentCancelButton);
 
-        addExperimentFrame.add(addExperimentMainPanel);
-        addExperimentFrame.setSize(600, 300);
-        addExperimentFrame.setLocation(100, 400);
-        addExperimentFrame.setVisible(false);
+        addExperimentDialog.add(addExperimentMainPanel);
+        addExperimentDialog.setSize(600, 300);
+        addExperimentDialog.setLocation(100, 400);
+        addExperimentDialog.setVisible(true);
 
-        return addExperimentFrame;
+        return addExperimentDialog;
     }
 
     private JDialog makeRemoveExperimentDialog() {
