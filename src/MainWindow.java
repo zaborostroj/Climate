@@ -26,6 +26,9 @@ public class MainWindow extends JFrame {
     private JPanel newToolFieldsPanel;
     private JLabel newToolErrorLabel;
     private JPanel toolsPanel;
+    private JSpinner certificationDaySpinner;
+    private JSpinner certificationMonthSpinner;
+    private JSpinner certificationYearSpinner;
 
     private JDialog removeToolDialog;
     private JPanel removeMainPanel;
@@ -101,6 +104,9 @@ public class MainWindow extends JFrame {
                 } else if (component.getClass() == JComboBox.class) {
                     JComboBox comboBox = (JComboBox) component;
                     newToolParams.put(comboBox.getName(), (String) comboBox.getSelectedItem());
+                } else if (component.getClass() == JSpinner.class) {
+                    JSpinner sp = (JSpinner) component;
+                    newToolParams.put(sp.getName(), sp.getValue().toString());
                 }
             }
 
@@ -394,6 +400,31 @@ public class MainWindow extends JFrame {
         }
     }
 
+    class certificationDateListener implements ChangeListener {
+        public void stateChanged(ChangeEvent e) {
+            Integer selectedMonth = (Integer) certificationMonthSpinner.getValue();
+            Integer selectedYear = (Integer) certificationYearSpinner.getValue();
+            switch (selectedMonth) {
+                case 1:case 3:case 5:case 7:case 8:case 10:case 12:
+                    certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,31,1));
+                    break;
+                case 4:case 6:case 9:case 11:
+                    certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,30,1));
+                    break;
+                case 2:
+                    if (selectedYear % 4 == 0) {
+                        certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,29,1));
+                    } else {
+                        certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,28,1));
+                    }
+                    break;
+                default:
+                    certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,31,1));
+                    break;
+            }
+        }
+    }
+
     private void getToolTypes() {
         toolTypes = new DBQuery().getToolTypes();
     }
@@ -418,25 +449,120 @@ public class MainWindow extends JFrame {
             placementComboBox.addItem(toolPlacement);
         }
 
+        GregorianCalendar calendar = new GregorianCalendar();
+        int lastDayOfMonth;
+        switch (calendar.get(GregorianCalendar.MONTH) + 1) {
+            case 1:case 3:case 5:case 8:case 10:case 12:
+                lastDayOfMonth = 31;
+                break;
+            case 4:case 6:case 9:case 11:
+                lastDayOfMonth = 30;
+                break;
+            case 2:
+                if (calendar.get(GregorianCalendar.YEAR) % 4 == 0)
+                    lastDayOfMonth = 29;
+                else
+                    lastDayOfMonth = 28;
+                break;
+            default:lastDayOfMonth = 31;
+        }
+        certificationDaySpinner = new JSpinner(new SpinnerNumberModel(
+                calendar.get(GregorianCalendar.DAY_OF_MONTH),
+                1,
+                lastDayOfMonth,
+                1));
+        certificationDaySpinner.setName("certificationDay");
+        certificationMonthSpinner = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
+        certificationMonthSpinner.setName("certificationMonth");
+        certificationMonthSpinner.addChangeListener(new certificationDateListener());
+        certificationYearSpinner = new JSpinner(new SpinnerNumberModel(
+                calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.YEAR) + 1,
+                1));
+        certificationYearSpinner.setName("certificationYear");
+        certificationYearSpinner.addChangeListener(new certificationDateListener());
+
         JTextField textField;
-        newToolFieldsPanel = new JPanel(new GridLayout(5, 2, 3, 3));
+        newToolFieldsPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.LINE_START;
         newToolFieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        newToolFieldsPanel.add(new JLabel("Зав. №"));
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(new JLabel("Зав. №"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
         textField = new JTextField();
         textField.setName("serial_number");
-        newToolFieldsPanel.add(textField);
-        newToolFieldsPanel.add(new JLabel("Название"));
+        newToolFieldsPanel.add(textField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(new JLabel("Название"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 3;
         textField = new JTextField();
         textField.setName("name");
-        newToolFieldsPanel.add(textField);
-        newToolFieldsPanel.add(new JLabel("Описание"));
+        newToolFieldsPanel.add(textField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(new JLabel("Описание"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.gridwidth = 3;
         textField = new JTextField();
         textField.setName("description");
-        newToolFieldsPanel.add(textField);
-        newToolFieldsPanel.add(new JLabel("Тип"));
-        newToolFieldsPanel.add(typeComboBox);
-        newToolFieldsPanel.add(new JLabel(("Размещение")));
-        newToolFieldsPanel.add(placementComboBox);
+        newToolFieldsPanel.add(textField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(new JLabel("Тип"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        newToolFieldsPanel.add(typeComboBox, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(new JLabel(("Размещение")), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.gridwidth = 3;
+        newToolFieldsPanel.add(placementComboBox, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(new JLabel("Аттестовано до "), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(certificationDaySpinner, gbc);
+        gbc.gridx = 2;
+        gbc.gridy = 5;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(certificationMonthSpinner, gbc);
+        gbc.gridx = 3;
+        gbc.gridy = 5;
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(certificationYearSpinner, gbc);
 
         JPanel newToolButtonsPanel = new JPanel(new FlowLayout());
         newToolButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -958,6 +1084,7 @@ public class MainWindow extends JFrame {
         GridBagConstraints gbc;
 
         JPanel panel = new JPanel(gbl);
+        panel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         toolInfoDialog.add(panel);
 
         /*Font boldFont = new Font("Consolas", Font.BOLD, 14);
@@ -995,17 +1122,29 @@ public class MainWindow extends JFrame {
         gbc.gridy = 1;
         panel.add(placementLabel, gbc);
 */
-        JLabel descriptionLabel = new JLabel("Описание: " + toolInfo.get("description"));
+        JLabel certificationLabel = new JLabel(
+                "<html>" +
+                "<b>Сертифицировано до:</b><br>" +
+                toolInfo.get("certification") +
+                "</html>"
+        );
+        JLabel descriptionLabel = new JLabel(
+                "<html>" +
+                "<b>Описание:</b><br>" +
+                toolInfo.get("description") +
+                "</html>"
+        );
         gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.ipadx = 50;
-        gbc.ipady = 50;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = 2;
+        panel.add(certificationLabel, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         panel.add(descriptionLabel, gbc);
 
-        //toolInfoDialog.setSize(300, 300);
         toolInfoDialog.setLocation(200, 200);
         toolInfoDialog.pack();
         toolInfoDialog.setVisible(true);

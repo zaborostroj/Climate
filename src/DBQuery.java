@@ -323,6 +323,9 @@ public class DBQuery {
                 toolInfo.put("tool_type", resultSet.getString("tool_type"));
                 toolInfo.put("placement", resultSet.getString("placement"));
                 toolInfo.put("description", resultSet.getString("description"));
+                String sqlDate = resultSet.getString("certification").split(" ")[0];
+                String date = sqlDate.split("-")[2] + "-" + sqlDate.split("-")[1] + "-" + sqlDate.split("-")[0];
+                toolInfo.put("certification", date);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -348,6 +351,10 @@ public class DBQuery {
 
     public String addTool(Map<String, String> values) {
         String result = "";
+        String certificationDate =
+                values.get("certificationYear") + "-" +
+                values.get("certificationMonth") + "-" +
+                values.get("certificationDay") + " 00:00:01";
         String checkQuery =
                 "SELECT * FROM" +
                 " `" + toolsTableName + "`" +
@@ -360,14 +367,15 @@ public class DBQuery {
         String addQuery =
                 "INSERT INTO" +
                 " `" + toolsTableName + "`" +
-                " (`serial_number`, `name`, `description`, `tool_type`, `placement`, `statement`)" +
+                " (`serial_number`, `name`, `description`, `tool_type`, `placement`, `statement`, `certification`)" +
                 " VALUES (" +
                         "\'" + values.get("serial_number") + "\', " +
                         "\'" + values.get("name") + "\', " +
                         "\'" + values.get("description") + "\', " +
                         "\'" + values.get("tool_type") + "\', " +
                         "\'" + values.get("placement") + "\', " +
-                        "\'\')";
+                        "\'\', " +
+                        "\'" + certificationDate + "\')";
 
         Connection connection = null;
         Statement statement = null;
