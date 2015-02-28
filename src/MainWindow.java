@@ -54,6 +54,13 @@ public class MainWindow extends JFrame {
     private JButton removeExperimentApplyButton;
     private JTextField removeExperimentId;
 
+    private JDialog editToolDialog;
+    private JPanel editToolFieldsPanel;
+    private JSpinner editToolDaySpinner;
+    private JSpinner editToolMonthSpinner;
+    private JSpinner editToolYearSpinner;
+    private JLabel editToolErrorLabel;
+
     public static void main(String[] args) {
         try{
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -73,12 +80,6 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setJMenuBar(makeMenuBar());
-        //add(makeNewToolFrame());
-        //add(makeTimeTableFrame());
-        //add(makeRemoveToolFrame());
-        //add(makeAddExperimentFrame());
-        //removeExperimentDialog = makeRemoveExperimentFrame();
-        //add(removeExperimentDialog);
         toolsPanel = makeToolsPanel();
         add(toolsPanel, BorderLayout.CENTER);
         add(makeButtonsPanel(), BorderLayout.PAGE_END);
@@ -185,11 +186,6 @@ public class MainWindow extends JFrame {
                 removeToolDialog = null;
             }
             removeToolDialog = makeRemoveToolDialog();
-            //if (removeToolDialog.isVisible()) {
-            //    removeToolDialog.setVisible(false);
-            //} else {
-            //    removeToolDialog.setVisible(true);
-            //}
         }
     }
 
@@ -422,6 +418,31 @@ public class MainWindow extends JFrame {
                     certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,31,1));
                     break;
             }
+        }
+    }
+
+    class editToolListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            editToolDialog = makeEditToolDialog(e.getActionCommand());
+            System.out.println("editToolListener");
+        }
+    }
+
+    class editToolApplyListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("editToolApplyListener");
+        }
+    }
+
+    class editToolCancelListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("editToolCancelListener");
+        }
+    }
+
+    class editToolDateListener implements ChangeListener {
+        public void stateChanged(ChangeEvent e) {
+
         }
     }
 
@@ -693,7 +714,7 @@ public class MainWindow extends JFrame {
         for (Tool tool : tools) {
 
             String[] experiment = currentExperiments.get(tool.getId());
-            GridLayout gridLayout = new GridLayout(10, 1);
+            GridLayout gridLayout = new GridLayout(11, 1);
             JPanel panel = new JPanel(gridLayout);
 
             JLabel label = new JLabel();
@@ -715,14 +736,19 @@ public class MainWindow extends JFrame {
                 panel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true));
             }
 
-            JButton button = new JButton(/*tool.getName() + */ "Расписание");
+            JButton button = new JButton("Расписание");
             button.setActionCommand(tool.getId());
             button.addActionListener(new toolTimeTableButtonListener());
             panel.add(button);
 
-            button = new JButton(/*tool.getName() + */"Справка");
+            button = new JButton("Описание");
             button.setActionCommand(tool.getId());
             button.addActionListener(new toolInfoButtonListener());
+            panel.add(button);
+
+            button = new JButton("Настройки");
+            button.setActionCommand(tool.getId());
+            button.addActionListener(new editToolListener());
             panel.add(button);
 
             panels.get(tool.getPlacement()).add(panel);
@@ -1149,5 +1175,149 @@ public class MainWindow extends JFrame {
         toolInfoDialog.pack();
         toolInfoDialog.setVisible(true);
         return toolInfoDialog;
+    }
+
+    private JDialog makeEditToolDialog(String toolId) {
+        JDialog editToolDialog = new JDialog(mainWindow, "Изменить оборудование");
+        editToolFieldsPanel = new JPanel(new GridBagLayout());
+        editToolErrorLabel = new JLabel("Введите новые данные");
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.add(editToolErrorLabel, BorderLayout.PAGE_START);
+        mainPanel.add(editToolFieldsPanel, BorderLayout.CENTER);
+        editToolDialog.add(mainPanel);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = new Insets(3,3,3,3);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        editToolFieldsPanel.add(new JLabel("Зав. №"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
+        JTextField serialNumber = new JTextField();
+        serialNumber.setName("serial_number");
+        editToolFieldsPanel.add(serialNumber, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        editToolFieldsPanel.add(new JLabel("Название"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 3;
+        JTextField name = new JTextField();
+        name.setName("name");
+        editToolFieldsPanel.add(name, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        editToolFieldsPanel.add(new JLabel("Описание"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.gridwidth = 3;
+        JTextField description = new JTextField();
+        description.setName("description");
+        editToolFieldsPanel.add(description, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 1;
+        editToolFieldsPanel.add(new JLabel("Тип"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        JComboBox<String> type = new JComboBox<String>();
+        type.setName("tool_type");
+        for (String toolType : toolTypes) {
+            type.addItem(toolType);
+        }
+        editToolFieldsPanel.add(type, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 1;
+        editToolFieldsPanel.add(new JLabel("Размещение"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.gridwidth = 3;
+        JComboBox<String> placement = new JComboBox<String>();
+        placement.setName("placement");
+        for (String place : toolPlacements) {
+            placement.addItem(place);
+        }
+        editToolFieldsPanel.add(placement, gbc);
+
+        GregorianCalendar calendar = new GregorianCalendar();
+        int lastDayOfMonth;
+        switch (calendar.get(GregorianCalendar.MONTH) + 1) {
+            case 1:case 3:case 5:case 8:case 10:case 12:
+                lastDayOfMonth = 31;
+                break;
+            case 4:case 6:case 9:case 11:
+                lastDayOfMonth = 30;
+                break;
+            case 2:
+                if (calendar.get(GregorianCalendar.YEAR) % 4 == 0)
+                    lastDayOfMonth = 29;
+                else
+                    lastDayOfMonth = 28;
+                break;
+            default:lastDayOfMonth = 31;
+        }
+        editToolDaySpinner =
+                new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.DAY_OF_MONTH), 1, lastDayOfMonth, 1));
+        editToolDaySpinner.setName("editToolDay");
+        editToolMonthSpinner = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
+        editToolMonthSpinner.setName("editToolMonth");
+        editToolMonthSpinner.addChangeListener(new editToolDateListener());
+        editToolYearSpinner = new JSpinner(new SpinnerNumberModel(
+                calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.YEAR),
+                calendar.get(GregorianCalendar.YEAR) + 1,
+                1));
+        editToolYearSpinner.setName("editToolYear");
+        editToolYearSpinner.addChangeListener(new editToolDateListener());
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 1;
+        editToolFieldsPanel.add(new JLabel("Аттестовано до "), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        editToolFieldsPanel.add(editToolDaySpinner, gbc);
+        gbc.gridx = 2;
+        editToolFieldsPanel.add(editToolMonthSpinner, gbc);
+        gbc.gridx = 3;
+        editToolFieldsPanel.add(editToolYearSpinner, gbc);
+
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
+        mainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
+
+        JButton applyButton = new JButton("Применить");
+        applyButton.addActionListener(new editToolApplyListener());
+        buttonsPanel.add(applyButton);
+
+        JButton cancelButton = new JButton("Отмена");
+        cancelButton.addActionListener(new editToolCancelListener());
+        buttonsPanel.add(cancelButton);
+
+        editToolDialog.setLocation(300, 500);
+        editToolDialog.setSize(300, 250);
+        //editToolDialog.pack();
+        editToolDialog.setVisible(true);
+        return editToolDialog;
     }
 }
