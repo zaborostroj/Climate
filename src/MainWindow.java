@@ -1,7 +1,11 @@
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -9,11 +13,35 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import com.toedter.calendar.JDateChooser;
+
 /**
   Created by Evgeny Baskakov on 22.01.2015.
  */
 public class MainWindow extends JFrame {
-    private static final Color STD_COLOR = new Color(171, 173, 179);
     //private static final String CAMERA_TYPE = "камера";
     //private static final String VIBRO_TYPE = "вибростенд";
     //private static final String SBMC_PLACEMENT = "СбМЦ";
@@ -38,17 +66,6 @@ public class MainWindow extends JFrame {
     private JButton addExperiment = new JButton("Добавить испытание");
     private JButton removeExperiment = new JButton("Удалить испытание");
     static MainWindow mainWindow;
-
-    private JDialog addExperimentDialog;
-    private JButton addExperimentApplyButton;
-    private JPanel addExperimentFieldsPanel;
-    private JLabel addExperimentErrorLabel;
-    private JSpinner addExperimentStartDay;
-    private JSpinner addExperimentStartMonth;
-    private JSpinner addExperimentStartYear;
-    private JSpinner addExperimentEndDay;
-    private JSpinner addExperimentEndMonth;
-    private JSpinner addExperimentEndYear;
 
     private JDialog removeExperimentDialog;
     private JButton removeExperimentApplyButton;
@@ -80,10 +97,19 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setJMenuBar(makeMenuBar());
-        toolsPanel = makeToolsPanel();
-        add(toolsPanel, BorderLayout.CENTER);
+        refreshToolsPanel();
         add(makeButtonsPanel(), BorderLayout.PAGE_END);
         setVisible(true);
+    }
+    
+    public void refreshToolsPanel() {
+    	if (toolsPanel != null) {
+    		remove(toolsPanel);
+    	}
+    	toolsPanel = makeToolsPanel();
+    	add(toolsPanel, BorderLayout.CENTER);
+		validate();
+		repaint();
     }
 
     class newToolAddButtonListener implements ActionListener {
@@ -93,7 +119,7 @@ public class MainWindow extends JFrame {
             Map<String, String> newToolParams = new HashMap<String, String>();
             Boolean allFieldsFilled = true;
             for (Component component : components) {
-                if (component.getClass() == JTextField.class) {
+            	if (component.getClass() == JTextField.class) {
                     JTextField textField = (JTextField) component;
                     if (!textField.getText().equals("")) {
                         newToolParams.put(textField.getName(), textField.getText());
@@ -153,9 +179,9 @@ public class MainWindow extends JFrame {
             }
             timeTableDialog = makeTimeTableDialog();
             timeTableDialog.setTitle("Расписание экспериментов #" + e.getActionCommand());
-            timeTableDialog.setVisible(true);
             addExperiment.setActionCommand(e.getActionCommand());
             removeExperiment.setActionCommand(e.getActionCommand());
+            timeTableDialog.setVisible(true);
         }
     }
 
@@ -229,19 +255,6 @@ public class MainWindow extends JFrame {
         }
     }
 
-    class addExperimentButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (addExperimentDialog != null) {
-                addExperimentDialog.setVisible(false);
-
-                addExperimentDialog = null;
-            }
-            addExperimentDialog = makeAddExperimentDialog();
-            addExperimentApplyButton.setActionCommand(e.getActionCommand());
-        }
-    }
-
     class removeExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -272,126 +285,6 @@ public class MainWindow extends JFrame {
 
                 removeExperimentId.setText("");
                 removeExperimentDialog.setVisible(false);
-            }
-        }
-    }
-
-    class addExperimentApplyListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Map<String, String> params = new HashMap<String, String>();
-            Boolean allFieldsFilled = true;
-            params.put("cameraId", e.getActionCommand());
-            for (Component component : addExperimentFieldsPanel.getComponents()) {
-                if (component.getClass() == JTextField.class) {
-                    JTextField tf = (JTextField) component;
-                    if ( ! tf.getText().equals("")) {
-                        params.put(tf.getName(), tf.getText());
-                    } else {
-                        addExperimentErrorLabel.setText("Все поля должны быть заполнены");
-                        allFieldsFilled = false;
-                    }
-                } else if (component.getClass() == JSpinner.class) {
-                    JSpinner sp = (JSpinner) component;
-                    params.put(sp.getName(), sp.getValue().toString());
-                } else if (component.getClass() == JComboBox.class) {
-                    JComboBox cb = (JComboBox) component;
-                    params.put(cb.getName(), (String) cb.getSelectedItem());
-                }
-            }
-
-            if (allFieldsFilled) {
-                String result = new DBQuery().addExperiment(params);
-
-                if (result.equals("OK")) {
-                    mainWindow.remove(toolsPanel);
-                    toolsPanel = makeToolsPanel();
-                    mainWindow.add(toolsPanel);
-                    mainWindow.validate();
-                    mainWindow.repaint();
-
-                    makeTimeTable(e.getActionCommand());
-                    timeTableDialog.validate();
-                    timeTableDialog.repaint();
-
-                    addExperimentErrorLabel.setText("Заполните данные эксперимента");
-                    for (Component component : addExperimentFieldsPanel.getComponents()) {
-                        if (component.getClass() == JTextField.class) {
-                            JTextField tf = (JTextField) component;
-                            tf.setText("");
-                        }
-                    }
-                    addExperimentDialog.validate();
-                    addExperimentDialog.repaint();
-                    //addExperimentDialog.setVisible(false);
-                } else {
-                    addExperimentErrorLabel.setText(result);
-                    addExperimentDialog.validate();
-                    addExperimentDialog.repaint();
-                }
-            }
-        }
-    }
-
-    class addExperimentCancelListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            addExperimentDialog.setVisible(false);
-            for (Component component : addExperimentFieldsPanel.getComponents()) {
-                if (component.getClass() == JTextField.class) {
-                    JTextField tf = (JTextField) component;
-                    tf.setText("");
-                    tf.setBorder(BorderFactory.createLineBorder(STD_COLOR));
-                }
-            }
-        }
-    }
-
-    class startDateListener implements ChangeListener {
-        public void stateChanged(ChangeEvent e) {
-            Integer selectedMonth = (Integer) addExperimentStartMonth.getValue();
-            Integer selectedYear = (Integer) addExperimentStartYear.getValue();
-            switch (selectedMonth) {
-                case 1:case 3:case 5:case 7:case 8:case 10:case 12:
-                    addExperimentStartDay.setModel(new SpinnerNumberModel(1,1,31,1));
-                    break;
-                case 4:case 6:case 9:case 11:
-                    addExperimentStartDay.setModel(new SpinnerNumberModel(1,1,30,1));
-                    break;
-                case 2:
-                    if (selectedYear % 4 == 0) {
-                        addExperimentStartDay.setModel(new SpinnerNumberModel(1,1,29,1));
-                    } else {
-                        addExperimentStartDay.setModel(new SpinnerNumberModel(1, 1, 28, 1));
-                    }
-                    break;
-                default:
-                    addExperimentStartDay.setModel(new SpinnerNumberModel(1,1,30,1));
-                    break;
-            }
-        }
-    }
-
-    class endDateListener implements ChangeListener {
-        public void stateChanged(ChangeEvent e) {
-            Integer selectedMonth = (Integer) addExperimentEndMonth.getValue();
-            Integer selectedYear = (Integer) addExperimentEndYear.getValue();
-            switch (selectedMonth) {
-                case 1:case 3:case 5:case 7:case 8:case 10:case 12:
-                    addExperimentEndDay.setModel(new SpinnerNumberModel(1,1,31,1));
-                    break;
-                case 4:case 6:case 9:case 11:
-                    addExperimentEndDay.setModel(new SpinnerNumberModel(1,1,30,1));
-                    break;
-                case 2:
-                    if (selectedYear % 4 == 0) {
-                        addExperimentEndDay.setModel(new SpinnerNumberModel(1,1,29,1));
-                    } else {
-                        addExperimentEndDay.setModel(new SpinnerNumberModel(1, 1, 28, 1));
-                    }
-                    break;
-                default:
-                    addExperimentEndDay.setModel(new SpinnerNumberModel(1,1,30,1));
-                    break;
             }
         }
     }
@@ -473,7 +366,12 @@ public class MainWindow extends JFrame {
         GregorianCalendar calendar = new GregorianCalendar();
         int lastDayOfMonth;
         switch (calendar.get(GregorianCalendar.MONTH) + 1) {
-            case 1:case 3:case 5:case 8:case 10:case 12:
+            case 1:
+            case 3:
+            case 5:
+            case 8:
+            case 10:
+            case 12:
                 lastDayOfMonth = 31;
                 break;
             case 4:case 6:case 9:case 11:
@@ -647,11 +545,21 @@ public class MainWindow extends JFrame {
 
         timeTableDialog.add(mainPanel);
 
-        timeTableDialog.setVisible(true);
+        timeTableDialog.setModal(true);
         return timeTableDialog;
     }
+    
+    private class addExperimentButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+        	AddExperimentDialog addExperimentDialog = new AddExperimentDialog(mainWindow, timeTableDialog);
+        	addExperimentDialog.setCameraId(e.getActionCommand());
+        	addExperimentDialog.setModal(true);
+        	addExperimentDialog.setVisible(true);
+        }
+    }
 
-    private void makeTimeTable (String cameraId) {
+    public void makeTimeTable (String cameraId) {
         ArrayList<Experiment> experiments = getExperiments(cameraId);
         timeTable.setModel(new TimeTableModel(experiments));
         timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
@@ -762,7 +670,7 @@ public class MainWindow extends JFrame {
         }
 
         return toolsPanel;
-    }
+    }    
 
     private JPanel makeButtonsPanel() {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -794,271 +702,7 @@ public class MainWindow extends JFrame {
 
         return menuBar;
     }
-
-    private ArrayList<String> getExperimentTypes() {
-        return new DBQuery().getExperimentTypes();
-    }
-
-    private JDialog makeAddExperimentDialog() {
-        ArrayList<String> experimentTypes = getExperimentTypes();
-
-        JDialog addExperimentDialog = new JDialog(timeTableDialog, "Добавить испытание");
-        addExperimentErrorLabel = new JLabel();
-
-        JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
-        JPanel addExperimentErrorPanel = new JPanel();
-        addExperimentFieldsPanel = new JPanel();
-        JPanel buttonsPanel = new JPanel();
-        addExperimentMainPanel.add(addExperimentErrorPanel, BorderLayout.PAGE_START);
-        addExperimentMainPanel.add(addExperimentFieldsPanel, BorderLayout.CENTER);
-        addExperimentMainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
-
-        addExperimentErrorLabel.setText("Заполните данные испытания");
-        addExperimentErrorPanel.add(addExperimentErrorLabel);
-
-        addExperimentFieldsPanel.setLayout(new GridBagLayout());
-        GridBagConstraints constraints;
-
-        GregorianCalendar calendar = new GregorianCalendar();
-
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(new JLabel("Начало испытания"),constraints);
-
-        JSpinner startHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
-        startHours.setName("startHours");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 1;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(startHours, constraints);
-
-        JSpinner startMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 59, 5));
-        startMinutes.setName("startMinutes");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 2;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(startMinutes, constraints);
-
-        int lastDayOfMonth;
-        switch (calendar.get(GregorianCalendar.MONTH) + 1) {
-            case 1:case 3:case 5:case 7:case 8:case 10:case 12:
-                lastDayOfMonth = 31;
-                break;
-            case 4:case 6:case 9:case 11:
-                lastDayOfMonth = 30;
-                break;
-            case 2:
-                if (calendar.get(GregorianCalendar.YEAR) % 4 == 0)
-                    lastDayOfMonth = 29;
-                else
-                    lastDayOfMonth = 28;
-                break;
-            default: lastDayOfMonth = 31;
-        }
-        addExperimentStartDay = new JSpinner(new SpinnerNumberModel(
-                calendar.get(GregorianCalendar.DAY_OF_MONTH),
-                1,
-                lastDayOfMonth,
-                1));
-        addExperimentStartDay.setName("startDay");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 3;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(addExperimentStartDay, constraints);
-
-        addExperimentStartMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
-        addExperimentStartMonth.setName("startMonth");
-        addExperimentStartMonth.addChangeListener(new startDateListener());
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 4;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(addExperimentStartMonth, constraints);
-
-        addExperimentStartYear = new JSpinner(new SpinnerNumberModel(
-                calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.YEAR) + 1,
-                1));
-        addExperimentStartYear.setName("startYear");
-        addExperimentStartYear.addChangeListener(new startDateListener());
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 5;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(addExperimentStartYear, constraints);
-
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(new JLabel("Окончание испытания"), constraints);
-
-        JSpinner endHours = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.HOUR_OF_DAY), 0, 23, 1));
-        endHours.setName("endHours");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 1;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(endHours, constraints);
-
-        JSpinner endMinutes = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MINUTE), 0, 59, 5));
-        endMinutes.setName("endMinutes");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 2;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(endMinutes, constraints);
-
-        addExperimentEndDay = new JSpinner(new SpinnerNumberModel(
-                calendar.get(GregorianCalendar.DAY_OF_MONTH),
-                1,
-                lastDayOfMonth,
-                1));
-        addExperimentEndDay.setName("endDay");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 3;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(addExperimentEndDay, constraints);
-
-        addExperimentEndMonth = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
-        addExperimentEndMonth.setName("endMonth");
-        addExperimentEndMonth.addChangeListener(new endDateListener());
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 4;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(addExperimentEndMonth, constraints);
-
-        addExperimentEndYear = new JSpinner(new SpinnerNumberModel(
-                calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.YEAR) + 1,
-                1));
-        addExperimentEndYear.setName("endYear");
-        addExperimentEndYear.addChangeListener(new endDateListener());
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 5;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(addExperimentEndYear, constraints);
-
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        addExperimentFieldsPanel.add(new JLabel("Децимальный номер"), constraints);
-
-        JTextField decNumber = new JTextField();
-        decNumber.setName("decNumber");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 2;
-        addExperimentFieldsPanel.add(decNumber, constraints);
-
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 3;
-        addExperimentFieldsPanel.add(new JLabel("Название"), constraints);
-
-        JTextField name = new JTextField();
-        name.setName("name");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 3;
-        addExperimentFieldsPanel.add(name, constraints);
-
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 4;
-        addExperimentFieldsPanel.add(new JLabel("Заводской номер"), constraints);
-
-        JTextField serialNumber = new JTextField();
-        serialNumber.setName("serialNumber");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 4;
-        addExperimentFieldsPanel.add(serialNumber, constraints);
-
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 5;
-        addExperimentFieldsPanel.add(new JLabel("Заказ"), constraints);
-
-        JTextField order = new JTextField();
-        order.setName("order");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 5;
-        addExperimentFieldsPanel.add(order, constraints);
-
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 6;
-        addExperimentFieldsPanel.add(new JLabel("Описание"), constraints);
-
-        JComboBox<String> description = new JComboBox<String>();
-        description.setName("description");
-        for (String type : experimentTypes) {
-            description.addItem(type);
-        }
-        //JTextField  description = new JTextField();
-        //description.setName("description");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 6;
-        addExperimentFieldsPanel.add(description, constraints);
-
-        addExperimentApplyButton = new JButton("Добавить");
-        addExperimentApplyButton.addActionListener(new addExperimentApplyListener());
-        buttonsPanel.add(addExperimentApplyButton);
-
-        JButton addExperimentCancelButton = new JButton("Отменить");
-        addExperimentCancelButton.addActionListener(new addExperimentCancelListener());
-        buttonsPanel.add(addExperimentCancelButton);
-
-        addExperimentDialog.add(addExperimentMainPanel);
-        addExperimentDialog.setSize(600, 300);
-        addExperimentDialog.setLocation(100, 400);
-        addExperimentDialog.setVisible(true);
-
-        return addExperimentDialog;
-    }
+    
 
     private JDialog makeRemoveExperimentDialog() {
         JDialog rmExperimentFrame = new JDialog(mainWindow);
@@ -1183,7 +827,7 @@ public class MainWindow extends JFrame {
         editToolErrorLabel = new JLabel("Введите новые данные");
 
         JPanel mainPanel = new JPanel();
-        mainPanel.add(editToolErrorLabel, BorderLayout.PAGE_START);
+        mainPanel.add(editToolErrorLabel, BorderLayout.NORTH);
         mainPanel.add(editToolFieldsPanel, BorderLayout.CENTER);
         editToolDialog.add(mainPanel);
 
@@ -1258,36 +902,49 @@ public class MainWindow extends JFrame {
         }
         editToolFieldsPanel.add(placement, gbc);
 
-        GregorianCalendar calendar = new GregorianCalendar();
-        int lastDayOfMonth;
-        switch (calendar.get(GregorianCalendar.MONTH) + 1) {
-            case 1:case 3:case 5:case 8:case 10:case 12:
-                lastDayOfMonth = 31;
-                break;
-            case 4:case 6:case 9:case 11:
-                lastDayOfMonth = 30;
-                break;
-            case 2:
-                if (calendar.get(GregorianCalendar.YEAR) % 4 == 0)
-                    lastDayOfMonth = 29;
-                else
-                    lastDayOfMonth = 28;
-                break;
-            default:lastDayOfMonth = 31;
-        }
-        editToolDaySpinner =
-                new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.DAY_OF_MONTH), 1, lastDayOfMonth, 1));
-        editToolDaySpinner.setName("editToolDay");
-        editToolMonthSpinner = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
-        editToolMonthSpinner.setName("editToolMonth");
-        editToolMonthSpinner.addChangeListener(new editToolDateListener());
-        editToolYearSpinner = new JSpinner(new SpinnerNumberModel(
-                calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.YEAR) + 1,
-                1));
-        editToolYearSpinner.setName("editToolYear");
-        editToolYearSpinner.addChangeListener(new editToolDateListener());
+//        GregorianCalendar calendar = new GregorianCalendar();
+//        int lastDayOfMonth;
+//        switch (calendar.get(GregorianCalendar.MONTH) + 1) {
+//            case 1:case 3:case 5:case 8:case 10:case 12:
+//                lastDayOfMonth = 31;
+//                break;
+//            case 4:case 6:case 9:case 11:
+//                lastDayOfMonth = 30;
+//                break;
+//            case 2:
+//                if (calendar.get(GregorianCalendar.YEAR) % 4 == 0)
+//                    lastDayOfMonth = 29;
+//                else
+//                    lastDayOfMonth = 28;
+//                break;
+//            default:lastDayOfMonth = 31;
+//        }
+//        editToolDaySpinner =
+//                new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.DAY_OF_MONTH), 1, lastDayOfMonth, 1));
+//        editToolDaySpinner.setName("editToolDay");
+//        editToolMonthSpinner = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
+//        editToolMonthSpinner.setName("editToolMonth");
+//        editToolMonthSpinner.addChangeListener(new editToolDateListener());
+//        editToolYearSpinner = new JSpinner(new SpinnerNumberModel(
+//                calendar.get(GregorianCalendar.YEAR),
+//                calendar.get(GregorianCalendar.YEAR),
+//                calendar.get(GregorianCalendar.YEAR) + 1,
+//                1));
+//        editToolYearSpinner.setName("editToolYear");
+//        editToolYearSpinner.addChangeListener(new editToolDateListener());
+//
+//        gbc.gridx = 0;
+//        gbc.gridy = 5;
+//        gbc.gridwidth = 1;
+//        editToolFieldsPanel.add(new JLabel("Аттестовано до "), gbc);
+//
+//        gbc.gridx = 1;
+//        gbc.gridy = 5;
+//        editToolFieldsPanel.add(editToolDaySpinner, gbc);
+//        gbc.gridx = 2;
+//        editToolFieldsPanel.add(editToolMonthSpinner, gbc);
+//        gbc.gridx = 3;
+//        editToolFieldsPanel.add(editToolYearSpinner, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
@@ -1296,15 +953,15 @@ public class MainWindow extends JFrame {
 
         gbc.gridx = 1;
         gbc.gridy = 5;
-        editToolFieldsPanel.add(editToolDaySpinner, gbc);
-        gbc.gridx = 2;
-        editToolFieldsPanel.add(editToolMonthSpinner, gbc);
-        gbc.gridx = 3;
-        editToolFieldsPanel.add(editToolYearSpinner, gbc);
-
+        gbc.gridwidth = 3;
+        
+        JDateChooser dateChooser = new JDateChooser();
+        
+        editToolFieldsPanel.add(dateChooser, gbc);
+        
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
-        mainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
+        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         JButton applyButton = new JButton("Применить");
         applyButton.addActionListener(new editToolApplyListener());

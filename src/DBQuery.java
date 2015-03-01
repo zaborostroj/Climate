@@ -192,14 +192,17 @@ public class DBQuery {
                 experiment.setCameraId(resultSet.getString(2));
 
                 //date and time format 'HH:MM DD-MM-YYYY'
-                String sqlDateTime[] = resultSet.getString(3).split("\\s");
-                String[] date = sqlDateTime[0].split("-");
-                String[] time = sqlDateTime[1].split(":");
-                experiment.setStartTime(time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0]);
-                sqlDateTime = resultSet.getString(4).split("\\s");
-                date = sqlDateTime[0].split("-");
-                time = sqlDateTime[1].split(":");
-                experiment.setEndTime(time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0]);
+                experiment.setStartTime(SQL_DATE_FORMAT.parse(resultSet.getString("START_TIME")));
+                experiment.setEndTime(SQL_DATE_FORMAT.parse(resultSet.getString("END_TIME")));
+                
+//                String sqlDateTime[] = resultSet.getString(3).split("\\s");
+//                String[] date = sqlDateTime[0].split("-");
+//                String[] time = sqlDateTime[1].split(":");
+//                experiment.setStartTime(time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0]);
+//                sqlDateTime = resultSet.getString(4).split("\\s");
+//                date = sqlDateTime[0].split("-");
+//                time = sqlDateTime[1].split(":");
+//                experiment.setEndTime(time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0]);
 
                 experiment.setDecNumber(resultSet.getString(5));
                 experiment.setName(resultSet.getString(6));
@@ -474,24 +477,18 @@ public class DBQuery {
         return result;
     }
 
-    public String addExperiment(Map params) {
-        String cameraId = (String) params.get("cameraId");
+    private static final DateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        String startTime = params.get("startYear") + "-" +
-                params.get("startMonth") + "-" +
-                params.get("startDay") + " " +
-                params.get("startHours") + ":" +
-                params.get("startMinutes") + ":00";
-        String endTime = params.get("endYear") + "-" +
-                params.get("endMonth") + "-" +
-                params.get("endDay") + " " +
-                params.get("endHours") + ":" +
-                params.get("endMinutes") + ":00";
+    public String addExperiment(Experiment experiment) {
+        String cameraId = experiment.getCameraId();
 
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String startTime = SQL_DATE_FORMAT.format(experiment.getStartTime());
+        		
+        String endTime = SQL_DATE_FORMAT.format(experiment.getEndTime());
+
         try {
-            Date startDate = df.parse(startTime);
-            Date endDate = df.parse(endTime);
+            Date startDate = experiment.getStartTime();
+            Date endDate = experiment.getEndTime();
             if (startDate.after(endDate)) {
                 return "Start date error";
             }
@@ -499,11 +496,11 @@ public class DBQuery {
             e.printStackTrace();
         }
 
-        String decNumber = (String) params.get("decNumber");
-        String name = (String) params.get("name");
-        String serialNumber = (String) params.get("serialNumber");
-        String order = (String) params.get("order");
-        String description = (String) params.get("description");
+        String decNumber = experiment.getDecNumber();
+        String name = experiment.getName();
+        String serialNumber = experiment.getSerialNumber();
+        String order = experiment.getOrder();
+        String description = experiment.getDescription();
 
         String checkQuery =
                 "SELECT *" +
