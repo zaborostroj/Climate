@@ -23,7 +23,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -42,11 +41,6 @@ import com.toedter.calendar.JDateChooser;
   Created by Evgeny Baskakov on 22.01.2015.
  */
 public class MainWindow extends JFrame {
-    //private static final String CAMERA_TYPE = "камера";
-    //private static final String VIBRO_TYPE = "вибростенд";
-    //private static final String SBMC_PLACEMENT = "СбМЦ";
-    //private static final String OI_PLACEMENT = "ОИ";
-
     private static ArrayList<String> toolTypes;
     private static ArrayList<String> toolPlacements;
 
@@ -103,13 +97,13 @@ public class MainWindow extends JFrame {
     }
     
     public void refreshToolsPanel() {
-    	if (toolsPanel != null) {
-    		remove(toolsPanel);
-    	}
-    	toolsPanel = makeToolsPanel();
-    	add(toolsPanel, BorderLayout.CENTER);
-		validate();
-		repaint();
+        if (toolsPanel != null) {
+            remove(toolsPanel);
+        }
+        toolsPanel = makeToolsPanel();
+        add(toolsPanel, BorderLayout.CENTER);
+        validate();
+        repaint();
     }
 
     class newToolAddButtonListener implements ActionListener {
@@ -520,7 +514,6 @@ public class MainWindow extends JFrame {
     }
 
     private JDialog makeTimeTableDialog() {
-        //timeTableDialog = new JInternalFrame("Internal Frame 1", true, true, true, true);
         JDialog timeTableDialog = new JDialog(mainWindow);
         timeTableDialog.setSize(900, 300);
         timeTableDialog.setLocation(20, 100);
@@ -552,10 +545,10 @@ public class MainWindow extends JFrame {
     private class addExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-        	AddExperimentDialog addExperimentDialog = new AddExperimentDialog(mainWindow, timeTableDialog);
-        	addExperimentDialog.setCameraId(e.getActionCommand());
-        	addExperimentDialog.setModal(true);
-        	addExperimentDialog.setVisible(true);
+            AddExperimentDialog addExperimentDialog = new AddExperimentDialog(mainWindow);
+            addExperimentDialog.setCameraId(e.getActionCommand());
+            addExperimentDialog.setModal(true);
+            addExperimentDialog.setVisible(true);
         }
     }
 
@@ -703,7 +696,6 @@ public class MainWindow extends JFrame {
         return menuBar;
     }
     
-
     private JDialog makeRemoveExperimentDialog() {
         JDialog rmExperimentFrame = new JDialog(mainWindow);
         rmExperimentFrame.setTitle("Удалить испытание");

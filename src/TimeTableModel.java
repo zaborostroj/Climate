@@ -1,4 +1,6 @@
 import javax.swing.table.AbstractTableModel;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -30,11 +32,14 @@ public class TimeTableModel extends AbstractTableModel{
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Experiment experiment = data.get(rowIndex);
+        DateFormat dateTimeFormat = new SimpleDateFormat("HH:mm dd.MM.yyyy");
+        String startDateTime = dateTimeFormat.format(experiment.getStartTime());
+        String endDateTime = dateTimeFormat.format(experiment.getEndTime());
         switch (columnIndex) {
             case 0: return experiment.getId();
             case 1: return experiment.getCameraId();
-            case 2: return experiment.getStartTime();
-            case 3: return experiment.getEndTime();
+            case 2: return startDateTime;
+            case 3: return endDateTime;
             case 4: return experiment.getName();
             case 5: return experiment.getDecNumber();
             case 6: return experiment.getSerialNumber();
@@ -51,9 +56,4 @@ public class TimeTableModel extends AbstractTableModel{
     public TimeTableModel(ArrayList<Experiment> experiments) {
         this.data = experiments;
     }
-
-    //public void setValueAt(String[] newData) {
-    //    data.add(newData);
-    //    fireTableDataChanged();
-    //}
 }

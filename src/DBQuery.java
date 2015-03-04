@@ -483,7 +483,6 @@ public class DBQuery {
         String cameraId = experiment.getCameraId();
 
         String startTime = SQL_DATE_FORMAT.format(experiment.getStartTime());
-        		
         String endTime = SQL_DATE_FORMAT.format(experiment.getEndTime());
 
         try {
