@@ -62,10 +62,6 @@ public class MainWindow extends JFrame {
 
     static MainWindow mainWindow;
 
-//    private JDialog removeExperimentDialog;
-//    private JButton removeExperimentApplyButton;
-//    private JTextField removeExperimentId;
-
     private JDialog editToolDialog;
     private JPanel editToolFieldsPanel;
     private JSpinner editToolDaySpinner;
@@ -107,12 +103,6 @@ public class MainWindow extends JFrame {
         repaint();
     }
 
-    public void refreshTimeTableDialog() {
-        System.out.println("refresh timetable dialog");
-        timeTableDialog.validate();
-        timeTableDialog.repaint();
-    }
-
     class newToolAddButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -120,7 +110,7 @@ public class MainWindow extends JFrame {
             Map<String, String> newToolParams = new HashMap<String, String>();
             Boolean allFieldsFilled = true;
             for (Component component : components) {
-            	if (component.getClass() == JTextField.class) {
+                if (component.getClass() == JTextField.class) {
                     JTextField textField = (JTextField) component;
                     if (!textField.getText().equals("")) {
                         newToolParams.put(textField.getName(), textField.getText());
@@ -234,15 +224,12 @@ public class MainWindow extends JFrame {
                     textField != null)
             {
                 textField.setText("");
-                //removeToolDialog.setVisible(false);
                 mainWindow.remove(toolsPanel);
                 toolsPanel = makeToolsPanel();
                 mainWindow.add(toolsPanel);
                 mainWindow.validate();
                 mainWindow.repaint();
-            }/* else {
-                textField.setText(result);
-            }*/
+            }
         }
     }
 
@@ -694,41 +681,6 @@ public class MainWindow extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         toolInfoDialog.add(panel);
 
-        /*Font boldFont = new Font("Consolas", Font.BOLD, 14);
-
-        JLabel nameLabel = new JLabel("Название: " + toolInfo.get("name"));
-        nameLabel.setFont(boldFont);
-        gbc = new GridBagConstraints();
-        gbc.weightx = 20;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(nameLabel, gbc);
-
-        JLabel serialLabel = new JLabel("Зав. №: " + toolInfo.get("serial_number"));
-        gbc = new GridBagConstraints();
-        gbc.weightx = 80;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        panel.add(serialLabel, gbc);
-
-        JLabel typeLabel = new JLabel("Тип оборудования: " + toolInfo.get("tool_type"));
-        gbc = new GridBagConstraints();
-        gbc.weightx = 20;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(typeLabel, gbc);
-
-        JLabel placementLabel = new JLabel("Размещение: " + toolInfo.get("placement"));
-        gbc = new GridBagConstraints();
-        gbc.weightx = 80;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        panel.add(placementLabel, gbc);
-*/
         JLabel certificationLabel = new JLabel(
                 "<html>" +
                 "<b>Сертифицировано до:</b><br>" +
@@ -839,50 +791,6 @@ public class MainWindow extends JFrame {
         }
         editToolFieldsPanel.add(placement, gbc);
 
-//        GregorianCalendar calendar = new GregorianCalendar();
-//        int lastDayOfMonth;
-//        switch (calendar.get(GregorianCalendar.MONTH) + 1) {
-//            case 1:case 3:case 5:case 8:case 10:case 12:
-//                lastDayOfMonth = 31;
-//                break;
-//            case 4:case 6:case 9:case 11:
-//                lastDayOfMonth = 30;
-//                break;
-//            case 2:
-//                if (calendar.get(GregorianCalendar.YEAR) % 4 == 0)
-//                    lastDayOfMonth = 29;
-//                else
-//                    lastDayOfMonth = 28;
-//                break;
-//            default:lastDayOfMonth = 31;
-//        }
-//        editToolDaySpinner =
-//                new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.DAY_OF_MONTH), 1, lastDayOfMonth, 1));
-//        editToolDaySpinner.setName("editToolDay");
-//        editToolMonthSpinner = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
-//        editToolMonthSpinner.setName("editToolMonth");
-//        editToolMonthSpinner.addChangeListener(new editToolDateListener());
-//        editToolYearSpinner = new JSpinner(new SpinnerNumberModel(
-//                calendar.get(GregorianCalendar.YEAR),
-//                calendar.get(GregorianCalendar.YEAR),
-//                calendar.get(GregorianCalendar.YEAR) + 1,
-//                1));
-//        editToolYearSpinner.setName("editToolYear");
-//        editToolYearSpinner.addChangeListener(new editToolDateListener());
-//
-//        gbc.gridx = 0;
-//        gbc.gridy = 5;
-//        gbc.gridwidth = 1;
-//        editToolFieldsPanel.add(new JLabel("Аттестовано до "), gbc);
-//
-//        gbc.gridx = 1;
-//        gbc.gridy = 5;
-//        editToolFieldsPanel.add(editToolDaySpinner, gbc);
-//        gbc.gridx = 2;
-//        editToolFieldsPanel.add(editToolMonthSpinner, gbc);
-//        gbc.gridx = 3;
-//        editToolFieldsPanel.add(editToolYearSpinner, gbc);
-
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.gridwidth = 1;
@@ -910,7 +818,6 @@ public class MainWindow extends JFrame {
 
         editToolDialog.setLocation(300, 500);
         editToolDialog.setSize(300, 250);
-        //editToolDialog.pack();
         editToolDialog.setVisible(true);
         return editToolDialog;
     }
