@@ -59,11 +59,12 @@ public class MainWindow extends JFrame {
     private JTable timeTable = new JTable();
     private JButton addExperiment = new JButton("Добавить испытание");
     private JButton removeExperiment = new JButton("Удалить испытание");
+
     static MainWindow mainWindow;
 
-    private JDialog removeExperimentDialog;
-    private JButton removeExperimentApplyButton;
-    private JTextField removeExperimentId;
+//    private JDialog removeExperimentDialog;
+//    private JButton removeExperimentApplyButton;
+//    private JTextField removeExperimentId;
 
     private JDialog editToolDialog;
     private JPanel editToolFieldsPanel;
@@ -104,6 +105,12 @@ public class MainWindow extends JFrame {
         add(toolsPanel, BorderLayout.CENTER);
         validate();
         repaint();
+    }
+
+    public void refreshTimeTableDialog() {
+        System.out.println("refresh timetable dialog");
+        timeTableDialog.validate();
+        timeTableDialog.repaint();
     }
 
     class newToolAddButtonListener implements ActionListener {
@@ -246,40 +253,6 @@ public class MainWindow extends JFrame {
             mainWindow.add(toolsPanel);
             mainWindow.validate();
             mainWindow.repaint();
-        }
-    }
-
-    class removeExperimentButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (removeExperimentDialog != null) {
-                removeExperimentDialog.setVisible(false);
-                removeExperimentDialog = null;
-            }
-            removeExperimentDialog = makeRemoveExperimentDialog();
-            removeExperimentApplyButton.setActionCommand(e.getActionCommand());
-        }
-    }
-
-    class removeExperimentSubmitListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            String experimentId = removeExperimentId.getText();
-
-            String result = new DBQuery().removeExperiment(e.getActionCommand(), experimentId);
-            if (result.equals("OK")) {
-                mainWindow.remove(toolsPanel);
-                toolsPanel = makeToolsPanel();
-                mainWindow.add(toolsPanel);
-                mainWindow.validate();
-                mainWindow.repaint();
-
-                makeTimeTable(e.getActionCommand());
-                timeTableDialog.validate();
-                timeTableDialog.repaint();
-
-                removeExperimentId.setText("");
-                removeExperimentDialog.setVisible(false);
-            }
         }
     }
 
@@ -592,11 +565,21 @@ public class MainWindow extends JFrame {
         return removeToolDialog;
     }
 
+    class removeExperimentButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            RemoveExperimentDialog removeExperimentDialog = new RemoveExperimentDialog(mainWindow);
+            removeExperimentDialog.setToolId(e.getActionCommand());
+            removeExperimentDialog.setModal(true);
+            removeExperimentDialog.setVisible(true);
+        }
+    }
+
     private ArrayList<Tool> getTools() {
         return new DBQuery().getTools();
     }
 
-    private JPanel makeToolsPanel() {
+    protected JPanel makeToolsPanel() {
         JPanel toolsPanel = new JPanel();
         toolsPanel.setLayout(new BoxLayout(toolsPanel, BoxLayout.Y_AXIS));
 
@@ -696,44 +679,6 @@ public class MainWindow extends JFrame {
         return menuBar;
     }
     
-    private JDialog makeRemoveExperimentDialog() {
-        JDialog rmExperimentFrame = new JDialog(mainWindow);
-        rmExperimentFrame.setTitle("Удалить испытание");
-        rmExperimentFrame.setResizable(false);
-        rmExperimentFrame.setSize(300, 60);
-        rmExperimentFrame.setLocation(100, 400);
-
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints c;
-        rmExperimentFrame.add(mainPanel);
-
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        mainPanel.add(new JLabel("ID испытания"), c);
-
-        removeExperimentId = new JTextField();
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 1;
-        c.gridy = 0;
-        c.ipadx = 60;
-        c.insets = new Insets(10,10,10,20);
-        mainPanel.add(removeExperimentId, c);
-
-        removeExperimentApplyButton = new JButton("Удалить");
-        removeExperimentApplyButton.addActionListener(new removeExperimentSubmitListener());
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 2;
-        c.gridy = 0;
-        mainPanel.add(removeExperimentApplyButton, c);
-
-        rmExperimentFrame.setVisible(true);
-        return rmExperimentFrame;
-    }
-
     private JDialog makeToolInfoDialog(HashMap<String, String> toolInfo) {
         JDialog toolInfoDialog = new JDialog(mainWindow);
         String title = toolInfo.get("name") +

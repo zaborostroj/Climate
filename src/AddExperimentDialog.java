@@ -207,11 +207,11 @@ public class AddExperimentDialog extends JDialog {
 
     class addExperimentCancelListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            setVisible(false);
             decNumberField.setText("");
             nameField.setText("");
             serialNumberField.setText("");
             orderField.setText("");
+            setVisible(false);
         }
 
     }
