@@ -190,20 +190,8 @@ public class DBQuery {
                 Experiment experiment = new Experiment();
                 experiment.setId(resultSet.getString(1));
                 experiment.setCameraId(resultSet.getString(2));
-
-                //date and time format 'HH:MM DD-MM-YYYY'
                 experiment.setStartTime(SQL_DATE_FORMAT.parse(resultSet.getString("START_TIME")));
                 experiment.setEndTime(SQL_DATE_FORMAT.parse(resultSet.getString("END_TIME")));
-                
-//                String sqlDateTime[] = resultSet.getString(3).split("\\s");
-//                String[] date = sqlDateTime[0].split("-");
-//                String[] time = sqlDateTime[1].split(":");
-//                experiment.setStartTime(time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0]);
-//                sqlDateTime = resultSet.getString(4).split("\\s");
-//                date = sqlDateTime[0].split("-");
-//                time = sqlDateTime[1].split(":");
-//                experiment.setEndTime(time[0] + ":" + time[1] + " " + date[2] + "-" + date[1] + "-" + date[0]);
-
                 experiment.setDecNumber(resultSet.getString(5));
                 experiment.setName(resultSet.getString(6));
                 experiment.setSerialNumber(resultSet.getString(7));
@@ -243,7 +231,6 @@ public class DBQuery {
         java.util.Date now = new Date();
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentDateTime = formatter.format(now);
-        //String currentDateTime = "2014-01-29 13:00:00";
 
         String query = "SELECT * FROM `" + timeTableName + "` WHERE" +
                 " \'" + currentDateTime + "\' >= `start_time` " +
