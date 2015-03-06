@@ -124,6 +124,27 @@ public class MainWindow extends JFrame {
         }
     }
 
+    private class addExperimentButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            AddExperimentDialog addExperimentDialog = new AddExperimentDialog(mainWindow);
+            addExperimentDialog.setCameraId(e.getActionCommand());
+            addExperimentDialog.setModal(true);
+            addExperimentDialog.setVisible(true);
+        }
+
+    }
+
+    private class removeExperimentButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            RemoveExperimentDialog removeExperimentDialog = new RemoveExperimentDialog(mainWindow);
+            removeExperimentDialog.setToolId(e.getActionCommand());
+            removeExperimentDialog.setModal(true);
+            removeExperimentDialog.setVisible(true);
+        }
+    }
+
     public void refreshToolsPanel() {
         if (toolsPanel != null) {
             remove(toolsPanel);
@@ -191,27 +212,6 @@ public class MainWindow extends JFrame {
         timeTable.getColumnModel().getColumn(6).setPreferredWidth(50);
         timeTable.getColumnModel().getColumn(7).setPreferredWidth(150);
         timeTable.getColumnModel().getColumn(8).setPreferredWidth(30);
-    }
-
-    private class addExperimentButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            AddExperimentDialog addExperimentDialog = new AddExperimentDialog(mainWindow);
-            addExperimentDialog.setCameraId(e.getActionCommand());
-            addExperimentDialog.setModal(true);
-            addExperimentDialog.setVisible(true);
-        }
-
-    }
-
-    private class removeExperimentButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            RemoveExperimentDialog removeExperimentDialog = new RemoveExperimentDialog(mainWindow);
-            removeExperimentDialog.setToolId(e.getActionCommand());
-            removeExperimentDialog.setModal(true);
-            removeExperimentDialog.setVisible(true);
-        }
     }
 
     private ArrayList<Tool> getTools() {
