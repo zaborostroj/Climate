@@ -1,15 +1,10 @@
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
   * Created by Evgeny Baskakov on 06.03.2015.
@@ -18,11 +13,12 @@ public class NewToolDialog extends JDialog{
     private MainWindow mainWindow;
     private JPanel newToolFieldsPanel;
     private JLabel newToolErrorLabel;
+    private JTextField toolSerialNumberField;
+    private JTextField toolNameField;
+    private JTextField toolDescriptionField;
+    private JComboBox<String> toolTypeCombo;
+    private JComboBox<String> toolPlacementCombo;
     private JDateChooser certificationDate;
-    private JSpinner certificationDaySpinner;
-    private JSpinner certificationMonthSpinner;
-    private JSpinner certificationYearSpinner;
-
 
     public NewToolDialog(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
@@ -31,61 +27,22 @@ public class NewToolDialog extends JDialog{
         newToolErrorLabel = new JLabel("Заполните данные");
         newToolErrorPanel.add(newToolErrorLabel);
 
-        JComboBox<String> typeComboBox = new JComboBox<String>();
-        typeComboBox.setName("tool_type");
+        toolTypeCombo = new JComboBox<String>();
+        toolTypeCombo.setName("tool_type");
         for (String toolType : MainWindow.toolTypes) {
-            typeComboBox.addItem(toolType);
+            toolTypeCombo.addItem(toolType);
         }
-        JComboBox<String> placementComboBox = new JComboBox<String>();
-        placementComboBox.setName("placement");
+        toolPlacementCombo = new JComboBox<String>();
+        toolPlacementCombo.setName("placement");
         for (String toolPlacement: MainWindow.toolPlacements) {
-            placementComboBox.addItem(toolPlacement);
+            toolPlacementCombo.addItem(toolPlacement);
         }
 
-        GregorianCalendar calendar = new GregorianCalendar();
-        int lastDayOfMonth;
-        switch (calendar.get(GregorianCalendar.MONTH) + 1) {
-            case 1:
-            case 3:
-            case 5:
-            case 8:
-            case 10:
-            case 12:
-                lastDayOfMonth = 31;
-                break;
-            case 4:case 6:case 9:case 11:
-                lastDayOfMonth = 30;
-                break;
-            case 2:
-                if (calendar.get(GregorianCalendar.YEAR) % 4 == 0)
-                    lastDayOfMonth = 29;
-                else
-                    lastDayOfMonth = 28;
-                break;
-            default:lastDayOfMonth = 31;
-        }
-        certificationDaySpinner = new JSpinner(new SpinnerNumberModel(
-                calendar.get(GregorianCalendar.DAY_OF_MONTH),
-                1,
-                lastDayOfMonth,
-                1));
-        certificationDaySpinner.setName("certificationDay");
-        certificationMonthSpinner = new JSpinner(new SpinnerNumberModel(calendar.get(GregorianCalendar.MONTH) + 1, 1, 12, 1));
-        certificationMonthSpinner.setName("certificationMonth");
-        certificationMonthSpinner.addChangeListener(new certificationDateListener());
-        certificationYearSpinner = new JSpinner(new SpinnerNumberModel(
-                calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.YEAR),
-                calendar.get(GregorianCalendar.YEAR) + 1,
-                1));
-        certificationYearSpinner.setName("certificationYear");
-        certificationYearSpinner.addChangeListener(new certificationDateListener());
-
-        JTextField textField;
         newToolFieldsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = new Insets(3,3,3,3);
         newToolFieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         gbc.gridx = 0;
@@ -95,10 +52,9 @@ public class NewToolDialog extends JDialog{
 
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.gridwidth = 3;
-        textField = new JTextField();
-        textField.setName("serial_number");
-        newToolFieldsPanel.add(textField, gbc);
+        gbc.gridwidth = 1;
+        toolSerialNumberField = new JTextField();
+        newToolFieldsPanel.add(toolSerialNumberField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -107,10 +63,9 @@ public class NewToolDialog extends JDialog{
 
         gbc.gridx = 1;
         gbc.gridy = 1;
-        gbc.gridwidth = 3;
-        textField = new JTextField();
-        textField.setName("name");
-        newToolFieldsPanel.add(textField, gbc);
+        gbc.gridwidth = 1;
+        toolNameField = new JTextField();
+        newToolFieldsPanel.add(toolNameField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -119,10 +74,9 @@ public class NewToolDialog extends JDialog{
 
         gbc.gridx = 1;
         gbc.gridy = 2;
-        gbc.gridwidth = 3;
-        textField = new JTextField();
-        textField.setName("description");
-        newToolFieldsPanel.add(textField, gbc);
+        gbc.gridwidth = 1;
+        toolDescriptionField = new JTextField();
+        newToolFieldsPanel.add(toolDescriptionField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -131,8 +85,8 @@ public class NewToolDialog extends JDialog{
 
         gbc.gridx = 1;
         gbc.gridy = 3;
-        gbc.gridwidth = 3;
-        newToolFieldsPanel.add(typeComboBox, gbc);
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(toolTypeCombo, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
@@ -141,8 +95,8 @@ public class NewToolDialog extends JDialog{
 
         gbc.gridx = 1;
         gbc.gridy = 4;
-        gbc.gridwidth = 3;
-        newToolFieldsPanel.add(placementComboBox, gbc);
+        gbc.gridwidth = 1;
+        newToolFieldsPanel.add(toolPlacementCombo, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
@@ -155,14 +109,6 @@ public class NewToolDialog extends JDialog{
         gbc.gridy = 5;
         gbc.gridwidth = 1;
         newToolFieldsPanel.add(certificationDate, gbc);
-        //gbc.gridx = 2;
-        //gbc.gridy = 5;
-        //gbc.gridwidth = 1;
-        //newToolFieldsPanel.add(certificationMonthSpinner, gbc);
-        //gbc.gridx = 3;
-        //gbc.gridy = 5;
-        //gbc.gridwidth = 1;
-        //newToolFieldsPanel.add(certificationYearSpinner, gbc);
 
         JPanel newToolButtonsPanel = new JPanel(new FlowLayout());
         newToolButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -184,75 +130,66 @@ public class NewToolDialog extends JDialog{
 
         setResizable(false);
         add(newToolMainPanel);
-        setSize(300, 250);
+        setSize(300, 270);
         setLocation(20, 400);
         setVisible(true);
-    }
-
-    class certificationDateListener implements ChangeListener {
-        public void stateChanged(ChangeEvent e) {
-            Integer selectedMonth = (Integer) certificationMonthSpinner.getValue();
-            Integer selectedYear = (Integer) certificationYearSpinner.getValue();
-            switch (selectedMonth) {
-                case 1:case 3:case 5:case 7:case 8:case 10:case 12:
-                    certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,31,1));
-                    break;
-                case 4:case 6:case 9:case 11:
-                    certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,30,1));
-                    break;
-                case 2:
-                    if (selectedYear % 4 == 0) {
-                        certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,29,1));
-                    } else {
-                        certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,28,1));
-                    }
-                    break;
-                default:
-                    certificationDaySpinner.setModel(new SpinnerNumberModel(1,1,31,1));
-                    break;
-            }
-        }
     }
 
     class newToolAddButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            Component[] components = newToolFieldsPanel.getComponents();
-            Map<String, String> newToolParams = new HashMap<String, String>();
-            Boolean allFieldsFilled = true;
-            for (Component component : components) {
-                if (component.getClass() == JTextField.class) {
-                    JTextField textField = (JTextField) component;
-                    if (!textField.getText().equals("")) {
-                        newToolParams.put(textField.getName(), textField.getText());
-                        newToolErrorLabel.setText("Заполните данные");
-                    } else {
-                        allFieldsFilled = false;
-                    }
+            Tool newToolData = getNewToolData();
+            String result = new DBQuery().addTool(newToolData);
+            System.out.println(result);
 
-                } else if (component.getClass() == JComboBox.class) {
-                    JComboBox comboBox = (JComboBox) component;
-                    newToolParams.put(comboBox.getName(), (String) comboBox.getSelectedItem());
-                } else if (component.getClass() == JSpinner.class) {
-                    JSpinner sp = (JSpinner) component;
-                    newToolParams.put(sp.getName(), sp.getValue().toString());
-                }
-            }
-
-            if (allFieldsFilled) {
-                String result = new DBQuery().addTool(newToolParams);
-                if (result.equals("")) {
-                    mainWindow.refreshToolsPanel();
-                    setVisible(false);
-                    dispose();
-                } else {
-                    newToolErrorLabel.setText(result);
-                }
-
-            } else {
-                newToolErrorLabel.setText("Все данные необходимо заполнить");
-            }
+//            Component[] components = newToolFieldsPanel.getComponents();
+//            Map<String, String> newToolParams = new HashMap<String, String>();
+//            Boolean allFieldsFilled = true;
+//            for (Component component : components) {
+//                if (component.getClass() == JTextField.class) {
+//                    JTextField textField = (JTextField) component;
+//                    if (!textField.getText().equals("")) {
+//                        newToolParams.put(textField.getName(), textField.getText());
+//                        newToolErrorLabel.setText("Заполните данные");
+//                    } else {
+//                        allFieldsFilled = false;
+//                    }
+//
+//                } else if (component.getClass() == JComboBox.class) {
+//                    JComboBox comboBox = (JComboBox) component;
+//                    newToolParams.put(comboBox.getName(), (String) comboBox.getSelectedItem());
+//                } else if (component.getClass() == JSpinner.class) {
+//                    JSpinner sp = (JSpinner) component;
+//                    newToolParams.put(sp.getName(), sp.getValue().toString());
+//                }
+//            }
+//
+//            if (allFieldsFilled) {
+//                String result = new DBQuery().addTool(newToolParams);
+//                if (result.equals("")) {
+//                    mainWindow.refreshToolsPanel();
+//                    setVisible(false);
+//                    dispose();
+//                } else {
+//                    newToolErrorLabel.setText(result);
+//                }
+//
+//            } else {
+//                newToolErrorLabel.setText("Все данные необходимо заполнить");
+//            }
         }
+    }
+
+    public Tool getNewToolData() {
+        Tool newToolData = new Tool();
+        newToolData.setSerialNumber(toolSerialNumberField.getText());
+        newToolData.setName(toolNameField.getText());
+        newToolData.setDescription(toolDescriptionField.getText());
+        newToolData.setToolType(toolTypeCombo.getSelectedItem().toString());
+        newToolData.setPlacement(toolPlacementCombo.getSelectedItem().toString());
+        newToolData.setStatement("");
+        newToolData.setCertification(certificationDate.getDate());
+        return newToolData;
     }
 
     class newToolCancelButtonListener implements ActionListener {

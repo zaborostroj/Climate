@@ -380,31 +380,31 @@ public class DBQuery {
         }
     }
 
-    public String addTool(Map<String, String> values) {
+    public String addTool(/*Map<String, String>*/ Tool newToolData) {
         String result = "";
-        String certificationDate =
-                values.get("certificationYear") + "-" +
-                values.get("certificationMonth") + "-" +
-                values.get("certificationDay") + " 00:00:01";
+        String certificationDate = SQL_DATE_FORMAT.format(newToolData.getCertification());
+                //newToolData.get("certificationYear") + "-" +
+                //newToolData.get("certificationMonth") + "-" +
+                //newToolData.get("certificationDay") + " 00:00:01";
         String checkQuery =
                 "SELECT * FROM" +
                 " `" + toolsTableName + "`" +
                 " WHERE" +
-                " `serial_number` = \'" + values.get("serial_number") + "\' AND" +
-                " `name` = \'" + values.get("name") + "\' AND" +
-                " `tool_type` = \'" + values.get("tool_type") + "\' AND" +
-                " `placement` = \'" + values.get("placement") + "\'";
+                " `serial_number` = \'" + newToolData.getSerialNumber() + "\' AND" +
+                " `name` = \'" + newToolData.getName() + "\' AND" +
+                " `tool_type` = \'" + newToolData.getToolType() + "\' AND" +
+                " `placement` = \'" + newToolData.getPlacement() + "\'";
 
         String addQuery =
                 "INSERT INTO" +
                 " `" + toolsTableName + "`" +
                 " (`serial_number`, `name`, `description`, `tool_type`, `placement`, `statement`, `certification`)" +
                 " VALUES (" +
-                        "\'" + values.get("serial_number") + "\', " +
-                        "\'" + values.get("name") + "\', " +
-                        "\'" + values.get("description") + "\', " +
-                        "\'" + values.get("tool_type") + "\', " +
-                        "\'" + values.get("placement") + "\', " +
+                        "\'" + newToolData.getSerialNumber() + "\', " +
+                        "\'" + newToolData.getName() + "\', " +
+                        "\'" + newToolData.getDescription() + "\', " +
+                        "\'" + newToolData.getToolType() + "\', " +
+                        "\'" + newToolData.getPlacement() + "\', " +
                         "\'\', " +
                         "\'" + certificationDate + "\')";
 
