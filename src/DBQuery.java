@@ -293,13 +293,13 @@ public class DBQuery {
         return curExp;
     }
 
-    public HashMap<String, String> getToolInfo(String toolId) {
+    public Tool getToolData(String toolId) {
         String query = "SELECT *" +
                 " FROM `" + toolsTableName + "`" +
                 " WHERE id = " + toolId;
         Connection connection = null;
         Statement statement = null;
-        HashMap<String, String> toolInfo = new HashMap<String, String>();
+        Tool tool = new Tool();
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -308,14 +308,13 @@ public class DBQuery {
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
-                toolInfo.put("name", resultSet.getString("name"));
-                toolInfo.put("serial_number", resultSet.getString("serial_number"));
-                toolInfo.put("tool_type", resultSet.getString("tool_type"));
-                toolInfo.put("placement", resultSet.getString("placement"));
-                toolInfo.put("description", resultSet.getString("description"));
-                String sqlDate = resultSet.getString("certification").split(" ")[0];
-                String date = sqlDate.split("-")[2] + "-" + sqlDate.split("-")[1] + "-" + sqlDate.split("-")[0];
-                toolInfo.put("certification", date);
+                tool.setName(resultSet.getString("name"));
+                tool.setSerialNumber(resultSet.getString("serial_number"));
+                tool.setToolType(resultSet.getString("tool_type"));
+                tool.setPlacement(resultSet.getString("placement"));
+                tool.setDescription(resultSet.getString("description"));
+                tool.setStatement(resultSet.getString("statement"));
+                tool.setCertification(resultSet.getDate("certification"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -336,7 +335,49 @@ public class DBQuery {
                 }
             }
         }
-        return toolInfo;
+        return tool;
+    }
+
+    public void setToolData(Tool tool) {
+        String certificationDate = SQL_DATE_FORMAT.format(tool.getCertification());
+        String toolStatement = tool.getStatement().equals("Ремонт") ? "broken" : "";
+
+        String query = "UPDATE " + toolsTableName +
+                " SET" +
+                " `serial_number` = \'" + tool.getSerialNumber() + "\'," +
+                " `name` = \'" + tool.getName() + "\'," +
+                " `description` = \'" + tool.getDescription() + "\'," +
+                " `tool_type` = \'" + tool.getToolType() + "\'," +
+                " `placement` = \'" + tool.getPlacement() + "\'," +
+                " `statement` = \'" + toolStatement + "\'," +
+                " `certification` = \'" + certificationDate + "\'" +
+                " WHERE `id` = \'" + tool.getId() + "\'";
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+            statement.executeUpdate(query);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public String addTool(Map<String, String> values) {

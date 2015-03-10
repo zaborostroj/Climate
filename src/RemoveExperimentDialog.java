@@ -55,6 +55,7 @@ public class RemoveExperimentDialog extends JDialog {
                 mainWindow.refreshToolsPanel();
                 mainWindow.makeTimeTable(toolId);
                 setVisible(false);
+                dispose();
             }
         }
     }

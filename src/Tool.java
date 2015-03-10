@@ -1,3 +1,5 @@
+import java.util.Date;
+
 /**
   Created by Evgeny Baskakov on 26.01.2015.
  */
@@ -9,6 +11,7 @@ public class Tool {
     private String toolType;
     private String placement;
     private String statement;
+    private Date certification;
 
     public String getId() {
         return id;
@@ -64,5 +67,11 @@ public class Tool {
 
     public void setStatement(String statement) {
         this.statement = statement;
+    }
+
+    public Date getCertification() {return certification;}
+
+    public void setCertification(Date certification) {
+        this.certification = certification;
     }
 }

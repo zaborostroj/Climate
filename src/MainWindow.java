@@ -85,7 +85,7 @@ public class MainWindow extends JFrame {
     private class toolInfoButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            HashMap<String, String> toolInfo = new DBQuery().getToolInfo(e.getActionCommand());
+            Tool toolInfo = new DBQuery().getToolData(e.getActionCommand());
             ToolInfoDialog toolInfoDialog = new ToolInfoDialog(toolInfo);
             toolInfoDialog.setModal(true);
         }
@@ -117,8 +117,8 @@ public class MainWindow extends JFrame {
 
     private class editToolListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            EditToolDialog editToolDialog = new EditToolDialog(mainWindow);
-            editToolDialog.setToolId(e.getActionCommand());
+            EditToolDialog editToolDialog = new EditToolDialog(mainWindow, e.getActionCommand());
+            //editToolDialog.setToolId(e.getActionCommand());
             editToolDialog.setModal(true);
             editToolDialog.setVisible(true);
         }
@@ -127,10 +127,10 @@ public class MainWindow extends JFrame {
     private class addExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            AddExperimentDialog addExperimentDialog = new AddExperimentDialog(mainWindow);
-            addExperimentDialog.setCameraId(e.getActionCommand());
-            addExperimentDialog.setModal(true);
-            addExperimentDialog.setVisible(true);
+            NewExperimentDialog newExperimentDialog = new NewExperimentDialog(mainWindow);
+            newExperimentDialog.setCameraId(e.getActionCommand());
+            newExperimentDialog.setModal(true);
+            newExperimentDialog.setVisible(true);
         }
 
     }

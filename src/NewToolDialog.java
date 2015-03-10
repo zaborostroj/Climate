@@ -1,9 +1,12 @@
+import com.toedter.calendar.JDateChooser;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +18,7 @@ public class NewToolDialog extends JDialog{
     private MainWindow mainWindow;
     private JPanel newToolFieldsPanel;
     private JLabel newToolErrorLabel;
+    private JDateChooser certificationDate;
     private JSpinner certificationDaySpinner;
     private JSpinner certificationMonthSpinner;
     private JSpinner certificationYearSpinner;
@@ -145,18 +149,20 @@ public class NewToolDialog extends JDialog{
         gbc.gridwidth = 1;
         newToolFieldsPanel.add(new JLabel("Аттестовано до "), gbc);
 
+        certificationDate = new JDateChooser("dd.MM.yyyy", "##.##.####", '_');
+        certificationDate.setDate(new Date());
         gbc.gridx = 1;
         gbc.gridy = 5;
         gbc.gridwidth = 1;
-        newToolFieldsPanel.add(certificationDaySpinner, gbc);
-        gbc.gridx = 2;
-        gbc.gridy = 5;
-        gbc.gridwidth = 1;
-        newToolFieldsPanel.add(certificationMonthSpinner, gbc);
-        gbc.gridx = 3;
-        gbc.gridy = 5;
-        gbc.gridwidth = 1;
-        newToolFieldsPanel.add(certificationYearSpinner, gbc);
+        newToolFieldsPanel.add(certificationDate, gbc);
+        //gbc.gridx = 2;
+        //gbc.gridy = 5;
+        //gbc.gridwidth = 1;
+        //newToolFieldsPanel.add(certificationMonthSpinner, gbc);
+        //gbc.gridx = 3;
+        //gbc.gridy = 5;
+        //gbc.gridwidth = 1;
+        //newToolFieldsPanel.add(certificationYearSpinner, gbc);
 
         JPanel newToolButtonsPanel = new JPanel(new FlowLayout());
         newToolButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -176,12 +182,11 @@ public class NewToolDialog extends JDialog{
         newToolMainPanel.add(newToolFieldsPanel, BorderLayout.CENTER);
         newToolMainPanel.add(newToolButtonsPanel, BorderLayout.PAGE_END);
 
-        //JDialog newToolDialog = new JDialog(mainWindow, "Добавить новое оборудование");
-        /*newToolDialog.*/setResizable(false);
-        /*newToolDialog.*/add(newToolMainPanel);
-        /*newToolDialog.*/setSize(300, 250);
-        /*newToolDialog.*/setLocation(20, 400);
-        /*newToolDialog.*/setVisible(true);
+        setResizable(false);
+        add(newToolMainPanel);
+        setSize(300, 250);
+        setLocation(20, 400);
+        setVisible(true);
     }
 
     class certificationDateListener implements ChangeListener {
@@ -238,14 +243,8 @@ public class NewToolDialog extends JDialog{
                 String result = new DBQuery().addTool(newToolParams);
                 if (result.equals("")) {
                     mainWindow.refreshToolsPanel();
-                    //mainWindow.makeTimeTable(toolId);
-                    //for (Component component : components) {
-                    //    if (component.getClass() == JTextField.class) {
-                    //        JTextField textField = (JTextField) component;
-                    //        textField.setText("");
-                    //    }
-                    //}
                     setVisible(false);
+                    dispose();
                 } else {
                     newToolErrorLabel.setText(result);
                 }
@@ -260,6 +259,7 @@ public class NewToolDialog extends JDialog{
         @Override
         public void actionPerformed(ActionEvent e) {
             setVisible(false);
+            dispose();
         }
     }
 }

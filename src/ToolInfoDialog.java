@@ -1,15 +1,16 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 /**
   * Created by Evgeny Baskakov on 06.03.2015.
  */
 public class ToolInfoDialog extends JDialog{
-    public ToolInfoDialog(HashMap<String, String> toolInfo) {
-        String title = toolInfo.get("name") +
-                " №" + toolInfo.get("serial_number") +
-                " (" + toolInfo.get("placement") + ")";
+    public ToolInfoDialog(Tool toolInfo) {
+        String title = toolInfo.getName() +
+                " №" + toolInfo.getSerialNumber() +
+                " (" + toolInfo.getPlacement() + ")";
 
         setTitle(title);
 
@@ -20,16 +21,19 @@ public class ToolInfoDialog extends JDialog{
         panel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         add(panel);
 
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        String certificationDate = dateFormat.format(toolInfo.getCertification());
+
         JLabel certificationLabel = new JLabel(
                 "<html>" +
                 "<b>Сертифицировано до:</b><br>" +
-                toolInfo.get("certification") +
+                certificationDate +
                 "</html>"
         );
         JLabel descriptionLabel = new JLabel(
                 "<html>" +
                 "<b>Описание:</b><br>" +
-                toolInfo.get("description") +
+                toolInfo.getDescription() +
                 "</html>"
         );
         gbc = new GridBagConstraints();
