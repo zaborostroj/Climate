@@ -86,17 +86,17 @@ public class Experiment {
         this.description = description;
     }
 
-    public void println() {
-        System.out.println(
-                getId() + " " +
-                getCameraId() + " " +
-                getStartTime() + " " +
-                getEndTime() + " " +
-                getDecNumber() + " " +
-                getSerialNumber() + " " +
-                getName() + " " +
-                getOrder() + " " +
-                getDescription()
-        );
-    }
+//    public void println() {
+//        System.out.println(
+//                getId() + " " +
+//                getCameraId() + " " +
+//                getStartTime() + " " +
+//                getEndTime() + " " +
+//                getDecNumber() + " " +
+//                getSerialNumber() + " " +
+//                getName() + " " +
+//                getOrder() + " " +
+//                getDescription()
+//        );
+//    }
 }

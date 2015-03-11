@@ -4,6 +4,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +41,8 @@ public class MainWindow extends JFrame {
     private JTable timeTable = new JTable();
     private JButton addExperiment = new JButton("Добавить испытание");
     private JButton removeExperiment = new JButton("Удалить испытание");
+    private static final DateFormat TIMETABLE_DATE_FORMAT = new SimpleDateFormat("HH:mm dd.MM.yyyy");
+
 
     static MainWindow mainWindow;
 
@@ -167,7 +171,7 @@ public class MainWindow extends JFrame {
         return new DBQuery().getExperiments(cameraId);
     }
 
-    private Map<String, String[]> getCurrentExperiments() {
+    private Map<String, Experiment> getCurrentExperiments() {
         return new DBQuery().getCurrentExperiments();
     }
 
@@ -223,7 +227,7 @@ public class MainWindow extends JFrame {
         toolsPanel.setLayout(new BoxLayout(toolsPanel, BoxLayout.Y_AXIS));
 
         ArrayList<Tool> tools = getTools();
-        Map<String, String[]> currentExperiments = getCurrentExperiments();
+        Map<String, Experiment> currentExperiments = getCurrentExperiments();
 
         Map<String, JPanel> panels = new HashMap<String, JPanel>();
         for (Object placement : toolPlacements) {
@@ -236,7 +240,7 @@ public class MainWindow extends JFrame {
 
         for (Tool tool : tools) {
 
-            String[] experiment = currentExperiments.get(tool.getId());
+            Experiment experiment = currentExperiments.get(tool.getId());
             GridLayout gridLayout = new GridLayout(11, 1);
             JPanel panel = new JPanel(gridLayout);
 
@@ -245,11 +249,34 @@ public class MainWindow extends JFrame {
             label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             panel.add(label);
             if (currentExperiments.get(tool.getId()) != null) {
-                for (int i = 2; i <= 8; i++){
-                    label = new JLabel(experiment[i]);
-                    label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                    panel.add(label);
-                }
+                label = new JLabel(TIMETABLE_DATE_FORMAT.format(experiment.getStartTime()));
+                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                panel.add(label);
+
+                label = new JLabel(TIMETABLE_DATE_FORMAT.format(experiment.getEndTime()));
+                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                panel.add(label);
+
+                label = new JLabel(experiment.getDecNumber());
+                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                panel.add(label);
+
+                label = new JLabel(experiment.getName());
+                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                panel.add(label);
+
+                label = new JLabel(experiment.getSerialNumber());
+                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                panel.add(label);
+
+                label = new JLabel(experiment.getOrder());
+                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                panel.add(label);
+
+                label = new JLabel(experiment.getDescription());
+                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+                panel.add(label);
+
                 panel.setBorder(BorderFactory.createLineBorder(Color.RED, 3, true));
             } else {
                 panel.setBorder(BorderFactory.createLineBorder(Color.GREEN, 3, true));
