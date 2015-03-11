@@ -11,7 +11,6 @@ import java.util.Date;
  */
 public class NewToolDialog extends JDialog{
     private MainWindow mainWindow;
-    private JPanel newToolFieldsPanel;
     private JLabel newToolErrorLabel;
     private JTextField toolSerialNumberField;
     private JTextField toolNameField;
@@ -38,7 +37,7 @@ public class NewToolDialog extends JDialog{
             toolPlacementCombo.addItem(toolPlacement);
         }
 
-        newToolFieldsPanel = new JPanel(new GridBagLayout());
+        JPanel newToolFieldsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.LINE_START;
@@ -140,43 +139,13 @@ public class NewToolDialog extends JDialog{
         public void actionPerformed(ActionEvent e) {
             Tool newToolData = getNewToolData();
             String result = new DBQuery().addTool(newToolData);
-            System.out.println(result);
-
-//            Component[] components = newToolFieldsPanel.getComponents();
-//            Map<String, String> newToolParams = new HashMap<String, String>();
-//            Boolean allFieldsFilled = true;
-//            for (Component component : components) {
-//                if (component.getClass() == JTextField.class) {
-//                    JTextField textField = (JTextField) component;
-//                    if (!textField.getText().equals("")) {
-//                        newToolParams.put(textField.getName(), textField.getText());
-//                        newToolErrorLabel.setText("Заполните данные");
-//                    } else {
-//                        allFieldsFilled = false;
-//                    }
-//
-//                } else if (component.getClass() == JComboBox.class) {
-//                    JComboBox comboBox = (JComboBox) component;
-//                    newToolParams.put(comboBox.getName(), (String) comboBox.getSelectedItem());
-//                } else if (component.getClass() == JSpinner.class) {
-//                    JSpinner sp = (JSpinner) component;
-//                    newToolParams.put(sp.getName(), sp.getValue().toString());
-//                }
-//            }
-//
-//            if (allFieldsFilled) {
-//                String result = new DBQuery().addTool(newToolParams);
-//                if (result.equals("")) {
-//                    mainWindow.refreshToolsPanel();
-//                    setVisible(false);
-//                    dispose();
-//                } else {
-//                    newToolErrorLabel.setText(result);
-//                }
-//
-//            } else {
-//                newToolErrorLabel.setText("Все данные необходимо заполнить");
-//            }
+            if (result.equals("")) {
+                mainWindow.refreshToolsPanel();
+                setVisible(false);
+                dispose();
+            } else {
+                newToolErrorLabel.setText(result);
+            }
         }
     }
 

@@ -421,6 +421,7 @@ public class DBQuery {
                 result = "Tool already exists";
             } else {
                 statement.executeUpdate(addQuery);
+                result = "";
             }
 
         } catch (Exception e) {
