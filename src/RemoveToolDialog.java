@@ -11,6 +11,7 @@ public class RemoveToolDialog extends JDialog{
     private JLabel removeToolErrorLabel;
     private JTextField serialNumberField;
     private JComboBox<String> placementCombo;
+    private static final Insets INSETS = new Insets(3,3,3,3);
 
 
     public RemoveToolDialog(MainWindow mainWindow) {
@@ -23,7 +24,7 @@ public class RemoveToolDialog extends JDialog{
         removeMainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = INSETS;
 
         gbc.gridx = 0;
         gbc.gridy = 0;

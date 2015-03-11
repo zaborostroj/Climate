@@ -10,12 +10,13 @@ public class RemoveExperimentDialog extends JDialog {
     private MainWindow mainWindow;
     private JTextField removeExperimentId;
     private String toolId;
+    private static final Insets INSETS = new Insets(3,3,3,3);
 
     public RemoveExperimentDialog(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
         setTitle("Удалить испытание");
         setResizable(false);
-        setSize(300, 60);
+        setSize(250, 60);
         setLocation(100, 400);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
@@ -34,7 +35,7 @@ public class RemoveExperimentDialog extends JDialog {
         c.gridx = 1;
         c.gridy = 0;
         c.ipadx = 60;
-        c.insets = new Insets(10, 10, 10, 20);
+        c.insets = INSETS;
         mainPanel.add(removeExperimentId, c);
 
         JButton removeExperimentApplyButton = new JButton("Удалить");

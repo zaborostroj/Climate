@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -201,6 +202,7 @@ public class MainWindow extends JFrame {
         timeTableDialog.add(mainPanel);
 
         timeTableDialog.setModal(true);
+        timeTableDialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         return timeTableDialog;
     }
 
@@ -282,13 +284,18 @@ public class MainWindow extends JFrame {
                 panel.setBorder(BorderFactory.createLineBorder(Color.GREEN, 3, true));
             }
 
-            if (! tool.getStatement().equals("")) {
+            if (tool.getCertification().before(new Date())) {
                 panel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true));
+
             }
 
             JButton button = new JButton("Расписание");
             button.setActionCommand(tool.getId());
             button.addActionListener(new toolTimeTableButtonListener());
+            if (! tool.getStatement().equals("")) {
+                panel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3, true));
+                button.setEnabled(false);
+            }
             panel.add(button);
 
             button = new JButton("Описание");

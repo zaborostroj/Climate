@@ -20,6 +20,7 @@ public class EditToolDialog extends JDialog {
     private JComboBox<String> placement;
     private JComboBox<String> statement;
     private JDateChooser dateChooser;
+    private static final Insets INSETS = new Insets(3,3,3,3);
 
     public EditToolDialog(MainWindow mainWindow, String toolId) {
         this.toolId = toolId;
@@ -39,7 +40,7 @@ public class EditToolDialog extends JDialog {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(3,3,3,3);
+        gbc.insets = INSETS;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.gridx = 0;
         gbc.gridy = 0;

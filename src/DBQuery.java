@@ -151,6 +151,7 @@ public class DBQuery {
                 tool.setToolType(resultSet.getString("tool_type"));
                 tool.setPlacement(resultSet.getString("placement"));
                 tool.setStatement(resultSet.getString("statement"));
+                tool.setCertification(resultSet.getDate("certification"));
                 queryResult.add(tool);
             }
         } catch (Exception e) {
@@ -250,18 +251,18 @@ public class DBQuery {
                 if (resultSet.getString("id") != null) {
                     String camera_id = resultSet.getString("camera_id");
 
-                    Experiment exp = new Experiment();
-                    exp.setId(camera_id);
-                    exp.setCameraId(resultSet.getString("id"));
-                    exp.setStartTime(resultSet.getDate("start_time"));
-                    exp.setEndTime(resultSet.getDate("end_time"));
-                    exp.setDecNumber(resultSet.getString("dec_number"));
-                    exp.setName(resultSet.getString("name"));
-                    exp.setSerialNumber(resultSet.getString("serial_number"));
-                    exp.setOrder(resultSet.getString("order"));
-                    exp.setDescription(resultSet.getString("description"));
+                    Experiment experiment = new Experiment();
+                    experiment.setId(camera_id);
+                    experiment.setCameraId(resultSet.getString("id"));
+                    experiment.setStartTime(resultSet.getDate("start_time"));
+                    experiment.setEndTime(resultSet.getDate("end_time"));
+                    experiment.setDecNumber(resultSet.getString("dec_number"));
+                    experiment.setName(resultSet.getString("name"));
+                    experiment.setSerialNumber(resultSet.getString("serial_number"));
+                    experiment.setOrder(resultSet.getString("order"));
+                    experiment.setDescription(resultSet.getString("description"));
 
-                    curExp.put(camera_id, exp);
+                    curExp.put(camera_id, experiment);
                 }
             }
         } catch (Exception e) {

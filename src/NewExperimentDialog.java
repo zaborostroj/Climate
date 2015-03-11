@@ -1,7 +1,4 @@
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
@@ -36,6 +33,7 @@ public class NewExperimentDialog extends JDialog {
     private static final DateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat SQL_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private static final DateFormat SQL_DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final Insets INSETS = new Insets(3,3,3,3);
 
     public NewExperimentDialog(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
@@ -56,13 +54,14 @@ public class NewExperimentDialog extends JDialog {
         addExperimentErrorPanel.add(addExperimentErrorLabel);
 
         addExperimentFieldsPanel.setLayout(new GridBagLayout());
-        GridBagConstraints constraints;
+        GridBagConstraints gbc;
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(new JLabel("Начало испытания"),constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(new JLabel("Начало испытания"),gbc);
 
         startDateChooser = new JDateChooser("dd.MM.yyyy", "##.##.####", '_');
         startDateChooser.setDate(new Date());
@@ -72,21 +71,22 @@ public class NewExperimentDialog extends JDialog {
         startTimeSpinner.setValue(new Date());
         startTimeSpinner.setModel(new SpinnerDateModel());
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 2;
-        constraints.gridy = 0;
-        addExperimentFieldsPanel.add(startTimeSpinner, constraints);
-        constraints.gridx = 3;
-        addExperimentFieldsPanel.add(startDateChooser, constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(startTimeSpinner, gbc);
+        gbc.gridx = 2;
+        addExperimentFieldsPanel.add(startDateChooser, gbc);
 
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(new JLabel("Окончание испытания"),constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(new JLabel("Окончание испытания"),gbc);
 
         endDateChooser = new JDateChooser("dd.MM.yyyy", "##.##.####", '_');
         endDateChooser.setDate(new Date());
@@ -96,97 +96,108 @@ public class NewExperimentDialog extends JDialog {
         endTimeSpinner.setValue(new Date());
         endTimeSpinner.setModel(new SpinnerDateModel());
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 30;
-        constraints.gridx = 2;
-        constraints.gridy = 1;
-        addExperimentFieldsPanel.add(endTimeSpinner, constraints);
-        constraints.gridx = 3;
-        addExperimentFieldsPanel.add(endDateChooser, constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.ipadx = 30;
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(endTimeSpinner, gbc);
+        gbc.gridx = 2;
+        addExperimentFieldsPanel.add(endDateChooser, gbc);
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        addExperimentFieldsPanel.add(new JLabel("Децимальный номер"), constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(new JLabel("Децимальный номер"), gbc);
 
         decNumberField = new JTextField();
         decNumberField.setName("decNumber");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 2;
-        addExperimentFieldsPanel.add(decNumberField, constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.ipadx = 100;
+        gbc.gridwidth = 2;
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(decNumberField, gbc);
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 3;
-        addExperimentFieldsPanel.add(new JLabel("Название"), constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(new JLabel("Название"), gbc);
 
         nameField = new JTextField();
         nameField.setName("name");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 3;
-        addExperimentFieldsPanel.add(nameField, constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.ipadx = 100;
+        gbc.gridwidth = 2;
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(nameField, gbc);
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 4;
-        addExperimentFieldsPanel.add(new JLabel("Заводской номер"), constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(new JLabel("Заводской номер"), gbc);
 
         serialNumberField = new JTextField();
         serialNumberField.setName("serialNumberField");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 4;
-        addExperimentFieldsPanel.add(serialNumberField, constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.ipadx = 100;
+        gbc.gridwidth = 2;
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(serialNumberField, gbc);
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 5;
-        addExperimentFieldsPanel.add(new JLabel("Заказ"), constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(new JLabel("Заказ"), gbc);
 
         orderField = new JTextField();
         orderField.setName("orderField");
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 5;
-        addExperimentFieldsPanel.add(orderField, constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.ipadx = 100;
+        gbc.gridwidth = 2;
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(orderField, gbc);
 
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 6;
-        addExperimentFieldsPanel.add(new JLabel("Описание"), constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(new JLabel("Описание"), gbc);
 
         descriptionTextField = new JComboBox<String>();
         descriptionTextField.setName("description");
         for (String type : experimentTypes) {
             descriptionTextField.addItem(type);
         }
-        constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx = 100;
-        constraints.gridwidth = 5;
-        constraints.gridx = 1;
-        constraints.gridy = 6;
-        addExperimentFieldsPanel.add(descriptionTextField, constraints);
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.ipadx = 100;
+        gbc.gridwidth = 2;
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.insets = INSETS;
+        addExperimentFieldsPanel.add(descriptionTextField, gbc);
 
         JButton addExperimentApplyButton = new JButton("Добавить");
         addExperimentApplyButton.addActionListener(new addExperimentApplyListener());
