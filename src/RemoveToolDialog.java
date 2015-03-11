@@ -8,53 +8,93 @@ import java.awt.event.ActionListener;
  */
 public class RemoveToolDialog extends JDialog{
     private MainWindow mainWindow;
-    private JPanel removeMainPanel;
+    private JLabel removeToolErrorLabel;
+    private JTextField serialNumberField;
+    private JComboBox<String> placementCombo;
 
 
     public RemoveToolDialog(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
 
-        setSize(300, 70);
+        setSize(300, 150);
         setLocation(30, 300);
 
-        removeMainPanel = new JPanel();
-        removeMainPanel.setLayout(new BoxLayout(removeMainPanel, BoxLayout.X_AXIS));
-        removeMainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        JPanel removeMainPanel = new JPanel(new GridBagLayout());
+        removeMainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5,5,5,5);
 
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        removeToolErrorLabel = new JLabel("Введите данные");
+        removeToolErrorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        removeMainPanel.add(removeToolErrorLabel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
         JLabel serialNumberLabel = new JLabel("Зав. №");
-        serialNumberLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
-        removeMainPanel.add(serialNumberLabel);
+        removeMainPanel.add(serialNumberLabel, gbc);
 
-        JTextField serialNumberField = new JTextField();
-        removeMainPanel.add(serialNumberField);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        serialNumberField = new JTextField();
+        removeMainPanel.add(serialNumberField, gbc);
 
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        JLabel placementLabel = new JLabel("Размещение");
+        removeMainPanel.add(placementLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        placementCombo = new JComboBox<String>();
+        for (String placement : MainWindow.toolPlacements) {
+            placementCombo.addItem(placement);
+        }
+        removeMainPanel.add(placementCombo, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
         JButton removeToolSubmitButton = new JButton("Удалить");
         removeToolSubmitButton.addActionListener(new removeToolSubmitListener());
-        removeMainPanel.add(removeToolSubmitButton);
+        removeMainPanel.add(removeToolSubmitButton, gbc);
 
         add(removeMainPanel);
-        setVisible(true);
+        pack();
     }
 
     class removeToolSubmitListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String serialNumber = "";
-            JTextField textField = null;
-            Component[] components = removeMainPanel.getComponents();
-            for (Component component : components) {
-                if (component.getClass() == JTextField.class) {
-                    textField = (JTextField) component;
-                    serialNumber = textField.getText();
+            String result;
+            if (isFieldsFilled()) {
+                result = new DBQuery().removeTool(getToolInfo());
+                if (result.equals("")) {
+                    mainWindow.refreshToolsPanel();
+                    setVisible(false);
+                    dispose();
+                } else {
+                    removeToolErrorLabel.setText(result);
                 }
-            }
-
-            String result = new DBQuery().removeTool(serialNumber);
-            if (result.equals("OK") &&
-                    textField != null)
-            {
-                mainWindow.refreshToolsPanel();
+            } else {
+                removeToolErrorLabel.setText("Все поля должны быть заполнены!");
             }
         }
+    }
+
+    private Tool getToolInfo() {
+        Tool tool = new Tool();
+        tool.setSerialNumber(serialNumberField.getText());
+        tool.setPlacement(placementCombo.getSelectedItem().toString());
+        return tool;
+    }
+
+    private boolean isFieldsFilled() {
+        return !serialNumberField.getText().equals("");
     }
 }

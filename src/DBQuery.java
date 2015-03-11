@@ -380,7 +380,7 @@ public class DBQuery {
         }
     }
 
-    public String addTool(/*Map<String, String>*/ Tool newToolData) {
+    public String addTool(Tool newToolData) {
         String result = "";
         String certificationDate = SQL_DATE_FORMAT.format(newToolData.getCertification());
                 //newToolData.get("certificationYear") + "-" +
@@ -449,11 +449,12 @@ public class DBQuery {
         return result;
     }
 
-    public String removeTool(String serialNumber) {
+    public String removeTool(Tool tool) {
         String result = "";
 
         String getToolIdQuery = "SELECT id FROM `" + toolsTableName + "`" +
-                " WHERE serial_number = \'" + serialNumber + "\'";
+                " WHERE serial_number = \'" + tool.getSerialNumber() + "\'" +
+                " AND placement = \'" + tool.getPlacement() + "\'";
         String toolId;
 
         Statement statement = null;
@@ -467,7 +468,7 @@ public class DBQuery {
             if (resultSet.next()) {
                 toolId = resultSet.getString("id");
             } else {
-                return "tool not found";
+                return "Оборудование не найдено";
             }
 
             String removeExperimentsQuery = "DELETE FROM `" + timeTableName + "`" +
@@ -475,11 +476,10 @@ public class DBQuery {
 
             String removeToolQuery = "DELETE" +
                     " FROM `" + toolsTableName + "`" +
-                    " WHERE serial_number = \'" + serialNumber + "\'";
+                    " WHERE id = \'" + toolId + "\'";
 
             statement.executeUpdate(removeExperimentsQuery);
             statement.executeUpdate(removeToolQuery);
-            return "OK";
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -501,8 +501,6 @@ public class DBQuery {
                 }
             }
         }
-
-
         return result;
     }
 
