@@ -17,10 +17,11 @@ public class NewExperimentDialog extends JDialog {
 
     private JPanel addExperimentFieldsPanel;
     private JLabel addExperimentErrorLabel;
-    private String cameraId;
+    private String toolId;
     private JComboBox<String> descriptionTextField;
 
     private MainWindow mainWindow;
+    private TimeTableDialog timeTableDialog;
     private JDateChooser startDateChooser;
     private JSpinner startTimeSpinner;
     private JDateChooser endDateChooser;
@@ -35,8 +36,9 @@ public class NewExperimentDialog extends JDialog {
     private static final DateFormat SQL_DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final Insets INSETS = new Insets(3,3,3,3);
 
-    public NewExperimentDialog(MainWindow mainWindow) {
+    public NewExperimentDialog(MainWindow mainWindow, TimeTableDialog timeTableDialog) {
         this.mainWindow = mainWindow;
+        this.timeTableDialog = timeTableDialog;
         ArrayList<String> experimentTypes = getExperimentTypes();
 
         this.setTitle("Добавить испытание");
@@ -212,8 +214,8 @@ public class NewExperimentDialog extends JDialog {
         setLocation(100, 400);
     }
 
-    public void setCameraId(String cameraId) {
-        this.cameraId = cameraId;
+    public void setToolId(String toolId) {
+        this.toolId = toolId;
     }
 
     class addExperimentCancelListener implements ActionListener {
@@ -248,9 +250,8 @@ public class NewExperimentDialog extends JDialog {
                 String result = new DBQuery().addExperiment(newExperiment);
 
                 if (result.equals("OK")) {
+                    timeTableDialog.makeTimeTable(toolId);
                     mainWindow.refreshToolsPanel();
-
-                    mainWindow.makeTimeTable(cameraId);
 
                     addExperimentErrorLabel.setText("Заполните данные эксперимента");
                     for (Component component : addExperimentFieldsPanel.getComponents()) {
@@ -291,7 +292,7 @@ public class NewExperimentDialog extends JDialog {
         newExperiment.setDescription((String) descriptionTextField.getSelectedItem());
         newExperiment.setDecNumber(decNumberField.getText());
         newExperiment.setName(nameField.getText());
-        newExperiment.setCameraId(cameraId);
+        newExperiment.setCameraId(toolId);
         newExperiment.setSerialNumber(serialNumberField.getText());
         newExperiment.setOrder(orderField.getText());
 

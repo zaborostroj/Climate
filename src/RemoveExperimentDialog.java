@@ -8,12 +8,14 @@ import java.awt.event.ActionListener;
  */
 public class RemoveExperimentDialog extends JDialog {
     private MainWindow mainWindow;
+    private TimeTableDialog timeTableDialog;
     private JTextField removeExperimentId;
     private String toolId;
     private static final Insets INSETS = new Insets(3,3,3,3);
 
-    public RemoveExperimentDialog(MainWindow mainWindow) {
+    public RemoveExperimentDialog(MainWindow mainWindow, TimeTableDialog timeTableDialog) {
         this.mainWindow = mainWindow;
+        this.timeTableDialog = timeTableDialog;
         setTitle("Удалить испытание");
         setResizable(false);
         setSize(250, 60);
@@ -54,7 +56,7 @@ public class RemoveExperimentDialog extends JDialog {
             String result = new DBQuery().removeExperiment(toolId, experimentId);
             if (result.equals("OK")) {
                 mainWindow.refreshToolsPanel();
-                mainWindow.makeTimeTable(toolId);
+                timeTableDialog.makeTimeTable(toolId);
                 setVisible(false);
                 dispose();
             }

@@ -1,29 +1,20 @@
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
@@ -38,13 +29,6 @@ public class MainWindow extends JFrame {
 
     private JPanel toolsPanel;
 
-    private JDialog timeTableDialog;
-    private JTable timeTable = new JTable();
-    private JButton addExperiment = new JButton("Добавить испытание");
-    private JButton removeExperiment = new JButton("Удалить испытание");
-    private static final DateFormat TIMETABLE_DATE_FORMAT = new SimpleDateFormat("HH:mm dd.MM.yyyy");
-
-
     static MainWindow mainWindow;
 
     public static void main(String[] args) {
@@ -54,11 +38,12 @@ public class MainWindow extends JFrame {
             e.printStackTrace();
         }
 
-        mainWindow = new MainWindow();
+        new MainWindow();
     }
 
     public MainWindow() {
         super("Технологические испытания");
+        mainWindow = this;
 
         getToolTypes();
         getToolPlacements();
@@ -71,31 +56,6 @@ public class MainWindow extends JFrame {
         setVisible(true);
     }
     
-    private class toolTimeTableButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            makeTimeTable(e.getActionCommand());
-            if (timeTableDialog != null) {
-                timeTableDialog.setVisible(false);
-                timeTableDialog = null;
-            }
-            timeTableDialog = makeTimeTableDialog();
-            timeTableDialog.setTitle("Расписание экспериментов #" + e.getActionCommand());
-            addExperiment.setActionCommand(e.getActionCommand());
-            removeExperiment.setActionCommand(e.getActionCommand());
-            timeTableDialog.setVisible(true);
-        }
-    }
-
-    private class toolInfoButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Tool toolInfo = new DBQuery().getToolData(e.getActionCommand());
-            ToolInfoDialog toolInfoDialog = new ToolInfoDialog(toolInfo);
-            toolInfoDialog.setModal(true);
-        }
-    }
-
     private class addToolButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -120,36 +80,6 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private class editToolListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            EditToolDialog editToolDialog = new EditToolDialog(mainWindow, e.getActionCommand());
-            //editToolDialog.setToolId(e.getActionCommand());
-            editToolDialog.setModal(true);
-            editToolDialog.setVisible(true);
-        }
-    }
-
-    private class addExperimentButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            NewExperimentDialog newExperimentDialog = new NewExperimentDialog(mainWindow);
-            newExperimentDialog.setCameraId(e.getActionCommand());
-            newExperimentDialog.setModal(true);
-            newExperimentDialog.setVisible(true);
-        }
-
-    }
-
-    private class removeExperimentButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            RemoveExperimentDialog removeExperimentDialog = new RemoveExperimentDialog(mainWindow);
-            removeExperimentDialog.setToolId(e.getActionCommand());
-            removeExperimentDialog.setModal(true);
-            removeExperimentDialog.setVisible(true);
-        }
-    }
-
     public void refreshToolsPanel() {
         if (toolsPanel != null) {
             remove(toolsPanel);
@@ -168,58 +98,6 @@ public class MainWindow extends JFrame {
         toolPlacements = new DBQuery().getToolPlacements();
     }
 
-    private ArrayList<Experiment> getExperiments(String cameraId) {
-        return new DBQuery().getExperiments(cameraId);
-    }
-
-    private Map<String, Experiment> getCurrentExperiments() {
-        return new DBQuery().getCurrentExperiments();
-    }
-
-    private JDialog makeTimeTableDialog() {
-        JDialog timeTableDialog = new JDialog(mainWindow);
-        timeTableDialog.setSize(900, 300);
-        timeTableDialog.setLocation(20, 100);
-
-        JPanel mainPanel = new JPanel();
-        BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
-
-        mainPanel.setLayout(boxLayout);
-
-        JScrollPane timeTableScrollPane = new JScrollPane(timeTable);
-        timeTableScrollPane.setWheelScrollingEnabled(true);
-        timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        timeTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        mainPanel.add(timeTableScrollPane);
-
-        JPanel buttonsPanel = new JPanel();
-        addExperiment.addActionListener(new addExperimentButtonListener());
-        removeExperiment.addActionListener(new removeExperimentButtonListener());
-        buttonsPanel.add(addExperiment);
-        buttonsPanel.add(removeExperiment);
-        mainPanel.add(buttonsPanel);
-
-        timeTableDialog.add(mainPanel);
-
-        timeTableDialog.setModal(true);
-        timeTableDialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        return timeTableDialog;
-    }
-
-    public void makeTimeTable (String cameraId) {
-        ArrayList<Experiment> experiments = getExperiments(cameraId);
-        timeTable.setModel(new TimeTableModel(experiments));
-        timeTable.getColumnModel().getColumn(0).setPreferredWidth(30);
-        timeTable.getColumnModel().getColumn(1).setPreferredWidth(30);
-        timeTable.getColumnModel().getColumn(2).setPreferredWidth(110);
-        timeTable.getColumnModel().getColumn(3).setPreferredWidth(110);
-        timeTable.getColumnModel().getColumn(4).setPreferredWidth(120);
-        timeTable.getColumnModel().getColumn(5).setPreferredWidth(80);
-        timeTable.getColumnModel().getColumn(6).setPreferredWidth(50);
-        timeTable.getColumnModel().getColumn(7).setPreferredWidth(150);
-        timeTable.getColumnModel().getColumn(8).setPreferredWidth(30);
-    }
-
     private ArrayList<Tool> getTools() {
         return new DBQuery().getTools();
     }
@@ -229,7 +107,6 @@ public class MainWindow extends JFrame {
         toolsPanel.setLayout(new BoxLayout(toolsPanel, BoxLayout.Y_AXIS));
 
         ArrayList<Tool> tools = getTools();
-        Map<String, Experiment> currentExperiments = getCurrentExperiments();
 
         Map<String, JPanel> panels = new HashMap<String, JPanel>();
         for (Object placement : toolPlacements) {
@@ -241,73 +118,7 @@ public class MainWindow extends JFrame {
         }
 
         for (Tool tool : tools) {
-
-            Experiment experiment = currentExperiments.get(tool.getId());
-            GridLayout gridLayout = new GridLayout(11, 1);
-            JPanel panel = new JPanel(gridLayout);
-
-            JLabel label = new JLabel();
-            label.setText(tool.getName() + "   зав. №:" + tool.getSerialNumber());
-            label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            panel.add(label);
-            if (currentExperiments.get(tool.getId()) != null) {
-                label = new JLabel(TIMETABLE_DATE_FORMAT.format(experiment.getStartTime()));
-                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                panel.add(label);
-
-                label = new JLabel(TIMETABLE_DATE_FORMAT.format(experiment.getEndTime()));
-                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                panel.add(label);
-
-                label = new JLabel(experiment.getDecNumber());
-                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                panel.add(label);
-
-                label = new JLabel(experiment.getName());
-                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                panel.add(label);
-
-                label = new JLabel(experiment.getSerialNumber());
-                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                panel.add(label);
-
-                label = new JLabel(experiment.getOrder());
-                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                panel.add(label);
-
-                label = new JLabel(experiment.getDescription());
-                label.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-                panel.add(label);
-
-                panel.setBorder(BorderFactory.createLineBorder(Color.RED, 3, true));
-            } else {
-                panel.setBorder(BorderFactory.createLineBorder(Color.GREEN, 3, true));
-            }
-
-            if (tool.getCertification().before(new Date())) {
-                panel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true));
-
-            }
-
-            JButton button = new JButton("Расписание");
-            button.setActionCommand(tool.getId());
-            button.addActionListener(new toolTimeTableButtonListener());
-            if (! tool.getStatement().equals("")) {
-                panel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3, true));
-                button.setEnabled(false);
-            }
-            panel.add(button);
-
-            button = new JButton("Описание");
-            button.setActionCommand(tool.getId());
-            button.addActionListener(new toolInfoButtonListener());
-            panel.add(button);
-
-            button = new JButton("Настройки");
-            button.setActionCommand(tool.getId());
-            button.addActionListener(new editToolListener());
-            panel.add(button);
-
+            ToolPanel panel = new ToolPanel(tool, mainWindow);
             panels.get(tool.getPlacement()).add(panel);
         }
 

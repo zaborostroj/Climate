@@ -3,8 +3,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
   Created by Evgeny Baskakov on 26.01.2015.
@@ -224,10 +222,8 @@ public class DBQuery {
         return experiments;
     }
 
-    public Map<String, Experiment> getCurrentExperiments() {
-
-        Map<String, Experiment> curExp = new HashMap<String, Experiment>();
-
+    public Experiment getCurrentExperiment(String toolId) {
+        Experiment curExp = new Experiment();
         Connection connection = null;
         Statement statement = null;
 
@@ -236,9 +232,9 @@ public class DBQuery {
         String currentDateTime = formatter.format(now);
 
         String query = "SELECT * FROM `" + timeTableName + "` WHERE" +
-                " \'" + currentDateTime + "\' >= `start_time` " +
+                " \'" + currentDateTime + "\' >= `start_time`" +
                 " AND \'" + currentDateTime + "\' < `end_time`" +
-                " ORDER BY `camera_id`";
+                " AND `camera_id` = " + toolId;
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -246,24 +242,16 @@ public class DBQuery {
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
-            while (resultSet.next()) {
-
-                if (resultSet.getString("id") != null) {
-                    String camera_id = resultSet.getString("camera_id");
-
-                    Experiment experiment = new Experiment();
-                    experiment.setId(camera_id);
-                    experiment.setCameraId(resultSet.getString("id"));
-                    experiment.setStartTime(resultSet.getDate("start_time"));
-                    experiment.setEndTime(resultSet.getDate("end_time"));
-                    experiment.setDecNumber(resultSet.getString("dec_number"));
-                    experiment.setName(resultSet.getString("name"));
-                    experiment.setSerialNumber(resultSet.getString("serial_number"));
-                    experiment.setOrder(resultSet.getString("order"));
-                    experiment.setDescription(resultSet.getString("description"));
-
-                    curExp.put(camera_id, experiment);
-                }
+            if (resultSet.next()) {
+                curExp.setId(resultSet.getString("id"));
+                curExp.setCameraId(resultSet.getString("camera_id"));
+                curExp.setStartTime(resultSet.getDate("start_time"));
+                curExp.setEndTime(resultSet.getDate("end_time"));
+                curExp.setDecNumber(resultSet.getString("dec_number"));
+                curExp.setName(resultSet.getString("name"));
+                curExp.setSerialNumber(resultSet.getString("serial_number"));
+                curExp.setOrder(resultSet.getString("order"));
+                curExp.setDescription(resultSet.getString("description"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -284,6 +272,7 @@ public class DBQuery {
                 }
             }
         }
+
         return curExp;
     }
 
