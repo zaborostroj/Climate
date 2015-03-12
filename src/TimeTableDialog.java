@@ -9,21 +9,22 @@ import java.util.ArrayList;
 public class TimeTableDialog extends JDialog {
     private MainWindow mainWindow;
     private TimeTableDialog timeTableDialog;
-    private String toolId;
+    private Tool tool;
     private JTable timeTable = new JTable();
 
-    public TimeTableDialog(MainWindow mainWindow, String toolId) {
+    public TimeTableDialog(MainWindow mainWindow, Tool curTool) {
         this.mainWindow = mainWindow;
-        this.toolId = toolId;
+        this.tool = curTool;
         setSize(900, 300);
         setLocation(20, 100);
+        setTitle(tool.getName() + " - расписание экспериментов");
 
         JPanel mainPanel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
 
         mainPanel.setLayout(boxLayout);
 
-        makeTimeTable(toolId);
+        makeTimeTable(tool.getId());
         JScrollPane timeTableScrollPane = new JScrollPane(timeTable);
         timeTableScrollPane.setWheelScrollingEnabled(true);
         timeTableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -68,7 +69,7 @@ public class TimeTableDialog extends JDialog {
         @Override
         public void actionPerformed(ActionEvent e) {
             NewExperimentDialog newExperimentDialog = new NewExperimentDialog(mainWindow, timeTableDialog);
-            newExperimentDialog.setToolId(toolId);
+            newExperimentDialog.setToolId(tool.getId());
             newExperimentDialog.setModal(true);
             newExperimentDialog.setVisible(true);
         }
@@ -78,7 +79,7 @@ public class TimeTableDialog extends JDialog {
         @Override
         public void actionPerformed(ActionEvent e) {
             RemoveExperimentDialog removeExperimentDialog = new RemoveExperimentDialog(mainWindow, timeTableDialog);
-            removeExperimentDialog.setToolId(toolId);
+            removeExperimentDialog.setToolId(tool.getId());
             removeExperimentDialog.setModal(true);
             removeExperimentDialog.setVisible(true);
         }

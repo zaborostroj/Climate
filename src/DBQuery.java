@@ -245,8 +245,8 @@ public class DBQuery {
             if (resultSet.next()) {
                 curExp.setId(resultSet.getString("id"));
                 curExp.setCameraId(resultSet.getString("camera_id"));
-                curExp.setStartTime(resultSet.getDate("start_time"));
-                curExp.setEndTime(resultSet.getDate("end_time"));
+                curExp.setStartTime(SQL_DATE_FORMAT.parse(resultSet.getString("start_time")));
+                curExp.setEndTime(SQL_DATE_FORMAT.parse(resultSet.getString("end_time")));
                 curExp.setDecNumber(resultSet.getString("dec_number"));
                 curExp.setName(resultSet.getString("name"));
                 curExp.setSerialNumber(resultSet.getString("serial_number"));
@@ -263,7 +263,6 @@ public class DBQuery {
                     e.printStackTrace();
                 }
             }
-
             if (connection != null) {
                 try {
                     connection.close();
@@ -272,7 +271,58 @@ public class DBQuery {
                 }
             }
         }
+        return curExp;
+    }
 
+    public Experiment getNextExperiment(String toolId) {
+        Experiment curExp = new Experiment();
+        Connection connection = null;
+        Statement statement = null;
+
+        java.util.Date now = new Date();
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentDateTime = formatter.format(now);
+
+        String query = "SELECT * FROM `" + timeTableName + "` WHERE" +
+                " \'" + currentDateTime + "\' <= `start_time`" +
+                " AND `camera_id` = " + toolId +
+                " ORDER BY `start_time`";
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+
+            if (resultSet.next()) {
+                curExp.setId(resultSet.getString("id"));
+                curExp.setCameraId(resultSet.getString("camera_id"));
+                curExp.setStartTime(SQL_DATE_FORMAT.parse(resultSet.getString("start_time")));
+                curExp.setEndTime(SQL_DATE_FORMAT.parse(resultSet.getString("end_time")));
+                curExp.setDecNumber(resultSet.getString("dec_number"));
+                curExp.setName(resultSet.getString("name"));
+                curExp.setSerialNumber(resultSet.getString("serial_number"));
+                curExp.setOrder(resultSet.getString("order"));
+                curExp.setDescription(resultSet.getString("description"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         return curExp;
     }
 
@@ -587,7 +637,6 @@ public class DBQuery {
                     e.printStackTrace();
                 }
             }
-
             if (connection != null) {
                 try {
                     connection.close();
@@ -596,7 +645,6 @@ public class DBQuery {
                 }
             }
         }
-
         return "OK";
     }
 }

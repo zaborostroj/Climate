@@ -29,7 +29,7 @@ public class MainWindow extends JFrame {
 
     private JPanel toolsPanel;
 
-    static MainWindow mainWindow;
+    private MainWindow mainWindow;
 
     public static void main(String[] args) {
         try{
@@ -47,7 +47,7 @@ public class MainWindow extends JFrame {
 
         getToolTypes();
         getToolPlacements();
-        setSize(1024, 768);
+        setSize(900, 500);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setJMenuBar(makeMenuBar());
