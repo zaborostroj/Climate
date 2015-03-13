@@ -90,18 +90,6 @@ public class MainWindow extends JFrame {
         repaint();
     }
 
-    private void getToolTypes() {
-        toolTypes = new DBQuery().getToolTypes();
-    }
-
-    private void getToolPlacements() {
-        toolPlacements = new DBQuery().getToolPlacements();
-    }
-
-    private ArrayList<Tool> getTools() {
-        return new DBQuery().getTools();
-    }
-
     private JPanel makeToolsPanel() {
         JPanel toolsPanel = new JPanel();
         toolsPanel.setLayout(new BoxLayout(toolsPanel, BoxLayout.Y_AXIS));
@@ -130,7 +118,19 @@ public class MainWindow extends JFrame {
         }
 
         return toolsPanel;
-    }    
+    }
+
+    private void getToolTypes() {
+        toolTypes = new DBQuery().getToolTypes();
+    }
+
+    private void getToolPlacements() {
+        toolPlacements = new DBQuery().getToolPlacements();
+    }
+
+    private ArrayList<Tool> getTools() {
+        return new DBQuery().getTools();
+    }
 
     private JPanel makeButtonsPanel() {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
