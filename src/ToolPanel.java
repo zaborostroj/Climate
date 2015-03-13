@@ -12,45 +12,70 @@ import java.util.Date;
 public class ToolPanel extends JPanel{
     private MainWindow mainWindow;
     private Tool tool;
-    private static final DateFormat TIMETABLE_DATE_FORMAT = new SimpleDateFormat("HH:mm dd.MM.yyyy");
+    private static final DateFormat TIMETABLE_DATE_FORMAT = new SimpleDateFormat("HH:mm    dd.MM.yyyy");
+    private static final Insets INSETS = new Insets(3,3,3,3);
+    private static final Font CAPTION_FONT = new Font("Courier", Font.BOLD, 12);
 
     public ToolPanel(Tool currentTool, MainWindow mainWindow) {
         this.mainWindow = mainWindow;
         this.tool = currentTool;
+        setPreferredSize(new Dimension(185, 140));
         Experiment currentExperiment = getCurrentExperiment(tool.getId());
         Experiment nextExperiment = getNextExperiment(tool.getId());
-        GridLayout gridLayout = new GridLayout(6, 1);
-        setLayout(gridLayout);
 
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        setLayout(gridBagLayout);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = INSETS;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
         JLabel label = new JLabel();
         label.setText(tool.getName() + "   зав. №:" + tool.getSerialNumber());
         label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        add(label);
+        label.setFont(CAPTION_FONT);
+        label.setPreferredSize(new Dimension(170, 30));
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setToolTipText(tool.getName() + "   зав. №:" + tool.getSerialNumber());
+        add(label, gbc);
         if (tool.getStatement().equals("")) {
             if (currentExperiment.getId() != null) {
+                gbc.gridx = 0;
+                gbc.gridy = 1;
+                gbc.gridwidth = 2;
                 label = new JLabel("Текущее испытание до");
-                label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                add(label);
+                add(label, gbc);
 
+                gbc.gridx = 0;
+                gbc.gridy = 2;
+                gbc.gridwidth = 2;
                 label = new JLabel(TIMETABLE_DATE_FORMAT.format(currentExperiment.getEndTime()));
-                label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                add(label);
+                add(label, gbc);
             } else if (nextExperiment.getId() != null) {
+                gbc.gridx = 0;
+                gbc.gridy = 1;
+                gbc.gridwidth = 2;
                 label = new JLabel("Следующее испытание с");
-                label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                add(label);
+                add(label, gbc);
 
+                gbc.gridx = 0;
+                gbc.gridy = 2;
+                gbc.gridwidth = 2;
                 label = new JLabel(TIMETABLE_DATE_FORMAT.format(nextExperiment.getStartTime()));
-                label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                add(label);
+                add(label, gbc);
             } else {
+                gbc.gridx = 0;
+                gbc.gridy = 1;
+                gbc.gridwidth = 2;
                 label = new JLabel("Испытаний");
-                label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                add(label);
+                add(label, gbc);
 
+                gbc.gridx = 0;
+                gbc.gridy = 2;
+                gbc.gridwidth = 2;
                 label = new JLabel("не запланировано");
-                label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                add(label);
+                add(label, gbc);
             }
 
             if (tool.getCertification().before(new Date())) {
@@ -62,31 +87,45 @@ public class ToolPanel extends JPanel{
             }
 
         } else {
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            gbc.gridwidth = 2;
             label = new JLabel("Оборудование неисправно");
-            label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            add(label);
+            add(label, gbc);
 
+            gbc.gridx = 0;
+            gbc.gridy = 2;
+            gbc.gridwidth = 2;
             label = new JLabel("Эксперименты не доступны");
-            label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            add(label);
+            add(label, gbc);
 
             setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3, true));
         }
 
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         JButton button = new JButton("Расписание");
         button.addActionListener(new toolTimeTableButtonListener());
         if (! tool.getStatement().equals("")) {
             button.setEnabled(false);
         }
-        add(button);
+        add(button, gbc);
 
-        button = new JButton("Описание");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = GridBagConstraints.RELATIVE;
+        button = new JButton("Информация");
         button.addActionListener(new toolInfoButtonListener());
-        add(button);
+        add(button, gbc);
 
-        button = new JButton("Настройки");
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        button = new JButton("Н");
         button.addActionListener(new editToolListener());
-        add(button);
+        add(button, gbc);
     }
 
     private Experiment getCurrentExperiment(String toolId) {

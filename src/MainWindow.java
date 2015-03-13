@@ -47,7 +47,7 @@ public class MainWindow extends JFrame {
 
         getToolTypes();
         getToolPlacements();
-        setSize(900, 500);
+        setSize(1000, 450);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setJMenuBar(makeMenuBar());
