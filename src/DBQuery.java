@@ -647,4 +647,67 @@ public class DBQuery {
         }
         return "OK";
     }
+
+    public ArrayList<Tool> findTools(Experiment experimentData, Tool toolData) {
+        ArrayList<Tool> tools = new ArrayList<Tool>();
+        String ST = SQL_DATE_FORMAT.format(experimentData.getStartTime());
+        String ET = SQL_DATE_FORMAT.format(experimentData.getEndTime());
+        Connection connection = null;
+        Statement statement = null;
+
+        ArrayList<String> badIds = new ArrayList<String>();
+        ArrayList<String> neededIds = new ArrayList<String>();
+
+        String badToolsQuery = "SELECT camera_id FROM " + timeTableName +
+                " WHERE" +
+                " (start_time <= \'" + ST + "\' AND end_time >= \'" + ST + "\') OR" +
+                " (start_time <= \'" + ET + "\' AND end_time >= \'" + ET + "\') OR" +
+                " (start_time <= \'" + ST + "\' AND end_time >= \'" + ET + "\')";
+
+        String neededToolsQuery = "SELECT * FROM " + toolsTableName +
+                " WHERE statement = \'\'";
+        if (toolData.getPlacement() != null) {
+            neededToolsQuery += " AND placement = \'" + toolData.getPlacement() + "\'";
+        }
+
+        String resultToolsQuery = "SELECT * FROM " + toolsTableName +
+                " WHERE id = ";
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery(badToolsQuery);
+            while (resultSet.next()) {
+                badIds.add(resultSet.getString("camera_id"));
+            }
+
+            resultSet = statement.executeQuery(neededToolsQuery);
+            while (resultSet.next()) {
+                neededIds.add(resultSet.getString("id"));
+            }
+
+            neededIds.removeAll(badIds);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return tools;
+    }
 }
