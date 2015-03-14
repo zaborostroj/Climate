@@ -1,8 +1,10 @@
+import javax.swing.*;
+
 /**
   * Created by Evgeny Baskakov on 14.03.2015.
  */
-public class SearchToolDialog {
+public class SearchToolDialog extends JDialog {
     public SearchToolDialog() {
-        System.out.println("search dialog constructor");
+
     }
 }

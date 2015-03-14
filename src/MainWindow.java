@@ -56,7 +56,7 @@ public class MainWindow extends JFrame {
         setVisible(true);
     }
     
-    private class addToolButtonListener implements ActionListener {
+    private class AddToolButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             NewToolDialog newToolDialog = new NewToolDialog(mainWindow);
@@ -65,12 +65,20 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private class removeToolButtonListener implements ActionListener {
+    private class RemoveToolButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             RemoveToolDialog removeToolDialog = new RemoveToolDialog(mainWindow);
             removeToolDialog.setModal(true);
             removeToolDialog.setVisible(true);
+        }
+    }
+
+    private class SearchToolButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            SearchToolDialog searchToolDialog = new SearchToolDialog();
+            searchToolDialog.setModal(true);
+            searchToolDialog.setVisible(true);
         }
     }
 
@@ -136,12 +144,16 @@ public class MainWindow extends JFrame {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         JButton addToolButton = new JButton("Добавить оборудование");
-        addToolButton.addActionListener(new addToolButtonListener());
+        addToolButton.addActionListener(new AddToolButtonListener());
         buttonsPanel.add(addToolButton);
 
         JButton removeToolButton = new JButton("Удалить оборудование");
-        removeToolButton.addActionListener(new removeToolButtonListener());
+        removeToolButton.addActionListener(new RemoveToolButtonListener());
         buttonsPanel.add(removeToolButton);
+
+        JButton searchToolsButton = new JButton("Поиск свободного оборудования");
+        searchToolsButton.addActionListener(new SearchToolButtonListener());
+        buttonsPanel.add(searchToolsButton);
 
         JButton refreshButton = new JButton("Обновить данные");
         refreshButton.addActionListener(new refreshButtonListener());
