@@ -1,21 +1,46 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
+
+import javax.swing.JOptionPane;
 
 /**
   Created by Evgeny Baskakov on 26.01.2015.
 **/
 public class DBQuery {
-    private static String dbName = "climate";
-    private static String DBUrl = "jdbc:mysql://localhost/" + dbName;
-    private static String DBUser = "root";
-    private static String DBPassword = "qweqwe!23";
-    private static String toolsTableName = "tools";
-    private String timeTableName = "timetable";
+    private String dbName;
+    private String dbUrl;
+    private String dbUser;
+    private String dbPassword;
+    private String toolsTableName;
+    private String timeTableName;
 
     private static final DateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+    public DBQuery() {
+        Properties config = new Properties();
+        try (FileInputStream is = new FileInputStream("config.properties")) {
+            config.load(is);
+            dbName = config.getProperty("db.name");
+            dbUrl = config.getProperty("db.url") + dbName;
+            dbUser = config.getProperty("db.user");
+            dbPassword = config.getProperty("db.password");
+            toolsTableName = config.getProperty("tools.table.name");
+            timeTableName = config.getProperty("time.table.name");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public ArrayList<String> getToolTypes() {
         ArrayList<String> toolTypes = new ArrayList<String>();
@@ -25,7 +50,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
@@ -61,7 +86,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
 
             ResultSet resultSet = statement.executeQuery(query);
@@ -98,7 +123,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
 
             ResultSet resultSet = statement.executeQuery(query);
@@ -137,7 +162,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
@@ -183,7 +208,7 @@ public class DBQuery {
         String query = "SELECT * FROM `" + timeTableName + "` WHERE `camera_id` = " + cameraId + " ORDER BY `start_time`";
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -238,7 +263,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -290,7 +315,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -336,7 +361,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -390,7 +415,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             statement.executeUpdate(query);
         } catch (Exception e) {
@@ -446,7 +471,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
 
             ResultSet resultSet = statement.executeQuery(checkQuery);
@@ -495,7 +520,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(getToolIdQuery);
             if (resultSet.next()) {
@@ -583,7 +608,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(checkQuery);
             if (resultSet.next()) {
@@ -624,7 +649,7 @@ public class DBQuery {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(DBUrl, DBUser, DBPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             statement = connection.createStatement();
             statement.executeUpdate(query);
         } catch (Exception e) {
