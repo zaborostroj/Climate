@@ -1,10 +1,25 @@
-import javax.swing.*;
-import java.awt.*;
+package ru.zaborostroj.climate.view;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import ru.zaborostroj.climate.db.DBQuery;
+import ru.zaborostroj.climate.model.Experiment;
+import ru.zaborostroj.climate.model.Tool;
 
 /**
   * Created by Evgeny Baskakov on 12.03.2015.

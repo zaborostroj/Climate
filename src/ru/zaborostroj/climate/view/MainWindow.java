@@ -1,3 +1,4 @@
+package ru.zaborostroj.climate.view;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -17,6 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+
+import ru.zaborostroj.climate.db.DBQuery;
+import ru.zaborostroj.climate.model.Tool;
 
 //import com.toedter.calendar.JDateChooser;
 
