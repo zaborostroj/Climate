@@ -1,4 +1,10 @@
+package ru.zaborostroj.climate.view;
 import javax.swing.*;
+
+import ru.zaborostroj.climate.db.DBQuery;
+import ru.zaborostroj.climate.model.Experiment;
+import ru.zaborostroj.climate.model.Tool;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;

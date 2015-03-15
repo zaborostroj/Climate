@@ -1,4 +1,8 @@
+package ru.zaborostroj.climate.view;
 import javax.swing.*;
+
+import ru.zaborostroj.climate.model.Tool;
+
 import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

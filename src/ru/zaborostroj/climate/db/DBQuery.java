@@ -1,15 +1,20 @@
-import java.io.File;
+package ru.zaborostroj.climate.db;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
-import javax.swing.JOptionPane;
+import ru.zaborostroj.climate.model.Experiment;
+import ru.zaborostroj.climate.model.Tool;
 
 /**
   Created by Evgeny Baskakov on 26.01.2015.

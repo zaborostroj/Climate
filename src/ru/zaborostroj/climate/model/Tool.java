@@ -1,3 +1,4 @@
+package ru.zaborostroj.climate.model;
 import java.util.Date;
 
 /**

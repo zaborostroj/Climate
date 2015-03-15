@@ -1,3 +1,4 @@
+package ru.zaborostroj.climate.view;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.*;
+
+import ru.zaborostroj.climate.db.DBQuery;
+import ru.zaborostroj.climate.model.Experiment;
 
 import com.toedter.calendar.JDateChooser;
 

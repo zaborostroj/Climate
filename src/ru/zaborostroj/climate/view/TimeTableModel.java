@@ -1,4 +1,8 @@
+package ru.zaborostroj.climate.view;
 import javax.swing.table.AbstractTableModel;
+
+import ru.zaborostroj.climate.model.Experiment;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

@@ -1,3 +1,4 @@
+package ru.zaborostroj.climate.view;
 import javax.swing.*;
 
 /**
