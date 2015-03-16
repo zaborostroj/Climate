@@ -1,6 +1,5 @@
 package ru.zaborostroj.climate.db;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,7 +19,6 @@ import ru.zaborostroj.climate.model.Tool;
   Created by Evgeny Baskakov on 26.01.2015.
 **/
 public class DBQuery {
-    private String dbName;
     private String dbUrl;
     private String dbUser;
     private String dbPassword;
@@ -34,21 +32,19 @@ public class DBQuery {
         Properties config = new Properties();
         try (FileInputStream is = new FileInputStream("config.properties")) {
             config.load(is);
-            dbName = config.getProperty("db.name");
+            String dbName = config.getProperty("db.name");
             dbUrl = config.getProperty("db.url") + dbName;
             dbUser = config.getProperty("db.user");
             dbPassword = config.getProperty("db.password");
             toolsTableName = config.getProperty("tools.table.name");
             timeTableName = config.getProperty("time.table.name");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public ArrayList<String> getToolTypes() {
-        ArrayList<String> toolTypes = new ArrayList<String>();
+        ArrayList<String> toolTypes = new ArrayList<>();
         String query = "SELECT * FROM `tooltype`";
         Connection connection = null;
         Statement statement = null;
@@ -84,7 +80,7 @@ public class DBQuery {
     }
 
     public ArrayList<String> getToolPlacements() {
-        ArrayList<String> toolPlacements = new ArrayList<String>();
+        ArrayList<String> toolPlacements = new ArrayList<>();
         Connection connection = null;
         Statement statement = null;
         String query = "SELECT * FROM `toolplacement`";
@@ -121,7 +117,7 @@ public class DBQuery {
     }
 
     public ArrayList<String> getExperimentTypes() {
-        ArrayList<String> experimentTypes = new ArrayList<String>();
+        ArrayList<String> experimentTypes = new ArrayList<>();
         String query = "SELECT * FROM `experimenttype`";
         Connection connection = null;
         Statement statement = null;
@@ -161,7 +157,7 @@ public class DBQuery {
     public ArrayList<Tool> getTools() {
         Connection connection = null;
         Statement statement = null;
-        ArrayList<Tool> queryResult = new ArrayList<Tool>();
+        ArrayList<Tool> queryResult = new ArrayList<>();
 
         String query = "SELECT * FROM `" + toolsTableName + "`";
 
@@ -208,7 +204,7 @@ public class DBQuery {
         Connection connection = null;
         Statement statement = null;
 
-        ArrayList<Experiment> experiments = new ArrayList<Experiment>();
+        ArrayList<Experiment> experiments = new ArrayList<>();
 
         String query = "SELECT * FROM `" + timeTableName + "` WHERE `camera_id` = " + cameraId + " ORDER BY `start_time`";
         try {
