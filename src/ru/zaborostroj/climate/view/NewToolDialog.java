@@ -31,12 +31,12 @@ public class NewToolDialog extends JDialog{
         newToolErrorLabel = new JLabel("Заполните данные");
         newToolErrorPanel.add(newToolErrorLabel);
 
-        toolTypeCombo = new JComboBox<String>();
+        toolTypeCombo = new JComboBox<>();
         toolTypeCombo.setName("tool_type");
         for (String toolType : MainWindow.toolTypes) {
             toolTypeCombo.addItem(toolType);
         }
-        toolPlacementCombo = new JComboBox<String>();
+        toolPlacementCombo = new JComboBox<>();
         toolPlacementCombo.setName("placement");
         for (String toolPlacement: MainWindow.toolPlacements) {
             toolPlacementCombo.addItem(toolPlacement);

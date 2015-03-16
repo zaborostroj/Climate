@@ -107,7 +107,7 @@ public class MainWindow extends JFrame {
 
         ArrayList<Tool> tools = getTools();
 
-        Map<String, JPanel> panels = new HashMap<String, JPanel>();
+        Map<String, JPanel> panels = new HashMap<>();
         for (Object placement : toolPlacements) {
             JPanel panel = new JPanel();
             panel.setBorder(BorderFactory.createTitledBorder((String) placement));

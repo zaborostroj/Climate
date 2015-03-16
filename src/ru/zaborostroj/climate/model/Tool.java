@@ -75,4 +75,15 @@ public class Tool {
     public void setCertification(Date certification) {
         this.certification = certification;
     }
+
+    public void print() {
+        System.out.println(id + " | " +
+                serialNumber + " | " +
+                description + " | " +
+                name + " | " +
+                toolType + " | " +
+                placement + " | " +
+                statement + " | " +
+                certification);
+    }
 }

@@ -27,7 +27,6 @@ public class DBQuery {
 
     private static final DateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-
     public DBQuery() {
         Properties config = new Properties();
         try (FileInputStream is = new FileInputStream("config.properties")) {
@@ -672,5 +671,91 @@ public class DBQuery {
             }
         }
         return "OK";
+    }
+
+    public ArrayList<Tool> findTools(Experiment experimentData, Tool toolData) {
+        ArrayList<Tool> tools = new ArrayList<>();
+        String ST = SQL_DATE_FORMAT.format(experimentData.getStartTime());
+        String ET = SQL_DATE_FORMAT.format(experimentData.getEndTime());
+        Connection connection = null;
+        Statement statement = null;
+
+        ArrayList<String> badIds = new ArrayList<>();
+        ArrayList<String> neededIds = new ArrayList<>();
+
+        String badToolsQuery = "SELECT camera_id FROM " + timeTableName +
+                " WHERE" +
+                " (start_time <= \'" + ST + "\' AND end_time >= \'" + ST + "\') OR" +
+                " (start_time <= \'" + ET + "\' AND end_time >= \'" + ET + "\') OR" +
+                " (start_time <= \'" + ST + "\' AND end_time >= \'" + ET + "\')";
+
+        String neededToolsQuery = "SELECT * FROM " + toolsTableName +
+                " WHERE statement = \'\'";
+        if (toolData.getPlacement() != null) {
+            neededToolsQuery += " AND placement = \'" + toolData.getPlacement() + "\'";
+        }
+
+        String resultToolsQuery = "SELECT * FROM " + toolsTableName +
+                " WHERE id IN (";
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery(badToolsQuery);
+            while (resultSet.next()) {
+                badIds.add(resultSet.getString("camera_id"));
+            }
+
+            resultSet = statement.executeQuery(neededToolsQuery);
+            while (resultSet.next()) {
+                neededIds.add(resultSet.getString("id"));
+            }
+
+            neededIds.removeAll(badIds);
+            if (neededIds.size() > 0) {
+                for (int i = 0; i < neededIds.size(); i++) {
+                    if (i < neededIds.size() - 1) {
+                        resultToolsQuery += "\'" + neededIds.get(i) + "\',";
+                    } else {
+                        resultToolsQuery += "\'" + neededIds.get(i) + "\')";
+                    }
+                }
+                resultSet = statement.executeQuery(resultToolsQuery);
+                while (resultSet.next()) {
+                    System.out.println(resultSet.getString("id") + " " + resultSet.getString("name"));
+                    Tool curTool = new Tool();
+                    curTool.setId(resultSet.getString("id"));
+                    curTool.setSerialNumber(resultSet.getString("serial_number"));
+                    curTool.setDescription(resultSet.getString("description"));
+                    curTool.setName(resultSet.getString("name"));
+                    curTool.setToolType(resultSet.getString("tool_type"));
+                    curTool.setPlacement(resultSet.getString("placement"));
+                    curTool.setStatement(resultSet.getString("statement"));
+                    curTool.setCertification(resultSet.getDate("certification"));
+                    tools.add(curTool);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return tools;
     }
 }
