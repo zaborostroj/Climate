@@ -43,3 +43,9 @@ PRIMARY KEY (ID));
 INSERT INTO
 EXPERIMENTTYPE (`NAME`)
 VALUES ('Р¦РёРєР»С‹  (+65 В± 5В°РЎ; -65 В± 5 В°C) x3 РїРѕ 8 С‡Р°СЃРѕРІ')
+
+CREATE USER 'engineer'@'localhost' IDENTIFIED BY 'qweqwe!23';
+GRANT ALL PRIVILEGES ON *.* TO 'engineer'@'localhost' WITH GRANT OPTION;
+
+CREATE USER 'engineer'@'%' IDENTIFIED BY 'qweqwe!23';
+GRANT ALL PRIVILEGES ON *.* TO 'engineer'@'%' WITH GRANT OPTION;

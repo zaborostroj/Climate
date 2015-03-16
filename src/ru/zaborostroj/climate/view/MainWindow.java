@@ -22,7 +22,6 @@ import javax.swing.WindowConstants;
 import ru.zaborostroj.climate.db.DBQuery;
 import ru.zaborostroj.climate.model.Tool;
 
-//import com.toedter.calendar.JDateChooser;
 
 /**
   Created by Evgeny Baskakov on 22.01.2015.
