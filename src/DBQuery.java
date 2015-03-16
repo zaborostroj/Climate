@@ -671,7 +671,7 @@ public class DBQuery {
         }
 
         String resultToolsQuery = "SELECT * FROM " + toolsTableName +
-                " WHERE id = ";
+                " WHERE id IN (";
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -689,6 +689,14 @@ public class DBQuery {
             }
 
             neededIds.removeAll(badIds);
+            for (String s : neededIds) {
+                resultToolsQuery += "\'" + s + "\',";
+            }
+            resultToolsQuery += ")";
+            resultSet = statement.executeQuery(resultToolsQuery);
+            while (resultSet.next()) {
+                System.out.println(resultSet.getString("id") + " " + resultSet.getString("name"));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
