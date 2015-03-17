@@ -31,11 +31,8 @@ public class NewToolDialog extends JDialog{
         newToolErrorLabel = new JLabel("Заполните данные");
         newToolErrorPanel.add(newToolErrorLabel);
 
-        toolTypeCombo = new JComboBox<>();
+        toolTypeCombo = new JComboBox<>(MainWindow.toolTypes2.getTypeNames());
         toolTypeCombo.setName("tool_type");
-        for (String toolType : MainWindow.toolTypes) {
-            toolTypeCombo.addItem(toolType);
-        }
         toolPlacementCombo = new JComboBox<>();
         toolPlacementCombo.setName("placement");
         for (String toolPlacement: MainWindow.toolPlacements) {
@@ -159,7 +156,8 @@ public class NewToolDialog extends JDialog{
         newToolData.setSerialNumber(toolSerialNumberField.getText());
         newToolData.setName(toolNameField.getText());
         newToolData.setDescription(toolDescriptionField.getText());
-        newToolData.setToolType(toolTypeCombo.getSelectedItem().toString());
+        String toolType = MainWindow.toolTypes2.getTypeIdByName(toolTypeCombo.getSelectedItem().toString());
+        newToolData.setToolType(toolType);
         newToolData.setPlacement(toolPlacementCombo.getSelectedItem().toString());
         newToolData.setStatement("");
         newToolData.setCertification(certificationDate.getDate());

@@ -12,13 +12,8 @@ public class ExperimentTypes {
 
     public ExperimentTypes() {
         experimentTypes = new ArrayList<>();
-        ArrayList<String[]> types = new DBQuery().getExperimentTypes2();
+        ArrayList<String[]> types = new DBQuery().getExperimentTypes();
         for (String type[] : types) {
-            for (String s : type) {
-                System.out.print(s + " | ");
-            }
-            System.out.println("");
-
             experimentTypes.add(new ExpType(type[0], type[1], type[2], type[3]));
         }
     }

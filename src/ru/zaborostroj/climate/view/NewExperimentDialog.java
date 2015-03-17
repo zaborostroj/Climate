@@ -42,7 +42,6 @@ public class NewExperimentDialog extends JDialog {
     public NewExperimentDialog(MainWindow mainWindow, TimeTableDialog timeTableDialog) {
         this.mainWindow = mainWindow;
         this.timeTableDialog = timeTableDialog;
-        //ArrayList<String> experimentTypes = getExperimentTypes();
 
         this.setTitle("Добавить испытание");
         addExperimentMessageLabel = new JLabel();
@@ -190,12 +189,8 @@ public class NewExperimentDialog extends JDialog {
         gbc.insets = INSETS;
         addExperimentFieldsPanel.add(new JLabel("Описание"), gbc);
 
-        //descriptionCombo = new JComboBox<>();
         descriptionCombo = new JComboBox<>(MainWindow.experimentTypes.getExpNames());
         descriptionCombo.setName("description");
-        /*for (String type : experimentTypes) {
-            descriptionCombo.addItem(type);
-        }*/
         gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.ipadx = 100;
@@ -233,10 +228,6 @@ public class NewExperimentDialog extends JDialog {
         }
 
     }
-
-    /*private ArrayList<String> getExperimentTypes() {
-        return new DBQuery().getExperimentTypes();
-    }*/
 
     private class addExperimentApplyListener implements ActionListener {
         @Override
@@ -293,7 +284,6 @@ public class NewExperimentDialog extends JDialog {
         }
 
         String description = MainWindow.experimentTypes.getExpIdByName((String) descriptionCombo.getSelectedItem());
-        //newExperiment.setExperimentTypeId((String) descriptionCombo.getSelectedItem());
         newExperiment.setExperimentTypeId(description);
         newExperiment.setDecNumber(decNumberField.getText());
         newExperiment.setName(nameField.getText());

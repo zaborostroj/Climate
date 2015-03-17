@@ -42,8 +42,8 @@ public class DBQuery {
         }
     }
 
-    public ArrayList<String> getToolTypes() {
-        ArrayList<String> toolTypes = new ArrayList<>();
+    public ArrayList<String[]> getToolTypes() {
+        ArrayList<String[]> toolTypes = new ArrayList<>();
         String query = "SELECT * FROM `tooltype`";
         Connection connection = null;
         Statement statement = null;
@@ -54,7 +54,10 @@ public class DBQuery {
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                toolTypes.add(resultSet.getString("tool_type_name"));
+                String[] type = new String[2];
+                type[0] = resultSet.getString("id");
+                type[1] = resultSet.getString("tool_type_name");
+                toolTypes.add(type);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,45 +118,7 @@ public class DBQuery {
         return toolPlacements;
     }
 
-    public ArrayList<String> getExperimentTypes() {
-        ArrayList<String> experimentTypes = new ArrayList<>();
-        String query = "SELECT * FROM `experimenttype`";
-        Connection connection = null;
-        Statement statement = null;
-
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-            statement = connection.createStatement();
-
-            ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
-                experimentTypes.add(resultSet.getString("exp_type_name"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return experimentTypes;
-    }
-
-    public ArrayList<String[]> getExperimentTypes2() {
+    public ArrayList<String[]> getExperimentTypes() {
         ArrayList<String[]> types = new ArrayList<>();
         String query =
                 "SELECT experimenttype.*, tooltype.* " +

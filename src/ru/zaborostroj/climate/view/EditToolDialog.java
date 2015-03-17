@@ -9,7 +9,7 @@ import ru.zaborostroj.climate.model.Tool;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import com.toedter.calendar.JDateChooser;
+
 /**
   * Created by Evgeny Baskakov on 06.03.2015.
  */
@@ -100,12 +100,9 @@ public class EditToolDialog extends JDialog {
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.gridwidth = 1;
-        type = new JComboBox<String>();
+        type = new JComboBox<>(MainWindow.toolTypes2.getTypeNames());
         type.setName("tool_type");
-        for (String toolType : MainWindow.toolTypes) {
-            type.addItem(toolType);
-        }
-        type.setSelectedItem(currentToolData.getToolType());
+        type.setSelectedItem(MainWindow.toolTypes2.getTypeNameById(currentToolData.getToolType()));
         editToolFieldsPanel.add(type, gbc);
 
         gbc.gridx = 0;
@@ -116,7 +113,7 @@ public class EditToolDialog extends JDialog {
         gbc.gridx = 1;
         gbc.gridy = 5;
         gbc.gridwidth = 1;
-        placement = new JComboBox<String>();
+        placement = new JComboBox<>();
         placement.setName("placement");
         for (String place : MainWindow.toolPlacements) {
             placement.addItem(place);
@@ -132,7 +129,7 @@ public class EditToolDialog extends JDialog {
         gbc.gridx = 1;
         gbc.gridy = 6;
         gbc.gridwidth = 1;
-        statement = new JComboBox<String>();
+        statement = new JComboBox<>();
         statement.setName("statement");
         statement.addItem("Работает");
         statement.addItem("Ремонт");
@@ -197,7 +194,8 @@ public class EditToolDialog extends JDialog {
         tool.setSerialNumber(serialNumber.getText());
         tool.setName(name.getText());
         tool.setDescription(description.getText());
-        tool.setToolType(type.getSelectedItem().toString());
+        String toolType = MainWindow.toolTypes2.getTypeIdByName(type.getSelectedItem().toString());
+        tool.setToolType(toolType);
         tool.setPlacement(placement.getSelectedItem().toString());
         tool.setStatement(statement.getSelectedItem().toString());
         tool.setCertification(dateChooser.getDate());

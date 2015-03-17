@@ -22,13 +22,14 @@ import javax.swing.WindowConstants;
 import ru.zaborostroj.climate.db.DBQuery;
 import ru.zaborostroj.climate.model.ExperimentTypes;
 import ru.zaborostroj.climate.model.Tool;
+import ru.zaborostroj.climate.model.ToolTypes;
 
 
 /**
   Created by Evgeny Baskakov on 22.01.2015.
  */
 public class MainWindow extends JFrame {
-    protected static ArrayList<String> toolTypes;
+    protected static ToolTypes toolTypes2;
     protected static ArrayList<String> toolPlacements;
     protected static ExperimentTypes experimentTypes;
 
@@ -50,9 +51,10 @@ public class MainWindow extends JFrame {
         super("Технологические испытания");
         mainWindow = this;
 
-        getToolTypes();
         getToolPlacements();
         experimentTypes = new ExperimentTypes();
+        toolTypes2 = new ToolTypes();
+
         setSize(1000, 450);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -132,10 +134,6 @@ public class MainWindow extends JFrame {
         }
 
         return toolsPanel;
-    }
-
-    private void getToolTypes() {
-        toolTypes = new DBQuery().getToolTypes();
     }
 
     private void getToolPlacements() {
