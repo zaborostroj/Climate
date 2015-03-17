@@ -13,7 +13,7 @@ public class Experiment {
     private String serialNumber;
     private String name;
     private String order;
-    private String description;
+    private String experimentTypeId;
 
     public String getId() {
         return id;
@@ -79,12 +79,12 @@ public class Experiment {
         this.order = order;
     }
 
-    public String getDescription() {
-        return description;
+    public String getExperimentTypeId() {
+        return experimentTypeId;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setExperimentTypeId(String experimentTypeId) {
+        this.experimentTypeId = experimentTypeId;
     }
 
 //    public void println() {
@@ -97,7 +97,7 @@ public class Experiment {
 //                getSerialNumber() + " " +
 //                getName() + " " +
 //                getOrder() + " " +
-//                getDescription()
+//                getExperimentTypeId()
 //        );
 //    }
 }

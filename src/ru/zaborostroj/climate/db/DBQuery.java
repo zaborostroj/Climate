@@ -54,7 +54,7 @@ public class DBQuery {
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                toolTypes.add(resultSet.getString("name"));
+                toolTypes.add(resultSet.getString("tool_type_name"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,7 +91,7 @@ public class DBQuery {
 
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                toolPlacements.add(resultSet.getString("name"));
+                toolPlacements.add(resultSet.getString("tool_placement_name"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,7 +128,7 @@ public class DBQuery {
 
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                experimentTypes.add(resultSet.getString("name"));
+                experimentTypes.add(resultSet.getString("exp_type_name"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -151,6 +151,50 @@ public class DBQuery {
         }
 
         return experimentTypes;
+    }
+
+    public ArrayList<String[]> getExperimentTypes2() {
+        ArrayList<String[]> types = new ArrayList<>();
+        String query =
+                "SELECT experimenttype.*, tooltype.* " +
+                "FROM experimenttype, tooltype " +
+                "WHERE experimenttype.tool_type_id = tooltype.id";
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                String[] strings = new String[4];
+                strings[0] = resultSet.getString("id");
+                strings[1] = resultSet.getString("exp_type_name");
+                strings[2] = resultSet.getString("tool_type_id");
+                strings[3] = resultSet.getString("tool_type_name");
+                types.add(strings);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return types;
     }
 
     public ArrayList<Tool> getTools() {
@@ -222,7 +266,7 @@ public class DBQuery {
                 experiment.setName(resultSet.getString(6));
                 experiment.setSerialNumber(resultSet.getString(7));
                 experiment.setOrder(resultSet.getString(8));
-                experiment.setDescription(resultSet.getString(9));
+                experiment.setExperimentTypeId(resultSet.getString(9));
                 experiments.add(experiment);
             }
         } catch (Exception e) {
@@ -276,7 +320,7 @@ public class DBQuery {
                 curExp.setName(resultSet.getString("name"));
                 curExp.setSerialNumber(resultSet.getString("serial_number"));
                 curExp.setOrder(resultSet.getString("order"));
-                curExp.setDescription(resultSet.getString("description"));
+                curExp.setExperimentTypeId(resultSet.getString("description"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -328,7 +372,7 @@ public class DBQuery {
                 curExp.setName(resultSet.getString("name"));
                 curExp.setSerialNumber(resultSet.getString("serial_number"));
                 curExp.setOrder(resultSet.getString("order"));
-                curExp.setDescription(resultSet.getString("description"));
+                curExp.setExperimentTypeId(resultSet.getString("description"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -582,7 +626,7 @@ public class DBQuery {
         String name = experiment.getName();
         String serialNumber = experiment.getSerialNumber();
         String order = experiment.getOrder();
-        String description = experiment.getDescription();
+        String description = experiment.getExperimentTypeId();
 
         String checkQuery =
                 "SELECT *" +

@@ -47,7 +47,7 @@ public class TimeTableModel extends AbstractTableModel{
             case 4: return experiment.getName();
             case 5: return experiment.getDecNumber();
             case 6: return experiment.getSerialNumber();
-            case 7: return experiment.getDescription();
+            case 7: return MainWindow.experimentTypes.getExpNameById(experiment.getExperimentTypeId());
             case 8: return experiment.getOrder();
             default: return "";
         }

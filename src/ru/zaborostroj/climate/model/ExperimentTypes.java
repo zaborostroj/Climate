@@ -1,5 +1,7 @@
 package ru.zaborostroj.climate.model;
 
+import ru.zaborostroj.climate.db.DBQuery;
+
 import java.util.ArrayList;
 
 /**
@@ -9,7 +11,38 @@ public class ExperimentTypes {
     private ArrayList<ExpType> experimentTypes;
 
     public ExperimentTypes() {
-        
+        experimentTypes = new ArrayList<>();
+        ArrayList<String[]> types = new DBQuery().getExperimentTypes2();
+        for (String type[] : types) {
+            for (String s : type) {
+                System.out.print(s + " | ");
+            }
+            System.out.println("");
+
+            experimentTypes.add(new ExpType(type[0], type[1], type[2], type[3]));
+        }
+    }
+
+    public String getExpNameById(String id) {
+        for (ExpType expType : experimentTypes) {
+            if (expType.getId().equals(id)) return expType.getName();
+        }
+        return "";
+    }
+
+    public String getExpIdByName(String name) {
+        for (ExpType expType : experimentTypes) {
+            if (expType.getName().equals(name)) return expType.getId();
+        }
+        return "";
+    }
+
+    public String[] getExpNames() {
+        String[] expNames = new String[experimentTypes.size()];
+        for (int i = 0; i < experimentTypes.size(); i++) {
+            expNames[i] = experimentTypes.get(i).getName();
+        }
+        return expNames;
     }
 
     private class ExpType {

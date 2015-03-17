@@ -20,6 +20,7 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import ru.zaborostroj.climate.db.DBQuery;
+import ru.zaborostroj.climate.model.ExperimentTypes;
 import ru.zaborostroj.climate.model.Tool;
 
 
@@ -29,6 +30,7 @@ import ru.zaborostroj.climate.model.Tool;
 public class MainWindow extends JFrame {
     protected static ArrayList<String> toolTypes;
     protected static ArrayList<String> toolPlacements;
+    protected static ExperimentTypes experimentTypes;
 
     private JPanel toolsPanel;
 
@@ -50,6 +52,7 @@ public class MainWindow extends JFrame {
 
         getToolTypes();
         getToolPlacements();
+        experimentTypes = new ExperimentTypes();
         setSize(1000, 450);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());

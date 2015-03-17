@@ -106,12 +106,14 @@ public class SearchToolDialog extends JDialog {
         gbc.gridx = 1;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
-        ArrayList<String> experimentTypes = getExperimentTypes();
-        typeCombo = new JComboBox<>();
+        //ArrayList<String> experimentTypes = getExperimentTypes();
+        //typeCombo = new JComboBox<>();
+        typeCombo = new JComboBox<>(MainWindow.experimentTypes.getExpNames());
         typeCombo.addItem(NO_MATTER);
-        for (String type : experimentTypes) {
+        typeCombo.setSelectedItem(NO_MATTER);
+        /*for (String type : experimentTypes) {
             typeCombo.addItem(type);
-        }
+        }*/
         fieldsPanel.add(typeCombo, gbc);
 
 
@@ -163,9 +165,9 @@ public class SearchToolDialog extends JDialog {
         }
     }
 
-    private ArrayList<String> getExperimentTypes() {
+    /*private ArrayList<String> getExperimentTypes() {
         return new DBQuery().getExperimentTypes();
-    }
+    }*/
 
     private Boolean isAllFieldsFilled() {
         return ! (startDateChooser.getDate().toString().equals("") || endDateChooser.getDate().toString().equals(""));
@@ -189,7 +191,9 @@ public class SearchToolDialog extends JDialog {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        experiment.setDescription((String) typeCombo.getSelectedItem());
+        String description = MainWindow.experimentTypes.getExpIdByName((String) typeCombo.getSelectedItem());
+        //experiment.setExperimentTypeId((String) typeCombo.getSelectedItem());
+        experiment.setExperimentTypeId(description);
         return experiment;
     }
 

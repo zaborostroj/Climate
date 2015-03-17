@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.*;
@@ -20,9 +19,9 @@ public class NewExperimentDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private JPanel addExperimentFieldsPanel;
-    private JLabel addExperimentErrorLabel;
+    private JLabel addExperimentMessageLabel;
     private String toolId;
-    private JComboBox<String> descriptionTextField;
+    private JComboBox<String> descriptionCombo;
 
     private MainWindow mainWindow;
     private TimeTableDialog timeTableDialog;
@@ -43,10 +42,10 @@ public class NewExperimentDialog extends JDialog {
     public NewExperimentDialog(MainWindow mainWindow, TimeTableDialog timeTableDialog) {
         this.mainWindow = mainWindow;
         this.timeTableDialog = timeTableDialog;
-        ArrayList<String> experimentTypes = getExperimentTypes();
+        //ArrayList<String> experimentTypes = getExperimentTypes();
 
         this.setTitle("Добавить испытание");
-        addExperimentErrorLabel = new JLabel();
+        addExperimentMessageLabel = new JLabel();
 
         JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
         JPanel addExperimentErrorPanel = new JPanel();
@@ -56,8 +55,8 @@ public class NewExperimentDialog extends JDialog {
         addExperimentMainPanel.add(addExperimentFieldsPanel, BorderLayout.CENTER);
         addExperimentMainPanel.add(buttonsPanel, BorderLayout.PAGE_END);
 
-        addExperimentErrorLabel.setText("Заполните данные испытания");
-        addExperimentErrorPanel.add(addExperimentErrorLabel);
+        addExperimentMessageLabel.setText("Заполните данные испытания");
+        addExperimentErrorPanel.add(addExperimentMessageLabel);
 
         addExperimentFieldsPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc;
@@ -191,11 +190,12 @@ public class NewExperimentDialog extends JDialog {
         gbc.insets = INSETS;
         addExperimentFieldsPanel.add(new JLabel("Описание"), gbc);
 
-        descriptionTextField = new JComboBox<String>();
-        descriptionTextField.setName("description");
-        for (String type : experimentTypes) {
-            descriptionTextField.addItem(type);
-        }
+        //descriptionCombo = new JComboBox<>();
+        descriptionCombo = new JComboBox<>(MainWindow.experimentTypes.getExpNames());
+        descriptionCombo.setName("description");
+        /*for (String type : experimentTypes) {
+            descriptionCombo.addItem(type);
+        }*/
         gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.ipadx = 100;
@@ -203,7 +203,7 @@ public class NewExperimentDialog extends JDialog {
         gbc.gridx = 1;
         gbc.gridy = 6;
         gbc.insets = INSETS;
-        addExperimentFieldsPanel.add(descriptionTextField, gbc);
+        addExperimentFieldsPanel.add(descriptionCombo, gbc);
 
         JButton addExperimentApplyButton = new JButton("Добавить");
         addExperimentApplyButton.addActionListener(new addExperimentApplyListener());
@@ -234,9 +234,9 @@ public class NewExperimentDialog extends JDialog {
 
     }
 
-    private ArrayList<String> getExperimentTypes() {
+    /*private ArrayList<String> getExperimentTypes() {
         return new DBQuery().getExperimentTypes();
-    }
+    }*/
 
     private class addExperimentApplyListener implements ActionListener {
         @Override
@@ -247,7 +247,7 @@ public class NewExperimentDialog extends JDialog {
                     orderField.getText().equals("");
 
             if (fieldsNotFilled) {
-                addExperimentErrorLabel.setText("Все поля должны быть заполнены!");
+                addExperimentMessageLabel.setText("Все поля должны быть заполнены!");
             } else {
                 Experiment newExperiment = getExperimentObject();
 
@@ -257,7 +257,7 @@ public class NewExperimentDialog extends JDialog {
                     timeTableDialog.makeTimeTable(toolId);
                     mainWindow.refreshToolsPanel();
 
-                    addExperimentErrorLabel.setText("Заполните данные эксперимента");
+                    addExperimentMessageLabel.setText("Заполните данные эксперимента");
                     for (Component component : addExperimentFieldsPanel.getComponents()) {
                         if (component.getClass() == JTextField.class) {
                             JTextField tf = (JTextField) component;
@@ -267,7 +267,7 @@ public class NewExperimentDialog extends JDialog {
                 } else {
                     JOptionPane.showMessageDialog(NewExperimentDialog.this, result);
 
-                    addExperimentErrorLabel.setText(result);
+                    addExperimentMessageLabel.setText(result);
                 }
 
                 NewExperimentDialog.this.setVisible(false);
@@ -292,8 +292,9 @@ public class NewExperimentDialog extends JDialog {
             e.printStackTrace();
         }
 
-
-        newExperiment.setDescription((String) descriptionTextField.getSelectedItem());
+        String description = MainWindow.experimentTypes.getExpIdByName((String) descriptionCombo.getSelectedItem());
+        //newExperiment.setExperimentTypeId((String) descriptionCombo.getSelectedItem());
+        newExperiment.setExperimentTypeId(description);
         newExperiment.setDecNumber(decNumberField.getText());
         newExperiment.setName(nameField.getText());
         newExperiment.setCameraId(toolId);

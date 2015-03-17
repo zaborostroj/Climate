@@ -21,7 +21,7 @@ DESCRIPTION TEXT,
 PRIMARY KEY (ID));
 
 INSERT INTO
-`timetable` (`camera_id`, `start_time`, `end_time`, `dec_number`, `name`, `serial_number`, `order`, `description`)
+`timetable` (`camera_id`, `start_time`, `end_time`, `dec_number`, `name`, `serial_number`, `order`, `experimentTypeId`)
 VALUES
 ('30', '2014-01-30 12:00', '2014-01-31 15:00', 'РљР–Р�РЎ.1234.567', 'block1', '123456', '012', 'С‚РµРїР»Рѕ');
 
@@ -49,3 +49,5 @@ GRANT ALL PRIVILEGES ON *.* TO 'engineer'@'localhost' WITH GRANT OPTION;
 
 CREATE USER 'engineer'@'%' IDENTIFIED BY 'qweqwe!23';
 GRANT ALL PRIVILEGES ON *.* TO 'engineer'@'%' WITH GRANT OPTION;
+
+ALTER TABLE experimenttype ADD tool_type_id VARCHAR(3) NOT NULL;
