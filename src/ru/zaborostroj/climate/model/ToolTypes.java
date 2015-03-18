@@ -14,8 +14,7 @@ public class ToolTypes {
         toolTypes = new ArrayList<>();
         ArrayList<String[]> types = new DBQuery().getToolTypes();
         for (String type[] : types) {
-            TypeOfTool typeOfTool = new TypeOfTool(type[0], type[1]);
-            toolTypes.add(typeOfTool);
+            toolTypes.add(new TypeOfTool(type[0], type[1]));
         }
     }
 

@@ -22,15 +22,16 @@ import javax.swing.WindowConstants;
 import ru.zaborostroj.climate.db.DBQuery;
 import ru.zaborostroj.climate.model.ExperimentTypes;
 import ru.zaborostroj.climate.model.Tool;
+import ru.zaborostroj.climate.model.ToolPlacements;
 import ru.zaborostroj.climate.model.ToolTypes;
-
 
 /**
   Created by Evgeny Baskakov on 22.01.2015.
  */
 public class MainWindow extends JFrame {
-    protected static ToolTypes toolTypes2;
-    protected static ArrayList<String> toolPlacements;
+    protected static ToolTypes toolTypes;
+    //protected static ArrayList<String> toolPlacements;
+    protected static ToolPlacements toolPlacements2;
     protected static ExperimentTypes experimentTypes;
 
     private JPanel toolsPanel;
@@ -51,9 +52,10 @@ public class MainWindow extends JFrame {
         super("Технологические испытания");
         mainWindow = this;
 
-        getToolPlacements();
+        //getToolPlacements();
+        toolPlacements2 = new ToolPlacements();
         experimentTypes = new ExperimentTypes();
-        toolTypes2 = new ToolTypes();
+        toolTypes = new ToolTypes();
 
         setSize(1000, 450);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -113,11 +115,12 @@ public class MainWindow extends JFrame {
         ArrayList<Tool> tools = getTools();
 
         Map<String, JPanel> panels = new HashMap<>();
-        for (Object placement : toolPlacements) {
+        //for (Object placement : toolPlacements) {
+        for (String placementId : toolPlacements2.getPlacementsIds()) {
             JPanel panel = new JPanel();
-            panel.setBorder(BorderFactory.createTitledBorder((String) placement));
+            panel.setBorder(BorderFactory.createTitledBorder(toolPlacements2.getPlacementNameById(placementId)));
             panel.setLayout(new FlowLayout());
-            panels.put((String) placement, panel);
+            panels.put(placementId, panel);
             toolsPanel.add(panel);
         }
 
@@ -126,8 +129,9 @@ public class MainWindow extends JFrame {
             panels.get(tool.getPlacement()).add(panel);
         }
 
-        for (String toolPlacement : toolPlacements) {
-            JPanel panel = panels.get(toolPlacement);
+        //for (Object placement : toolPlacements) {
+        for (String placementName : toolPlacements2.getPlacementsNames()) {
+            JPanel panel = panels.get(placementName);
             JScrollPane toolScrollPane = new JScrollPane(panel);
             toolScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             toolsPanel.add(toolScrollPane);
@@ -136,9 +140,9 @@ public class MainWindow extends JFrame {
         return toolsPanel;
     }
 
-    private void getToolPlacements() {
+    /*private void getToolPlacements() {
         toolPlacements = new DBQuery().getToolPlacements();
-    }
+    }*/
 
     private ArrayList<Tool> getTools() {
         return new DBQuery().getTools();

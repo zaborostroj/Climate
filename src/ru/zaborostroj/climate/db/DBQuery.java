@@ -118,6 +118,46 @@ public class DBQuery {
         return toolPlacements;
     }
 
+    public ArrayList<String[]> getToolPlacements2() {
+        ArrayList<String[]> toolPlacements = new ArrayList<>();
+        Connection connection = null;
+        Statement statement = null;
+        String query = "SELECT * FROM `toolplacement`";
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                String[] placement = new String[2];
+                placement[0] = resultSet.getString("id");
+                placement[1] = resultSet.getString("tool_placement_name");
+                toolPlacements.add(placement);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return toolPlacements;
+    }
+
     public ArrayList<String[]> getExperimentTypes() {
         ArrayList<String[]> types = new ArrayList<>();
         String query =

@@ -22,7 +22,7 @@ public class EditToolDialog extends JDialog {
     private JTextField name;
     private JTextField description;
     private JComboBox<String> type;
-    private JComboBox<String> placement;
+    private JComboBox<String> placementCombo;
     private JComboBox<String> statement;
     private JDateChooser dateChooser;
     private static final Insets INSETS = new Insets(3,3,3,3);
@@ -100,9 +100,9 @@ public class EditToolDialog extends JDialog {
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.gridwidth = 1;
-        type = new JComboBox<>(MainWindow.toolTypes2.getTypeNames());
+        type = new JComboBox<>(MainWindow.toolTypes.getTypeNames());
         type.setName("tool_type");
-        type.setSelectedItem(MainWindow.toolTypes2.getTypeNameById(currentToolData.getToolType()));
+        type.setSelectedItem(MainWindow.toolTypes.getTypeNameById(currentToolData.getToolType()));
         editToolFieldsPanel.add(type, gbc);
 
         gbc.gridx = 0;
@@ -113,13 +113,13 @@ public class EditToolDialog extends JDialog {
         gbc.gridx = 1;
         gbc.gridy = 5;
         gbc.gridwidth = 1;
-        placement = new JComboBox<>();
-        placement.setName("placement");
-        for (String place : MainWindow.toolPlacements) {
-            placement.addItem(place);
+        placementCombo = new JComboBox<>();
+        placementCombo.setName("placementCombo");
+        for (String place : MainWindow.toolPlacements2.getPlacementsNames()) {
+            placementCombo.addItem(place);
         }
-        placement.setSelectedItem(currentToolData.getPlacement());
-        editToolFieldsPanel.add(placement, gbc);
+        placementCombo.setSelectedItem(MainWindow.toolPlacements2.getPlacementNameById(currentToolData.getPlacement()));
+        editToolFieldsPanel.add(placementCombo, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 6;
@@ -194,9 +194,10 @@ public class EditToolDialog extends JDialog {
         tool.setSerialNumber(serialNumber.getText());
         tool.setName(name.getText());
         tool.setDescription(description.getText());
-        String toolType = MainWindow.toolTypes2.getTypeIdByName(type.getSelectedItem().toString());
+        String toolType = MainWindow.toolTypes.getTypeIdByName(type.getSelectedItem().toString());
         tool.setToolType(toolType);
-        tool.setPlacement(placement.getSelectedItem().toString());
+        String placement = MainWindow.toolPlacements2.getPlacementIdByName(placementCombo.getSelectedItem().toString());
+        tool.setPlacement(placement);
         tool.setStatement(statement.getSelectedItem().toString());
         tool.setCertification(dateChooser.getDate());
         return tool;

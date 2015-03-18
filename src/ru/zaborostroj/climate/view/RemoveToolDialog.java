@@ -57,8 +57,8 @@ public class RemoveToolDialog extends JDialog{
 
         gbc.gridx = 1;
         gbc.gridy = 2;
-        placementCombo = new JComboBox<String>();
-        for (String placement : MainWindow.toolPlacements) {
+        placementCombo = new JComboBox<>();
+        for (String placement : MainWindow.toolPlacements2.getPlacementsNames()) {
             placementCombo.addItem(placement);
         }
         removeMainPanel.add(placementCombo, gbc);
@@ -96,7 +96,8 @@ public class RemoveToolDialog extends JDialog{
     private Tool getToolInfo() {
         Tool tool = new Tool();
         tool.setSerialNumber(serialNumberField.getText());
-        tool.setPlacement(placementCombo.getSelectedItem().toString());
+        String placement = MainWindow.toolPlacements2.getPlacementIdByName(placementCombo.getSelectedItem().toString());
+        tool.setPlacement(placement);
         return tool;
     }
 
