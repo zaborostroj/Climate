@@ -102,7 +102,7 @@ public class EditToolDialog extends JDialog {
         gbc.gridwidth = 1;
         type = new JComboBox<>(MainWindow.toolTypes.getTypeNames());
         type.setName("tool_type");
-        type.setSelectedItem(MainWindow.toolTypes.getTypeNameById(currentToolData.getToolType()));
+        type.setSelectedItem(MainWindow.toolTypes.getTypeNameById(currentToolData.getToolTypeId()));
         editToolFieldsPanel.add(type, gbc);
 
         gbc.gridx = 0;
@@ -115,10 +115,10 @@ public class EditToolDialog extends JDialog {
         gbc.gridwidth = 1;
         placementCombo = new JComboBox<>();
         placementCombo.setName("placementCombo");
-        for (String place : MainWindow.toolPlacements2.getPlacementsNames()) {
+        for (String place : MainWindow.toolPlacements.getPlacementsNames()) {
             placementCombo.addItem(place);
         }
-        placementCombo.setSelectedItem(MainWindow.toolPlacements2.getPlacementNameById(currentToolData.getPlacement()));
+        placementCombo.setSelectedItem(MainWindow.toolPlacements.getPlacementNameById(currentToolData.getPlacement()));
         editToolFieldsPanel.add(placementCombo, gbc);
 
         gbc.gridx = 0;
@@ -195,8 +195,8 @@ public class EditToolDialog extends JDialog {
         tool.setName(name.getText());
         tool.setDescription(description.getText());
         String toolType = MainWindow.toolTypes.getTypeIdByName(type.getSelectedItem().toString());
-        tool.setToolType(toolType);
-        String placement = MainWindow.toolPlacements2.getPlacementIdByName(placementCombo.getSelectedItem().toString());
+        tool.setToolTypeId(toolType);
+        String placement = MainWindow.toolPlacements.getPlacementIdByName(placementCombo.getSelectedItem().toString());
         tool.setPlacement(placement);
         tool.setStatement(statement.getSelectedItem().toString());
         tool.setCertification(dateChooser.getDate());

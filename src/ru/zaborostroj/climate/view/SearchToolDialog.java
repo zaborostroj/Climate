@@ -93,7 +93,7 @@ public class SearchToolDialog extends JDialog {
         gbc.gridwidth = 2;
         placementCombo = new JComboBox<>();
         placementCombo.addItem(NO_MATTER);
-        for (String place : MainWindow.toolPlacements2.getPlacementsNames()) {
+        for (String place : MainWindow.toolPlacements.getPlacementsNames()) {
             placementCombo.addItem(place);
         }
         fieldsPanel.add(placementCombo, gbc);
@@ -190,7 +190,7 @@ public class SearchToolDialog extends JDialog {
     private Tool getToolData() {
         Tool toolData = new Tool();
         if ( ! placementCombo.getSelectedItem().toString().equals(NO_MATTER)) {
-            String placement = MainWindow.toolPlacements2.getPlacementIdByName(placementCombo.getSelectedItem()
+            String placement = MainWindow.toolPlacements.getPlacementIdByName(placementCombo.getSelectedItem()
                     .toString());
             toolData.setPlacement(placement);
         }

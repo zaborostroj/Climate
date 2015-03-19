@@ -9,7 +9,7 @@ public class Tool {
     private String serialNumber;
     private String description;
     private String name;
-    private String toolType;
+    private String toolTypeId;
     private String placement;
     private String statement;
     private Date certification;
@@ -46,12 +46,12 @@ public class Tool {
         this.name = name;
     }
 
-    public String getToolType() {
-        return toolType;
+    public String getToolTypeId() {
+        return toolTypeId;
     }
 
-    public void setToolType(String toolType) {
-        this.toolType = toolType;
+    public void setToolTypeId(String toolTypeId) {
+        this.toolTypeId = toolTypeId;
     }
 
     public String getPlacement() {
@@ -81,7 +81,7 @@ public class Tool {
                 serialNumber + " | " +
                 description + " | " +
                 name + " | " +
-                toolType + " | " +
+                toolTypeId + " | " +
                 placement + " | " +
                 statement + " | " +
                 certification);

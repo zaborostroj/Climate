@@ -30,8 +30,7 @@ import ru.zaborostroj.climate.model.ToolTypes;
  */
 public class MainWindow extends JFrame {
     protected static ToolTypes toolTypes;
-    //protected static ArrayList<String> toolPlacements;
-    protected static ToolPlacements toolPlacements2;
+    protected static ToolPlacements toolPlacements;
     protected static ExperimentTypes experimentTypes;
 
     private JPanel toolsPanel;
@@ -52,8 +51,7 @@ public class MainWindow extends JFrame {
         super("Технологические испытания");
         mainWindow = this;
 
-        //getToolPlacements();
-        toolPlacements2 = new ToolPlacements();
+        toolPlacements = new ToolPlacements();
         experimentTypes = new ExperimentTypes();
         toolTypes = new ToolTypes();
 
@@ -115,10 +113,9 @@ public class MainWindow extends JFrame {
         ArrayList<Tool> tools = getTools();
 
         Map<String, JPanel> panels = new HashMap<>();
-        //for (Object placement : toolPlacements) {
-        for (String placementId : toolPlacements2.getPlacementsIds()) {
+        for (String placementId : toolPlacements.getPlacementsIds()) {
             JPanel panel = new JPanel();
-            panel.setBorder(BorderFactory.createTitledBorder(toolPlacements2.getPlacementNameById(placementId)));
+            panel.setBorder(BorderFactory.createTitledBorder(toolPlacements.getPlacementNameById(placementId)));
             panel.setLayout(new FlowLayout());
             panels.put(placementId, panel);
             toolsPanel.add(panel);
@@ -129,8 +126,7 @@ public class MainWindow extends JFrame {
             panels.get(tool.getPlacement()).add(panel);
         }
 
-        //for (Object placement : toolPlacements) {
-        for (String placementName : toolPlacements2.getPlacementsNames()) {
+        for (String placementName : toolPlacements.getPlacementsNames()) {
             JPanel panel = panels.get(placementName);
             JScrollPane toolScrollPane = new JScrollPane(panel);
             toolScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -139,10 +135,6 @@ public class MainWindow extends JFrame {
 
         return toolsPanel;
     }
-
-    /*private void getToolPlacements() {
-        toolPlacements = new DBQuery().getToolPlacements();
-    }*/
 
     private ArrayList<Tool> getTools() {
         return new DBQuery().getTools();

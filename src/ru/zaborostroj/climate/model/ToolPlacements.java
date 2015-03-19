@@ -12,7 +12,7 @@ public class ToolPlacements {
 
     public ToolPlacements() {
         toolPlacements = new ArrayList<>();
-        ArrayList<String[]> placements = new DBQuery().getToolPlacements2();
+        ArrayList<String[]> placements = new DBQuery().getToolPlacements();
         for (String[] placement : placements) {
             toolPlacements.add(new PlacementOfTool(placement[0], placement[1]));
         }

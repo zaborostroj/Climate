@@ -81,44 +81,7 @@ public class DBQuery {
         return toolTypes;
     }
 
-    public ArrayList<String> getToolPlacements() {
-        ArrayList<String> toolPlacements = new ArrayList<>();
-        Connection connection = null;
-        Statement statement = null;
-        String query = "SELECT * FROM `toolplacement`";
-
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-            statement = connection.createStatement();
-
-            ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
-                toolPlacements.add(resultSet.getString("tool_placement_name"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return toolPlacements;
-    }
-
-    public ArrayList<String[]> getToolPlacements2() {
+    public ArrayList<String[]> getToolPlacements() {
         ArrayList<String[]> toolPlacements = new ArrayList<>();
         Connection connection = null;
         Statement statement = null;
@@ -174,11 +137,10 @@ public class DBQuery {
 
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                String[] strings = new String[4];
+                String[] strings = new String[3];
                 strings[0] = resultSet.getString("id");
                 strings[1] = resultSet.getString("exp_type_name");
                 strings[2] = resultSet.getString("tool_type_id");
-                strings[3] = resultSet.getString("tool_type_name");
                 types.add(strings);
             }
         } catch (Exception e) {
@@ -220,7 +182,7 @@ public class DBQuery {
                 tool.setSerialNumber(resultSet.getString("serial_number"));
                 tool.setName(resultSet.getString("name"));
                 tool.setDescription(resultSet.getString("description"));
-                tool.setToolType(resultSet.getString("tool_type"));
+                tool.setToolTypeId(resultSet.getString("tool_type"));
                 tool.setPlacement(resultSet.getString("placement"));
                 tool.setStatement(resultSet.getString("statement"));
                 tool.setCertification(resultSet.getDate("certification"));
@@ -417,7 +379,7 @@ public class DBQuery {
             while (resultSet.next()) {
                 tool.setName(resultSet.getString("name"));
                 tool.setSerialNumber(resultSet.getString("serial_number"));
-                tool.setToolType(resultSet.getString("tool_type"));
+                tool.setToolTypeId(resultSet.getString("tool_type"));
                 tool.setPlacement(resultSet.getString("placement"));
                 tool.setDescription(resultSet.getString("description"));
                 tool.setStatement(resultSet.getString("statement"));
@@ -454,7 +416,7 @@ public class DBQuery {
                 " `serial_number` = \'" + tool.getSerialNumber() + "\'," +
                 " `name` = \'" + tool.getName() + "\'," +
                 " `description` = \'" + tool.getDescription() + "\'," +
-                " `tool_type` = \'" + tool.getToolType() + "\'," +
+                " `tool_type` = \'" + tool.getToolTypeId() + "\'," +
                 " `placement` = \'" + tool.getPlacement() + "\'," +
                 " `statement` = \'" + toolStatement + "\'," +
                 " `certification` = \'" + certificationDate + "\'" +
@@ -499,7 +461,7 @@ public class DBQuery {
                 " WHERE" +
                 " `serial_number` = \'" + newToolData.getSerialNumber() + "\' AND" +
                 " `name` = \'" + newToolData.getName() + "\' AND" +
-                " `tool_type` = \'" + newToolData.getToolType() + "\' AND" +
+                " `tool_type` = \'" + newToolData.getToolTypeId() + "\' AND" +
                 " `placement` = \'" + newToolData.getPlacement() + "\'";
 
         String addQuery =
@@ -510,7 +472,7 @@ public class DBQuery {
                         "\'" + newToolData.getSerialNumber() + "\', " +
                         "\'" + newToolData.getName() + "\', " +
                         "\'" + newToolData.getDescription() + "\', " +
-                        "\'" + newToolData.getToolType() + "\', " +
+                        "\'" + newToolData.getToolTypeId() + "\', " +
                         "\'" + newToolData.getPlacement() + "\', " +
                         "\'\', " +
                         "\'" + certificationDate + "\')";
@@ -779,7 +741,7 @@ public class DBQuery {
                     curTool.setSerialNumber(resultSet.getString("serial_number"));
                     curTool.setDescription(resultSet.getString("description"));
                     curTool.setName(resultSet.getString("name"));
-                    curTool.setToolType(resultSet.getString("tool_type"));
+                    curTool.setToolTypeId(resultSet.getString("tool_type"));
                     curTool.setPlacement(resultSet.getString("placement"));
                     curTool.setStatement(resultSet.getString("statement"));
                     curTool.setCertification(resultSet.getDate("certification"));

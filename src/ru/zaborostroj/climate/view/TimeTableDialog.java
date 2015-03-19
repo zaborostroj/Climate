@@ -74,7 +74,11 @@ public class TimeTableDialog extends JDialog {
     private class addExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            NewExperimentDialog newExperimentDialog = new NewExperimentDialog(mainWindow, timeTableDialog);
+            NewExperimentDialog newExperimentDialog = new NewExperimentDialog(
+                    mainWindow,
+                    timeTableDialog,
+                    tool.getToolTypeId()
+            );
             newExperimentDialog.setToolId(tool.getId());
             newExperimentDialog.setModal(true);
             newExperimentDialog.setVisible(true);

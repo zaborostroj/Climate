@@ -14,7 +14,7 @@ public class ExperimentTypes {
         experimentTypes = new ArrayList<>();
         ArrayList<String[]> types = new DBQuery().getExperimentTypes();
         for (String type[] : types) {
-            experimentTypes.add(new ExpType(type[0], type[1], type[2], type[3]));
+            experimentTypes.add(new ExpType(type[0], type[1], type[2]));
         }
     }
 
@@ -40,17 +40,29 @@ public class ExperimentTypes {
         return expNames;
     }
 
+    public String[] getExpNamesByToolId(String toolId) {
+        ArrayList<String> arExpNames = new ArrayList<>();
+        for (ExpType experimentType : experimentTypes) {
+            if (experimentType.getToolTypeId().equals(toolId)) {
+                arExpNames.add(experimentType.getName());
+            }
+        }
+        String[] expNames = new String[arExpNames.size()];
+        for (int i = 0; i < arExpNames.size(); i++) {
+            expNames[i] = arExpNames.get(i);
+        }
+        return expNames;
+    }
+
     private class ExpType {
         private String id;
         private String name;
         private String toolTypeId;
-        private String toolTypeName;
 
-        public ExpType(String id, String name, String toolTypeId, String toolTypeName) {
+        public ExpType(String id, String name, String toolTypeId/*, String toolTypeName*/) {
             setId(id);
             setName(name);
             setToolTypeId(toolTypeId);
-            setToolTypeName(toolTypeName);
         }
 
         public String getId() {
@@ -75,14 +87,6 @@ public class ExperimentTypes {
 
         public void setToolTypeId(String toolTypeId) {
             this.toolTypeId = toolTypeId;
-        }
-
-        public String getToolTypeName() {
-            return toolTypeName;
-        }
-
-        public void setToolTypeName(String toolTypeName) {
-            this.toolTypeName = toolTypeName;
         }
     }
 }

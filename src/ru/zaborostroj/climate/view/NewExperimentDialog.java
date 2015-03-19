@@ -39,7 +39,7 @@ public class NewExperimentDialog extends JDialog {
     private static final DateFormat SQL_DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final Insets INSETS = new Insets(3,3,3,3);
 
-    public NewExperimentDialog(MainWindow mainWindow, TimeTableDialog timeTableDialog) {
+    public NewExperimentDialog(MainWindow mainWindow, TimeTableDialog timeTableDialog, String toolTypeId) {
         this.mainWindow = mainWindow;
         this.timeTableDialog = timeTableDialog;
 
@@ -189,7 +189,8 @@ public class NewExperimentDialog extends JDialog {
         gbc.insets = INSETS;
         addExperimentFieldsPanel.add(new JLabel("Описание"), gbc);
 
-        descriptionCombo = new JComboBox<>(MainWindow.experimentTypes.getExpNames());
+
+        descriptionCombo = new JComboBox<>(MainWindow.experimentTypes.getExpNamesByToolId(toolTypeId));
         descriptionCombo.setName("description");
         gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;

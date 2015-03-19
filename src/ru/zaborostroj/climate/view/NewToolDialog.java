@@ -35,7 +35,7 @@ public class NewToolDialog extends JDialog{
         toolTypeCombo.setName("tool_type");
         toolPlacementCombo = new JComboBox<>();
         toolPlacementCombo.setName("placement");
-        for (String toolPlacement: MainWindow.toolPlacements2.getPlacementsNames()) {
+        for (String toolPlacement: MainWindow.toolPlacements.getPlacementsNames()) {
             toolPlacementCombo.addItem(toolPlacement);
         }
 
@@ -157,8 +157,8 @@ public class NewToolDialog extends JDialog{
         newToolData.setName(toolNameField.getText());
         newToolData.setDescription(toolDescriptionField.getText());
         String toolType = MainWindow.toolTypes.getTypeIdByName(toolTypeCombo.getSelectedItem().toString());
-        newToolData.setToolType(toolType);
-        String placement = MainWindow.toolPlacements2.getPlacementIdByName(toolPlacementCombo.getSelectedItem()
+        newToolData.setToolTypeId(toolType);
+        String placement = MainWindow.toolPlacements.getPlacementIdByName(toolPlacementCombo.getSelectedItem()
                 .toString());
         newToolData.setPlacement(placement);
         newToolData.setStatement("");
