@@ -1,6 +1,7 @@
 package ru.zaborostroj.climate.view;
 
 
+import ru.zaborostroj.climate.model.Experiment;
 import ru.zaborostroj.climate.model.Tool;
 
 import javax.swing.*;
@@ -16,6 +17,7 @@ public class SearchResultDialog extends JDialog {
     private static final Insets INSETS = new Insets(3,3,3,3);
     private SearchResultDialog searchResultDialog;
     private JDialog searchToolDialog;
+    private Experiment newExperimentData;
 
     public SearchResultDialog(ArrayList<Tool> toolsList, MainWindow mainWindow) {
         searchResultDialog = this;
@@ -32,12 +34,16 @@ public class SearchResultDialog extends JDialog {
         for (Tool tool : toolsList) {
             gbc.gridx = 0;
             gbc.gridy = yPosition;
-            String labelText =
-                    tool.getName() + " " +
-                    MainWindow.toolPlacements.getPlacementNameById(tool.getPlacement());
-            mainPanel.add(new JLabel(labelText), gbc);
+            mainPanel.add(new JLabel(tool.getName()), gbc);
 
             gbc.gridx = 1;
+            gbc.gridy = yPosition;
+            mainPanel.add(new JLabel(
+                    MainWindow.toolPlacements.getPlacementNameById(tool.getPlacement())),
+                    gbc
+            );
+
+            gbc.gridx = 2;
             gbc.gridy = yPosition;
             JButton button = new JButton("Записаться");
             button.addActionListener(new ToolButtonListener(mainWindow, tool));
@@ -47,10 +53,12 @@ public class SearchResultDialog extends JDialog {
         }
 
         add(mainPanel);
+        pack();
     }
 
-    public void setSearchToolDialog(SearchToolDialog dialog) {
+    public void setSearchData(SearchToolDialog dialog, Experiment experiment) {
         this.searchToolDialog = dialog;
+        this.newExperimentData = experiment;
     }
 
     private class ToolButtonListener implements ActionListener {
@@ -77,12 +85,11 @@ public class SearchResultDialog extends JDialog {
                     timeTableDialog,
                     tool.getToolTypeId()
             );
+            newExperimentDialog.setNewExperimentData(newExperimentData);
             newExperimentDialog.setToolId(tool.getId());
             newExperimentDialog.setModal(true);
             newExperimentDialog.setVisible(true);
             timeTableDialog.setVisible(true);
-
-            System.out.println("tool button listener");
         }
     }
 }

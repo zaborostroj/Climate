@@ -705,6 +705,9 @@ public class DBQuery {
         if (toolData.getPlacement() != null) {
             neededToolsQuery += " AND placement = \'" + toolData.getPlacement() + "\'";
         }
+        if (toolData.getToolTypeId() != null) {
+            neededToolsQuery += " AND tool_type = \'" + toolData.getToolTypeId() + "\'";
+        }
 
         String resultToolsQuery = "SELECT * FROM " + toolsTableName +
                 " WHERE id IN (";
@@ -736,7 +739,6 @@ public class DBQuery {
                 resultToolsQuery += " ORDER BY placement";
                 resultSet = statement.executeQuery(resultToolsQuery);
                 while (resultSet.next()) {
-                    System.out.println(resultSet.getString("id") + " " + resultSet.getString("name"));
                     Tool curTool = new Tool();
                     curTool.setId(resultSet.getString("id"));
                     curTool.setSerialNumber(resultSet.getString("serial_number"));

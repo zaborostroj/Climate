@@ -145,15 +145,12 @@ public class SearchToolDialog extends JDialog {
             if (isAllFieldsFilled()) {
                 ArrayList<Tool> tools = new DBQuery().findTools(getExperimentData(), getToolData());
                 if (tools.size() > 0) {
-                    for (Tool t : tools) {
-                        t.print();
-                    }
                     SearchResultDialog searchResultDialog = new SearchResultDialog(tools, mainWindow);
-                    searchResultDialog.setSearchToolDialog(searchToolDialog);
+                    searchResultDialog.setSearchData(searchToolDialog, getExperimentData());
                     searchResultDialog.setModal(true);
                     searchResultDialog.setVisible(true);
                 } else {
-                    System.out.println("Свободного оборудования не найдено");
+                    messageLabel.setText("Свободного оборудования не найдено");
                 }
             } else {
                 messageLabel.setText("Все поля должны быть заполнены!");
@@ -201,6 +198,12 @@ public class SearchToolDialog extends JDialog {
             String placement = MainWindow.toolPlacements.getPlacementIdByName(placementCombo.getSelectedItem()
                     .toString());
             toolData.setPlacement(placement);
+        }
+
+        String expTypeName = typeCombo.getSelectedItem().toString();
+        if ( ! expTypeName.equals(NO_MATTER)) {
+            String toolTypeId = MainWindow.experimentTypes.getToolTypeIdByExpName(expTypeName);
+            toolData.setToolTypeId(toolTypeId);
         }
         return toolData;
     }

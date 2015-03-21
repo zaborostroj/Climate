@@ -218,6 +218,18 @@ public class NewExperimentDialog extends JDialog {
         this.toolId = toolId;
     }
 
+    public void setNewExperimentData(Experiment newExperiment) {
+        decNumberField.setText(newExperiment.getDecNumber());
+        nameField.setText(newExperiment.getName());
+        serialNumberField.setText(newExperiment.getSerialNumber());
+        orderField.setText(newExperiment.getOrder());
+        startTimeSpinner.setValue(newExperiment.getStartTime());
+        startDateChooser.setDate(newExperiment.getStartTime());
+        endTimeSpinner.setValue(newExperiment.getEndTime());
+        endDateChooser.setDate(newExperiment.getEndTime());
+        descriptionCombo.setSelectedItem(MainWindow.experimentTypes.getExpNameById(newExperiment.getExperimentTypeId()));
+    }
+
     class addExperimentCancelListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             decNumberField.setText("");

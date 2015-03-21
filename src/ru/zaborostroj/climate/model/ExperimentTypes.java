@@ -54,6 +54,15 @@ public class ExperimentTypes {
         return expNames;
     }
 
+    public String getToolTypeIdByExpName(String expName) {
+        for (ExpType expType : experimentTypes) {
+            if (expType.getName().equals(expName)) {
+                return expType.getToolTypeId();
+            }
+        }
+        return "";
+    }
+
     private class ExpType {
         private String id;
         private String name;

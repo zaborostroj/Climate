@@ -76,7 +76,7 @@ public class Tool {
         this.certification = certification;
     }
 
-    public void print() {
+    /*public void print() {
         System.out.println(id + " | " +
                 serialNumber + " | " +
                 description + " | " +
@@ -85,5 +85,5 @@ public class Tool {
                 placement + " | " +
                 statement + " | " +
                 certification);
-    }
+    }*/
 }
