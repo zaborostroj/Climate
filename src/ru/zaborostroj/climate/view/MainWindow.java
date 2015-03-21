@@ -84,7 +84,7 @@ public class MainWindow extends JFrame {
 
     private class SearchToolButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            SearchToolDialog searchToolDialog = new SearchToolDialog();
+            SearchToolDialog searchToolDialog = new SearchToolDialog(mainWindow);
             searchToolDialog.setModal(true);
             searchToolDialog.setVisible(true);
         }

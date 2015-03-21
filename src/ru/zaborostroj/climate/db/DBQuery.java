@@ -733,6 +733,7 @@ public class DBQuery {
                         resultToolsQuery += "\'" + neededIds.get(i) + "\')";
                     }
                 }
+                resultToolsQuery += " ORDER BY placement";
                 resultSet = statement.executeQuery(resultToolsQuery);
                 while (resultSet.next()) {
                     System.out.println(resultSet.getString("id") + " " + resultSet.getString("name"));

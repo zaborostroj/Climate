@@ -71,7 +71,7 @@ public class TimeTableDialog extends JDialog {
         return new DBQuery().getExperiments(cameraId);
     }
 
-    private class addExperimentButtonListener implements ActionListener {
+    public class addExperimentButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             NewExperimentDialog newExperimentDialog = new NewExperimentDialog(

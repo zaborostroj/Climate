@@ -24,6 +24,7 @@ public class SearchToolDialog extends JDialog {
     private static final DateFormat SQL_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private static final String NO_MATTER = "Не важно";
 
+    private MainWindow mainWindow;
     private JLabel messageLabel;
     private JSpinner startTimeSpinner;
     private JDateChooser startDateChooser;
@@ -31,8 +32,11 @@ public class SearchToolDialog extends JDialog {
     private JDateChooser endDateChooser;
     private JComboBox<String> placementCombo;
     private JComboBox<String> typeCombo;
+    private SearchToolDialog searchToolDialog;
 
-    public SearchToolDialog() {
+    public SearchToolDialog(MainWindow mainWindow) {
+        searchToolDialog = this;
+        this.mainWindow = mainWindow;
         setTitle("Поиск оборудования");
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel messagePanel = new JPanel();
@@ -144,6 +148,10 @@ public class SearchToolDialog extends JDialog {
                     for (Tool t : tools) {
                         t.print();
                     }
+                    SearchResultDialog searchResultDialog = new SearchResultDialog(tools, mainWindow);
+                    searchResultDialog.setSearchToolDialog(searchToolDialog);
+                    searchResultDialog.setModal(true);
+                    searchResultDialog.setVisible(true);
                 } else {
                     System.out.println("Свободного оборудования не найдено");
                 }
