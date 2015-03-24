@@ -1,4 +1,6 @@
 package ru.zaborostroj.climate.model;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -87,17 +89,20 @@ public class Experiment {
         this.experimentTypeId = experimentTypeId;
     }
 
-//    public void println() {
-//        System.out.println(
-//                getId() + " " +
-//                getCameraId() + " " +
-//                getStartTime() + " " +
-//                getEndTime() + " " +
-//                getDecNumber() + " " +
-//                getSerialNumber() + " " +
-//                getName() + " " +
-//                getOrder() + " " +
-//                getExperimentTypeId()
-//        );
-//    }
+    public void println() {
+        DateFormat dateTimeFormat = new SimpleDateFormat("HH:mm dd.MM.yyyy");
+        String startDateTime = dateTimeFormat.format(getStartTime());
+        String endDateTime = dateTimeFormat.format(getEndTime());
+        System.out.println(
+                getId() + " " +
+                getCameraId() + " " +
+                startDateTime + " " +
+                endDateTime + " " +
+                getDecNumber() + " " +
+                getSerialNumber() + " " +
+                getName() + " " +
+                getOrder() + " " +
+                getExperimentTypeId()
+        );
+    }
 }

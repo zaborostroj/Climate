@@ -772,4 +772,57 @@ public class DBQuery {
         }
         return tools;
     }
+
+    public ArrayList<Experiment> findExperiments(Experiment experimentData) {
+        ArrayList<Experiment> experiments = new ArrayList<>();
+
+        String startTime = SQL_DATE_FORMAT.format(experimentData.getStartTime());
+        String query = "SELECT * FROM `" + timeTableName + "`" +
+                " WHERE `start_time` >= \'" + startTime + "\'" +
+                " ORDER BY `camera_id`, `start_time`";
+
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+
+                Experiment experiment = new Experiment();
+                experiment.setId(resultSet.getString("id"));
+                experiment.setCameraId(resultSet.getString("camera_id"));
+                Date startDateTime = SQL_DATE_FORMAT.parse(resultSet.getString("start_time"));
+                experiment.setStartTime(startDateTime);
+                Date endDateTime = SQL_DATE_FORMAT.parse(resultSet.getString("end_time"));
+                experiment.setEndTime(endDateTime);
+                experiment.setDecNumber(resultSet.getString("dec_number"));
+                experiment.setName(resultSet.getString("name"));
+                experiment.setSerialNumber(resultSet.getString("serial_number"));
+                experiment.setOrder(resultSet.getString("order"));
+                experiment.setExperimentTypeId(resultSet.getString("description"));
+                experiments.add(experiment);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return experiments;
+    }
 }

@@ -3,9 +3,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -43,6 +41,14 @@ public class MainWindow extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+//        Calendar rightNow = Calendar.getInstance();
+//        Date d = new Date();
+//        System.out.println(d);
+//        rightNow.setTime(d);
+//        rightNow.add(Calendar.HOUR, 48);
+//        d = rightNow.getTime();
+//        System.out.println(d);
 
         new MainWindow();
     }
