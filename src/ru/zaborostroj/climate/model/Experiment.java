@@ -8,7 +8,7 @@ import java.util.Date;
  */
 public class Experiment {
     private String id;
-    private String cameraId;
+    private String toolId;
     private Date startTime;
     private Date endTime;
     private String decNumber;
@@ -25,12 +25,12 @@ public class Experiment {
         this.id = id;
     }
 
-    public String getCameraId() {
-        return cameraId;
+    public String getToolId() {
+        return toolId;
     }
 
-    public void setCameraId(String cameraId) {
-        this.cameraId = cameraId;
+    public void setToolId(String toolId) {
+        this.toolId = toolId;
     }
 
     public Date getStartTime() {
@@ -95,7 +95,7 @@ public class Experiment {
         String endDateTime = dateTimeFormat.format(getEndTime());
         System.out.println(
                 getId() + " " +
-                getCameraId() + " " +
+                getToolId() + " " +
                 startDateTime + " " +
                 endDateTime + " " +
                 getDecNumber() + " " +

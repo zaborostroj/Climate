@@ -300,7 +300,7 @@ public class NewExperimentDialog extends JDialog {
         newExperiment.setExperimentTypeId(description);
         newExperiment.setDecNumber(decNumberField.getText());
         newExperiment.setName(nameField.getText());
-        newExperiment.setCameraId(toolId);
+        newExperiment.setToolId(toolId);
         newExperiment.setSerialNumber(serialNumberField.getText());
         newExperiment.setOrder(orderField.getText());
 

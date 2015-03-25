@@ -226,7 +226,7 @@ public class DBQuery {
             while (resultSet.next()) {
                 Experiment experiment = new Experiment();
                 experiment.setId(resultSet.getString(1));
-                experiment.setCameraId(resultSet.getString(2));
+                experiment.setToolId(resultSet.getString(2));
                 experiment.setStartTime(SQL_DATE_FORMAT.parse(resultSet.getString("START_TIME")));
                 experiment.setEndTime(SQL_DATE_FORMAT.parse(resultSet.getString("END_TIME")));
                 experiment.setDecNumber(resultSet.getString(5));
@@ -280,7 +280,7 @@ public class DBQuery {
 
             if (resultSet.next()) {
                 curExp.setId(resultSet.getString("id"));
-                curExp.setCameraId(resultSet.getString("camera_id"));
+                curExp.setToolId(resultSet.getString("camera_id"));
                 curExp.setStartTime(SQL_DATE_FORMAT.parse(resultSet.getString("start_time")));
                 curExp.setEndTime(SQL_DATE_FORMAT.parse(resultSet.getString("end_time")));
                 curExp.setDecNumber(resultSet.getString("dec_number"));
@@ -332,7 +332,7 @@ public class DBQuery {
 
             if (resultSet.next()) {
                 curExp.setId(resultSet.getString("id"));
-                curExp.setCameraId(resultSet.getString("camera_id"));
+                curExp.setToolId(resultSet.getString("camera_id"));
                 curExp.setStartTime(SQL_DATE_FORMAT.parse(resultSet.getString("start_time")));
                 curExp.setEndTime(SQL_DATE_FORMAT.parse(resultSet.getString("end_time")));
                 curExp.setDecNumber(resultSet.getString("dec_number"));
@@ -574,7 +574,7 @@ public class DBQuery {
     }
 
     public String addExperiment(Experiment experiment) {
-        String cameraId = experiment.getCameraId();
+        String cameraId = experiment.getToolId();
 
         String startTime = SQL_DATE_FORMAT.format(experiment.getStartTime());
         String endTime = SQL_DATE_FORMAT.format(experiment.getEndTime());
@@ -684,94 +684,94 @@ public class DBQuery {
         return "OK";
     }
 
-    public ArrayList<Tool> findTools(Experiment experimentData, Tool toolData) {
-        ArrayList<Tool> tools = new ArrayList<>();
-        String ST = SQL_DATE_FORMAT.format(experimentData.getStartTime());
-        String ET = SQL_DATE_FORMAT.format(experimentData.getEndTime());
-        Connection connection = null;
-        Statement statement = null;
-
-        ArrayList<String> badIds = new ArrayList<>();
-        ArrayList<String> neededIds = new ArrayList<>();
-
-        String badToolsQuery = "SELECT camera_id FROM " + timeTableName +
-                " WHERE" +
-                " (start_time <= \'" + ST + "\' AND end_time >= \'" + ST + "\') OR" +
-                " (start_time <= \'" + ET + "\' AND end_time >= \'" + ET + "\') OR" +
-                " (start_time <= \'" + ST + "\' AND end_time >= \'" + ET + "\')";
-
-        String neededToolsQuery = "SELECT * FROM " + toolsTableName +
-                " WHERE statement = \'\'";
-        if (toolData.getPlacement() != null) {
-            neededToolsQuery += " AND placement = \'" + toolData.getPlacement() + "\'";
-        }
-        if (toolData.getToolTypeId() != null) {
-            neededToolsQuery += " AND tool_type = \'" + toolData.getToolTypeId() + "\'";
-        }
-
-        String resultToolsQuery = "SELECT * FROM " + toolsTableName +
-                " WHERE id IN (";
-
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-            statement = connection.createStatement();
-
-            ResultSet resultSet = statement.executeQuery(badToolsQuery);
-            while (resultSet.next()) {
-                badIds.add(resultSet.getString("camera_id"));
-            }
-
-            resultSet = statement.executeQuery(neededToolsQuery);
-            while (resultSet.next()) {
-                neededIds.add(resultSet.getString("id"));
-            }
-
-            neededIds.removeAll(badIds);
-            if (neededIds.size() > 0) {
-                for (int i = 0; i < neededIds.size(); i++) {
-                    if (i < neededIds.size() - 1) {
-                        resultToolsQuery += "\'" + neededIds.get(i) + "\',";
-                    } else {
-                        resultToolsQuery += "\'" + neededIds.get(i) + "\')";
-                    }
-                }
-                resultToolsQuery += " ORDER BY placement";
-                resultSet = statement.executeQuery(resultToolsQuery);
-                while (resultSet.next()) {
-                    Tool curTool = new Tool();
-                    curTool.setId(resultSet.getString("id"));
-                    curTool.setSerialNumber(resultSet.getString("serial_number"));
-                    curTool.setDescription(resultSet.getString("description"));
-                    curTool.setName(resultSet.getString("name"));
-                    curTool.setToolTypeId(resultSet.getString("tool_type"));
-                    curTool.setPlacement(resultSet.getString("placement"));
-                    curTool.setStatement(resultSet.getString("statement"));
-                    curTool.setCertification(resultSet.getDate("certification"));
-                    tools.add(curTool);
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return tools;
-    }
+//    public ArrayList<Tool> findTools(Experiment experimentData, Tool toolData) {
+//        ArrayList<Tool> tools = new ArrayList<>();
+//        String ST = SQL_DATE_FORMAT.format(experimentData.getStartTime());
+//        String ET = SQL_DATE_FORMAT.format(experimentData.getEndTime());
+//        Connection connection = null;
+//        Statement statement = null;
+//
+//        ArrayList<String> badIds = new ArrayList<>();
+//        ArrayList<String> neededIds = new ArrayList<>();
+//
+//        String badToolsQuery = "SELECT camera_id FROM " + timeTableName +
+//                " WHERE" +
+//                " (start_time <= \'" + ST + "\' AND end_time >= \'" + ST + "\') OR" +
+//                " (start_time <= \'" + ET + "\' AND end_time >= \'" + ET + "\') OR" +
+//                " (start_time <= \'" + ST + "\' AND end_time >= \'" + ET + "\')";
+//
+//        String neededToolsQuery = "SELECT * FROM " + toolsTableName +
+//                " WHERE statement = \'\'";
+//        if (toolData.getPlacement() != null) {
+//            neededToolsQuery += " AND placement = \'" + toolData.getPlacement() + "\'";
+//        }
+//        if (toolData.getToolTypeId() != null) {
+//            neededToolsQuery += " AND tool_type = \'" + toolData.getToolTypeId() + "\'";
+//        }
+//
+//        String resultToolsQuery = "SELECT * FROM " + toolsTableName +
+//                " WHERE id IN (";
+//
+//        try {
+//            Class.forName("com.mysql.jdbc.Driver");
+//            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+//            statement = connection.createStatement();
+//
+//            ResultSet resultSet = statement.executeQuery(badToolsQuery);
+//            while (resultSet.next()) {
+//                badIds.add(resultSet.getString("camera_id"));
+//            }
+//
+//            resultSet = statement.executeQuery(neededToolsQuery);
+//            while (resultSet.next()) {
+//                neededIds.add(resultSet.getString("id"));
+//            }
+//
+//            neededIds.removeAll(badIds);
+//            if (neededIds.size() > 0) {
+//                for (int i = 0; i < neededIds.size(); i++) {
+//                    if (i < neededIds.size() - 1) {
+//                        resultToolsQuery += "\'" + neededIds.get(i) + "\',";
+//                    } else {
+//                        resultToolsQuery += "\'" + neededIds.get(i) + "\')";
+//                    }
+//                }
+//                resultToolsQuery += " ORDER BY placement";
+//                resultSet = statement.executeQuery(resultToolsQuery);
+//                while (resultSet.next()) {
+//                    Tool curTool = new Tool();
+//                    curTool.setId(resultSet.getString("id"));
+//                    curTool.setSerialNumber(resultSet.getString("serial_number"));
+//                    curTool.setDescription(resultSet.getString("description"));
+//                    curTool.setName(resultSet.getString("name"));
+//                    curTool.setToolTypeId(resultSet.getString("tool_type"));
+//                    curTool.setPlacement(resultSet.getString("placement"));
+//                    curTool.setStatement(resultSet.getString("statement"));
+//                    curTool.setCertification(resultSet.getDate("certification"));
+//                    tools.add(curTool);
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (statement != null) {
+//                try {
+//                    statement.close();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (connection != null) {
+//                try {
+//                    connection.close();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//        return tools;
+//    }
 
     public ArrayList<Experiment> findExperiments(Experiment experimentData) {
         ArrayList<Experiment> experiments = new ArrayList<>();
@@ -793,7 +793,7 @@ public class DBQuery {
 
                 Experiment experiment = new Experiment();
                 experiment.setId(resultSet.getString("id"));
-                experiment.setCameraId(resultSet.getString("camera_id"));
+                experiment.setToolId(resultSet.getString("camera_id"));
                 Date startDateTime = SQL_DATE_FORMAT.parse(resultSet.getString("start_time"));
                 experiment.setStartTime(startDateTime);
                 Date endDateTime = SQL_DATE_FORMAT.parse(resultSet.getString("end_time"));

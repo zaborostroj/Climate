@@ -41,7 +41,7 @@ public class TimeTableModel extends AbstractTableModel{
         String endDateTime = dateTimeFormat.format(experiment.getEndTime());
         switch (columnIndex) {
             case 0: return experiment.getId();
-            case 1: return experiment.getCameraId();
+            case 1: return experiment.getToolId();
             case 2: return startDateTime;
             case 3: return endDateTime;
             case 4: return experiment.getName();

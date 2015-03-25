@@ -2,14 +2,13 @@ package ru.zaborostroj.climate.view;
 import com.toedter.calendar.JDateChooser;
 import ru.zaborostroj.climate.db.DBQuery;
 import ru.zaborostroj.climate.model.Experiment;
+import ru.zaborostroj.climate.model.SearchResult;
 import ru.zaborostroj.climate.model.Tool;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,17 +18,17 @@ import java.util.Date;
  */
 public class SearchToolDialog extends JDialog {
     private static final Insets INSETS = new Insets(3,3,3,3);
-    private static final DateFormat SQL_DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final DateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static final DateFormat SQL_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    //private static final DateFormat SQL_DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    //private static final DateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    //private static final DateFormat SQL_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private static final String NO_MATTER = "Не важно";
 
     private MainWindow mainWindow;
     private JLabel messageLabel;
-    private JSpinner startTimeSpinner;
+    //private JSpinner startTimeSpinner;
     private JDateChooser startDateChooser;
-    private JSpinner endTimeSpinner;
-    private JDateChooser endDateChooser;
+    //private JSpinner endTimeSpinner;
+    //private JDateChooser endDateChooser;
     private JTextField durationField;
     private JComboBox<String> placementCombo;
     private JComboBox<String> typeCombo;
@@ -57,16 +56,6 @@ public class SearchToolDialog extends JDialog {
         gbc.gridy = 0;
         fieldsPanel.add(new JLabel("Дата испытания"), gbc);
 
-//        gbc.gridx = 1;
-//        gbc.gridy = 0;
-//        gbc.gridwidth = 1;
-//        startTimeSpinner = new JSpinner(new SpinnerDateModel());
-//        JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(startTimeSpinner, "HH:mm");
-//        startTimeSpinner.setEditor(startTimeEditor);
-//        startTimeSpinner.setValue(new Date());
-//        startTimeSpinner.setModel(new SpinnerDateModel());
-//        fieldsPanel.add(startTimeSpinner, gbc);
-
         gbc.gridx = 1;
         gbc.gridy = 0;
         startDateChooser = new JDateChooser("dd.MM.yyyy", "##.##.####", '_');
@@ -82,23 +71,6 @@ public class SearchToolDialog extends JDialog {
         gbc.gridy = 1;
         durationField = new JTextField();
         fieldsPanel.add(durationField, gbc);
-
-//        gbc.gridx = 1;
-//        gbc.gridy = 1;
-//        gbc.gridwidth = 1;
-//        endTimeSpinner = new JSpinner(new SpinnerDateModel());
-//        JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(endTimeSpinner, "HH:mm");
-//        endTimeSpinner.setEditor(endTimeEditor);
-//        endTimeSpinner.setValue(new Date());
-//        endTimeSpinner.setModel(new SpinnerDateModel());
-//        fieldsPanel.add(endTimeSpinner, gbc);
-//
-//        gbc.gridx = 2;
-//        gbc.gridy = 1;
-//        gbc.gridwidth = 1;
-//        endDateChooser = new JDateChooser("dd.MM.yyyy", "##.##.####", '_');
-//        endDateChooser.setDate(new Date());
-//        fieldsPanel.add(endDateChooser, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -145,26 +117,9 @@ public class SearchToolDialog extends JDialog {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (isAllFieldsFilled()) {
-                System.out.println("1");
-                ArrayList<Experiment> experiments = new DBQuery().findExperiments(getExperimentData());
-                for (int i = 0; i < experiments.size() - 1; i++) {
-                    Experiment exp1 = experiments.get(i);
-                    Experiment exp2 = experiments.get(i + 1);
-                    if (exp1.getCameraId().equals(exp2.getCameraId()) &&
-                        exp1.getExperimentTypeId().equals(exp2.getExperimentTypeId())
-                    ) {
-                        Calendar calendar = Calendar.getInstance();
-                        Date d = exp1.getEndTime();
-                        calendar.setTime(d);
-                        calendar.add(Calendar.HOUR, expDuration);
-                        d = calendar.getTime();
-                        if (d.before(exp2.getStartTime())) {
-                            System.out.println("tool ID: " + exp1.getCameraId());
-                            System.out.print("    exp1: "); exp1.println();
-                            System.out.println("    " + d);
-                            System.out.print("    exp2: "); exp2.println();
-                        }
-                    }
+                ArrayList<SearchResult> freeTools = getFreeTools();
+                for (SearchResult sr : freeTools) {
+                    sr.println();
                 }
             } else {
                 messageLabel.setText("Все поля должны быть заполнены!");
@@ -197,14 +152,16 @@ public class SearchToolDialog extends JDialog {
         startDateTime = cal.getTime();
         experiment.setStartTime(startDateTime);
 
-        String expTypeId = MainWindow.experimentTypes.getExpIdByName((String) typeCombo.getSelectedItem());
-        experiment.setExperimentTypeId(expTypeId);
+        if ( ! typeCombo.getSelectedItem().equals(NO_MATTER)) {
+            String expTypeId = MainWindow.experimentTypes.getExpIdByName((String) typeCombo.getSelectedItem());
+            experiment.setExperimentTypeId(expTypeId);
+        }
 
         expDuration = Integer.valueOf(durationField.getText());
         return experiment;
     }
 
-    private Tool getToolData() {
+    /*private Tool getToolData() {
         Tool toolData = new Tool();
         if ( ! placementCombo.getSelectedItem().toString().equals(NO_MATTER)) {
             String placement = MainWindow.toolPlacements.getPlacementIdByName(placementCombo.getSelectedItem()
@@ -218,5 +175,44 @@ public class SearchToolDialog extends JDialog {
             toolData.setToolTypeId(toolTypeId);
         }
         return toolData;
+    }*/
+
+    private ArrayList<SearchResult> getFreeTools() {
+        Experiment experiment = getExperimentData();
+        ArrayList<Experiment> experiments = new DBQuery().findExperiments(experiment);
+        ArrayList<SearchResult> searchResults = new ArrayList<>();
+
+        for (int i = 0; i < experiments.size() - 1; i++) {
+            Experiment exp1 = experiments.get(i);
+            Experiment exp2 = experiments.get(i + 1);
+            if (exp1.getToolId().equals(exp2.getToolId()) &&
+                    exp1.getExperimentTypeId().equals(exp2.getExperimentTypeId())
+            ) {
+                Calendar calendar = Calendar.getInstance();
+                Date d = exp1.getEndTime();
+                calendar.setTime(d);
+                calendar.add(Calendar.HOUR, expDuration);
+                calendar.add(Calendar.MINUTE, 1);
+                d = calendar.getTime();
+                if (d.before(exp2.getStartTime())) {
+                    SearchResult searchResult = new SearchResult();
+                    searchResult.setToolId(exp1.getToolId());
+                    searchResult.setExp1Id(exp1.getId());
+                    searchResult.setExp2Id(exp2.getId());
+                    searchResult.setDurationHours(expDuration);
+                    searchResult.setExpTypeId(experiment.getExperimentTypeId());
+
+                    searchResult.setEndDateTime(d);
+
+                    d = exp1.getEndTime();
+                    calendar.setTime(d);
+                    calendar.add(Calendar.MINUTE, 1);
+                    d = calendar.getTime();
+                    searchResult.setStartDateTime(d);
+                    searchResults.add(searchResult);
+                }
+            }
+        }
+        return searchResults;
     }
 }
