@@ -42,14 +42,6 @@ public class MainWindow extends JFrame {
             e.printStackTrace();
         }
 
-//        Calendar rightNow = Calendar.getInstance();
-//        Date d = new Date();
-//        System.out.println(d);
-//        rightNow.setTime(d);
-//        rightNow.add(Calendar.HOUR, 48);
-//        d = rightNow.getTime();
-//        System.out.println(d);
-
         new MainWindow();
     }
 
@@ -124,19 +116,14 @@ public class MainWindow extends JFrame {
             panel.setBorder(BorderFactory.createTitledBorder(toolPlacements.getPlacementNameById(placementId)));
             panel.setLayout(new FlowLayout());
             panels.put(placementId, panel);
-            toolsPanel.add(panel);
+            JScrollPane toolScrollPane = new JScrollPane(panel);
+            toolScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            toolsPanel.add(toolScrollPane);
         }
 
         for (Tool tool : tools) {
             ToolPanel panel = new ToolPanel(tool, mainWindow);
             panels.get(tool.getPlacement()).add(panel);
-        }
-
-        for (String placementName : toolPlacements.getPlacementsNames()) {
-            JPanel panel = panels.get(placementName);
-            JScrollPane toolScrollPane = new JScrollPane(panel);
-            toolScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-            toolsPanel.add(toolScrollPane);
         }
 
         return toolsPanel;
