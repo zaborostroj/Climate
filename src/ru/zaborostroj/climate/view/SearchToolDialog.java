@@ -135,8 +135,10 @@ public class SearchToolDialog extends JDialog {
 
     private Tool getToolData() {
         String toolPlacement = (String) placementCombo.getSelectedItem();
+        String toolType = (String) typeCombo.getSelectedItem();
         Tool tool = new Tool();
         tool.setPlacement(MainWindow.toolPlacements.getPlacementIdByName(toolPlacement));
+        tool.setToolTypeId(MainWindow.experimentTypes.getToolTypeIdByExpName(toolType));
         return tool;
     }
 
@@ -165,7 +167,9 @@ public class SearchToolDialog extends JDialog {
 
     private ArrayList<SearchResult> getFreeTools() {
         ArrayList<String> toolIds = new ArrayList<>();
-        if (!placementCombo.getSelectedItem().equals(NO_MATTER)) {
+        if (!placementCombo.getSelectedItem().equals(NO_MATTER) ||
+                !typeCombo.getSelectedItem().equals(NO_MATTER)) {
+
             Tool toolData = getToolData();
             toolIds = new DBQuery().findTools(toolData);
             for (String s : toolIds) {

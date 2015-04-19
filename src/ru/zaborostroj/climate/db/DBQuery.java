@@ -686,8 +686,17 @@ public class DBQuery {
 
     public ArrayList<String> findTools(Tool toolData) {
         ArrayList<String> toolIds = new ArrayList<>();
-        String query = "SELECT * FROM `" + toolsTableName + "`" +
-                " WHERE placement = \'" + toolData.getPlacement() + "\'";
+        String query = "SELECT * FROM `" + toolsTableName + "` WHERE" +
+                " statement != 'broken'";
+
+        if (!toolData.getPlacement().equals("") && !toolData.getToolTypeId().equals("")) {
+            query += " AND placement = \'" + toolData.getPlacement() + "\'";
+            query += " AND tool_type = \'" + toolData.getToolTypeId() + "\'";
+        } else if (!toolData.getPlacement().equals("")) {
+            query += " AND placement = \'" + toolData.getPlacement() + "\'";
+        } else if (!toolData.getToolTypeId().equals("")) {
+            query += " AND tool_type = \'" + toolData.getToolTypeId() + "\'";
+        }
 
         Connection connection = null;
         Statement statement = null;
@@ -743,7 +752,6 @@ public class DBQuery {
         }
 
         query += " ORDER BY `camera_id`, `start_time`";
-        System.out.println(query);
 
         Connection connection = null;
         Statement statement = null;
