@@ -7,6 +7,9 @@ import java.util.Date;
  */
 public class SearchResult {
     private String toolId;
+    private String toolTypeId;
+    private String toolName;
+    private String toolPlacement;
     private Date startDateTime;
     private Date endDateTime;
     private String exp1Id;
@@ -20,6 +23,30 @@ public class SearchResult {
 
     public void setToolId(String toolId) {
         this.toolId = toolId;
+    }
+
+    public String getToolTypeId() {
+        return toolTypeId;
+    }
+
+    public void setToolTypeId(String toolTypeId) {
+        this.toolTypeId = toolTypeId;
+    }
+
+    public String getToolName() {
+        return toolName;
+    }
+
+    public void setToolName(String toolName) {
+        this.toolName = toolName;
+    }
+
+    public String getToolPlacement() {
+        return toolPlacement;
+    }
+
+    public void setToolPlacement(String toolPlacement) {
+        this.toolPlacement = toolPlacement;
     }
 
     public Date getStartDateTime() {
@@ -73,6 +100,7 @@ public class SearchResult {
     public void println() {
         System.out.println(
                 getToolId() + " | " +
+                getToolTypeId() + " | " +
                 getStartDateTime() + " | " +
                 getEndDateTime() + " | " +
                 getExp1Id() + " | " +

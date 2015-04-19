@@ -133,7 +133,7 @@ public class NewToolDialog extends JDialog{
         add(newToolMainPanel);
         setSize(300, 270);
         setLocation(20, 400);
-        setVisible(true);
+        //setVisible(true);
     }
 
     class newToolAddButtonListener implements ActionListener {

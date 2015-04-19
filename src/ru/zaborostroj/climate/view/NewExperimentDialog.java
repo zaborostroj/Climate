@@ -13,12 +13,12 @@ import ru.zaborostroj.climate.db.DBQuery;
 import ru.zaborostroj.climate.model.Experiment;
 
 import com.toedter.calendar.JDateChooser;
+import ru.zaborostroj.climate.model.SearchResult;
 
 public class NewExperimentDialog extends JDialog {
 
     private static final long serialVersionUID = 1L;
 
-    private JPanel addExperimentFieldsPanel;
     private JLabel addExperimentMessageLabel;
     private String toolId;
     private JComboBox<String> descriptionCombo;
@@ -39,6 +39,9 @@ public class NewExperimentDialog extends JDialog {
     private static final DateFormat SQL_DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final Insets INSETS = new Insets(3,3,3,3);
 
+    private SearchToolDialog searchToolDialog;
+    private SearchResultDialog searchResultDialog;
+
     public NewExperimentDialog(MainWindow mainWindow, TimeTableDialog timeTableDialog, String toolTypeId) {
         this.mainWindow = mainWindow;
         this.timeTableDialog = timeTableDialog;
@@ -48,7 +51,7 @@ public class NewExperimentDialog extends JDialog {
 
         JPanel addExperimentMainPanel = new JPanel(new BorderLayout());
         JPanel addExperimentErrorPanel = new JPanel();
-        addExperimentFieldsPanel = new JPanel();
+        JPanel addExperimentFieldsPanel = new JPanel();
         JPanel buttonsPanel = new JPanel();
         addExperimentMainPanel.add(addExperimentErrorPanel, BorderLayout.PAGE_START);
         addExperimentMainPanel.add(addExperimentFieldsPanel, BorderLayout.CENTER);
@@ -65,7 +68,7 @@ public class NewExperimentDialog extends JDialog {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.insets = INSETS;
-        addExperimentFieldsPanel.add(new JLabel("Начало испытания"),gbc);
+        addExperimentFieldsPanel.add(new JLabel("Начало испытания"), gbc);
 
         startDateChooser = new JDateChooser("dd.MM.yyyy", "##.##.####", '_');
         startDateChooser.setDate(new Date());
@@ -90,7 +93,7 @@ public class NewExperimentDialog extends JDialog {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.insets = INSETS;
-        addExperimentFieldsPanel.add(new JLabel("Окончание испытания"),gbc);
+        addExperimentFieldsPanel.add(new JLabel("Окончание испытания"), gbc);
 
         endDateChooser = new JDateChooser("dd.MM.yyyy", "##.##.####", '_');
         endDateChooser.setDate(new Date());
@@ -214,20 +217,16 @@ public class NewExperimentDialog extends JDialog {
         setLocation(100, 400);
     }
 
-    public void setToolId(String toolId) {
-        this.toolId = toolId;
+    public void setNewExperimentData(SearchResult searchResult) {
+        startTimeSpinner.setValue(searchResult.getStartDateTime());
+        startDateChooser.setDate(searchResult.getStartDateTime());
+        endTimeSpinner.setValue(searchResult.getEndDateTime());
+        endDateChooser.setDate(searchResult.getEndDateTime());
+
     }
 
-    public void setNewExperimentData(Experiment newExperiment) {
-        decNumberField.setText(newExperiment.getDecNumber());
-        nameField.setText(newExperiment.getName());
-        serialNumberField.setText(newExperiment.getSerialNumber());
-        orderField.setText(newExperiment.getOrder());
-        startTimeSpinner.setValue(newExperiment.getStartTime());
-        startDateChooser.setDate(newExperiment.getStartTime());
-        endTimeSpinner.setValue(newExperiment.getEndTime());
-        endDateChooser.setDate(newExperiment.getEndTime());
-        descriptionCombo.setSelectedItem(MainWindow.experimentTypes.getExpNameById(newExperiment.getExperimentTypeId()));
+    public void setToolId(String toolId) {
+        this.toolId = toolId;
     }
 
     class addExperimentCancelListener implements ActionListener {
@@ -258,23 +257,32 @@ public class NewExperimentDialog extends JDialog {
                 String result = new DBQuery().addExperiment(newExperiment);
 
                 if (result.equals("OK")) {
+
+
+                    if (searchToolDialog != null) {
+                        searchToolDialog.setVisible(false);
+                        searchToolDialog.dispose();
+                        System.out.println("searchToolDialog close");
+                    }
+
+                    if (searchResultDialog != null) {
+                        searchResultDialog.setVisible(false);
+                        searchResultDialog.dispose();
+                        System.out.println("searchResultDialog close");
+                    }
+
+                    NewExperimentDialog.this.setVisible(false);
+
                     timeTableDialog.makeTimeTable(toolId);
+                    timeTableDialog.setVisible(true);
                     mainWindow.refreshToolsPanel();
 
-                    addExperimentMessageLabel.setText("Заполните данные эксперимента");
-                    for (Component component : addExperimentFieldsPanel.getComponents()) {
-                        if (component.getClass() == JTextField.class) {
-                            JTextField tf = (JTextField) component;
-                            tf.setText("");
-                        }
-                    }
+                    NewExperimentDialog.this.dispose();
                 } else {
                     JOptionPane.showMessageDialog(NewExperimentDialog.this, result);
-
                     addExperimentMessageLabel.setText(result);
                 }
 
-                NewExperimentDialog.this.setVisible(false);
             }
         }
     }
@@ -305,5 +313,10 @@ public class NewExperimentDialog extends JDialog {
         newExperiment.setOrder(orderField.getText());
 
         return newExperiment;
+    }
+
+    public void setObjectsToHide(SearchToolDialog std, SearchResultDialog srd) {
+        this.searchToolDialog = std;
+        this.searchResultDialog = srd;
     }
 }

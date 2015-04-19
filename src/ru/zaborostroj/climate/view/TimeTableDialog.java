@@ -19,6 +19,7 @@ public class TimeTableDialog extends JDialog {
     private JTable timeTable = new JTable();
 
     public TimeTableDialog(MainWindow mainWindow, Tool curTool) {
+        super(mainWindow);
         this.mainWindow = mainWindow;
         this.tool = curTool;
         setSize(900, 300);

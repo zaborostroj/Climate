@@ -1,13 +1,14 @@
 package ru.zaborostroj.climate.view;
 
-
-import ru.zaborostroj.climate.model.Experiment;
+import ru.zaborostroj.climate.model.SearchResult;
 import ru.zaborostroj.climate.model.Tool;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -16,66 +17,71 @@ import java.util.ArrayList;
 public class SearchResultDialog extends JDialog {
     private static final Insets INSETS = new Insets(3,3,3,3);
     private SearchResultDialog searchResultDialog;
-    private JDialog searchToolDialog;
-    private Experiment newExperimentData;
+    private SearchToolDialog searchToolDialog;
+    private MainWindow mainWindow;
+    private static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("HH:mm  dd.MM.YYYY");
 
-    public SearchResultDialog(ArrayList<Tool> toolsList, MainWindow mainWindow) {
+    public SearchResultDialog(ArrayList<SearchResult> searchResults, SearchToolDialog searchToolDialog, MainWindow mainWindow) {
         searchResultDialog = this;
-        setSize(300, 300);
+        this.searchToolDialog = searchToolDialog;
+        this.mainWindow = mainWindow;
+        setSize(400, 300);
         setLocation(300, 300);
+        setTitle("Свободное оборудование");
+        setLayout(new BorderLayout());
 
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = INSETS;
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        add(mainPanel, BorderLayout.CENTER);
 
-        int yPosition = 0;
-        for (Tool tool : toolsList) {
+        JPanel buttonsPanel = new JPanel();
+        add(buttonsPanel, BorderLayout.SOUTH);
+
+        JPanel toolPanel = new JPanel();
+        for (int i = 0; i < searchResults.size(); i++) {
+            SearchResult searchResult = searchResults.get(i);
+            if (
+                    i == 0 ||
+                    !searchResults.get(i).getToolId().equals(searchResults.get(i - 1).getToolId())
+            ) {
+                toolPanel = new JPanel();
+                toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
+                toolPanel.setBorder(BorderFactory.createTitledBorder(searchResult.getToolName() + " - " + searchResult.getToolPlacement()));
+                toolPanel.setSize(100, 50);
+                mainPanel.add(toolPanel);
+            }
+            JPanel variantPanel = new JPanel();
+            variantPanel.setLayout(new GridBagLayout());
+
+            JLabel freeTimeLabel = new JLabel();
+            String startDateTime = DATE_TIME_FORMAT.format(searchResult.getStartDateTime());
+            String endDateTime = DATE_TIME_FORMAT.format(searchResult.getEndDateTime());
+            freeTimeLabel.setText("с   " + startDateTime + "   до " + endDateTime);
+            GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
-            gbc.gridy = yPosition;
-            mainPanel.add(new JLabel(tool.getName()), gbc);
+            gbc.insets = INSETS;
+            variantPanel.add(freeTimeLabel, gbc);
 
+            JButton variantButton = new JButton(">>>");
+            variantButton.addActionListener(new VariantButtonListener(searchResult));
             gbc.gridx = 1;
-            gbc.gridy = yPosition;
-            mainPanel.add(new JLabel(
-                    MainWindow.toolPlacements.getPlacementNameById(tool.getPlacement())),
-                    gbc
-            );
+            variantPanel.add(variantButton, gbc);
 
-            gbc.gridx = 2;
-            gbc.gridy = yPosition;
-            JButton button = new JButton("Записаться");
-            button.addActionListener(new ToolButtonListener(mainWindow, tool));
-            mainPanel.add(button, gbc);
-
-            yPosition++;
+            toolPanel.add(variantPanel);
         }
-
-        add(mainPanel);
-        pack();
     }
 
-    public void setSearchData(SearchToolDialog dialog, Experiment experiment) {
-        this.searchToolDialog = dialog;
-        this.newExperimentData = experiment;
-    }
-
-    private class ToolButtonListener implements ActionListener {
-        private MainWindow mainWindow;
-        private Tool tool;
-
-        public ToolButtonListener(MainWindow mainWindow, Tool tool) {
-            this.mainWindow = mainWindow;
-            this.tool = tool;
+    public class VariantButtonListener implements ActionListener {
+        private SearchResult searchResult;
+        public VariantButtonListener(SearchResult searchResult) {
+            this.searchResult = searchResult;
         }
-
+        @Override
         public void actionPerformed(ActionEvent e) {
-            searchResultDialog.setVisible(false);
-            searchResultDialog.dispose();
-
-            searchToolDialog.setVisible(false);
-            searchToolDialog.dispose();
+            Tool tool = new Tool();
+            tool.setId(searchResult.getToolId());
+            tool.setName(searchResult.getToolName());
+            tool.setToolTypeId(searchResult.getToolTypeId());
 
             TimeTableDialog timeTableDialog = new TimeTableDialog(mainWindow, tool);
             timeTableDialog.setModal(true);
@@ -83,13 +89,13 @@ public class SearchResultDialog extends JDialog {
             NewExperimentDialog newExperimentDialog = new NewExperimentDialog(
                     mainWindow,
                     timeTableDialog,
-                    tool.getToolTypeId()
+                    searchResult.getToolTypeId()
             );
-            newExperimentDialog.setNewExperimentData(newExperimentData);
-            newExperimentDialog.setToolId(tool.getId());
+            newExperimentDialog.setObjectsToHide(searchToolDialog, searchResultDialog);
+            newExperimentDialog.setToolId(searchResult.getToolId());
+            newExperimentDialog.setNewExperimentData(searchResult);
             newExperimentDialog.setModal(true);
             newExperimentDialog.setVisible(true);
-            timeTableDialog.setVisible(true);
         }
     }
 }

@@ -18,17 +18,11 @@ import java.util.Date;
  */
 public class SearchToolDialog extends JDialog {
     private static final Insets INSETS = new Insets(3,3,3,3);
-    //private static final DateFormat SQL_DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    //private static final DateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    //private static final DateFormat SQL_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private static final String NO_MATTER = "Не важно";
 
     private MainWindow mainWindow;
     private JLabel messageLabel;
-    //private JSpinner startTimeSpinner;
     private JDateChooser startDateChooser;
-    //private JSpinner endTimeSpinner;
-    //private JDateChooser endDateChooser;
     private JTextField durationField;
     private JComboBox<String> placementCombo;
     private JComboBox<String> typeCombo;
@@ -118,9 +112,10 @@ public class SearchToolDialog extends JDialog {
         public void actionPerformed(ActionEvent e) {
             if (isAllFieldsFilled()) {
                 ArrayList<SearchResult> freeTools = getFreeTools();
-                for (SearchResult sr : freeTools) {
-                    sr.println();
-                }
+                SearchResultDialog searchResultDialog = new SearchResultDialog(freeTools, searchToolDialog, mainWindow);
+                searchResultDialog.setModal(true);
+                searchResultDialog.pack();
+                searchResultDialog.setVisible(true);
             } else {
                 messageLabel.setText("Все поля должны быть заполнены!");
             }
@@ -136,6 +131,13 @@ public class SearchToolDialog extends JDialog {
 
     private Boolean isAllFieldsFilled() {
         return ! (startDateChooser.getDate().toString().equals("") || durationField.getText().equals(""));
+    }
+
+    private Tool getToolData() {
+        String toolPlacement = (String) placementCombo.getSelectedItem();
+        Tool tool = new Tool();
+        tool.setPlacement(MainWindow.toolPlacements.getPlacementIdByName(toolPlacement));
+        return tool;
     }
 
     private Experiment getExperimentData() {
@@ -161,33 +163,25 @@ public class SearchToolDialog extends JDialog {
         return experiment;
     }
 
-    /*private Tool getToolData() {
-        Tool toolData = new Tool();
-        if ( ! placementCombo.getSelectedItem().toString().equals(NO_MATTER)) {
-            String placement = MainWindow.toolPlacements.getPlacementIdByName(placementCombo.getSelectedItem()
-                    .toString());
-            toolData.setPlacement(placement);
-        }
-
-        String expTypeName = typeCombo.getSelectedItem().toString();
-        if ( ! expTypeName.equals(NO_MATTER)) {
-            String toolTypeId = MainWindow.experimentTypes.getToolTypeIdByExpName(expTypeName);
-            toolData.setToolTypeId(toolTypeId);
-        }
-        return toolData;
-    }*/
-
     private ArrayList<SearchResult> getFreeTools() {
+        if (!placementCombo.getSelectedItem().equals(NO_MATTER)) {
+            Tool toolData = getToolData();
+            ArrayList<String> toolIds = new DBQuery().findTools(toolData);
+            for (String s : toolIds) {
+                System.out.println(s);
+            }
+        }
+
         Experiment experiment = getExperimentData();
         ArrayList<Experiment> experiments = new DBQuery().findExperiments(experiment);
         ArrayList<SearchResult> searchResults = new ArrayList<>();
 
+        ArrayList<Tool> toolsData = new DBQuery().getTools();
+
         for (int i = 0; i < experiments.size() - 1; i++) {
             Experiment exp1 = experiments.get(i);
             Experiment exp2 = experiments.get(i + 1);
-            if (exp1.getToolId().equals(exp2.getToolId()) &&
-                    exp1.getExperimentTypeId().equals(exp2.getExperimentTypeId())
-            ) {
+            if (exp1.getToolId().equals(exp2.getToolId())) {
                 Calendar calendar = Calendar.getInstance();
                 Date d = exp1.getEndTime();
                 calendar.setTime(d);
@@ -196,6 +190,15 @@ public class SearchToolDialog extends JDialog {
                 d = calendar.getTime();
                 if (d.before(exp2.getStartTime())) {
                     SearchResult searchResult = new SearchResult();
+
+                    for (Tool tool : toolsData) {
+                        if (exp1.getToolId().equals(tool.getId())) {
+                            searchResult.setToolTypeId(tool.getToolTypeId());
+                            searchResult.setToolName(tool.getName());
+                            searchResult.setToolPlacement(MainWindow.toolPlacements.getPlacementNameById(tool.getPlacement()));
+                            break;
+                        }
+                    }
                     searchResult.setToolId(exp1.getToolId());
                     searchResult.setExp1Id(exp1.getId());
                     searchResult.setExp2Id(exp2.getId());
