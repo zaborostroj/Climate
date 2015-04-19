@@ -164,16 +164,17 @@ public class SearchToolDialog extends JDialog {
     }
 
     private ArrayList<SearchResult> getFreeTools() {
+        ArrayList<String> toolIds = new ArrayList<>();
         if (!placementCombo.getSelectedItem().equals(NO_MATTER)) {
             Tool toolData = getToolData();
-            ArrayList<String> toolIds = new DBQuery().findTools(toolData);
+            toolIds = new DBQuery().findTools(toolData);
             for (String s : toolIds) {
                 System.out.println(s);
             }
         }
 
         Experiment experiment = getExperimentData();
-        ArrayList<Experiment> experiments = new DBQuery().findExperiments(experiment);
+        ArrayList<Experiment> experiments = new DBQuery().findExperiments(experiment, toolIds);
         ArrayList<SearchResult> searchResults = new ArrayList<>();
 
         ArrayList<Tool> toolsData = new DBQuery().getTools();

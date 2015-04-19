@@ -699,7 +699,6 @@ public class DBQuery {
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
                 toolIds.add(resultSet.getString("id"));
-                System.out.println(resultSet.getString("id"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -723,13 +722,28 @@ public class DBQuery {
         return toolIds;
     }
 
-    public ArrayList<Experiment> findExperiments(Experiment experimentData) {
+    public ArrayList<Experiment> findExperiments(Experiment experimentData, ArrayList<String> toolIds) {
         ArrayList<Experiment> experiments = new ArrayList<>();
 
         String startTime = SQL_DATE_FORMAT.format(experimentData.getStartTime());
         String query = "SELECT * FROM `" + timeTableName + "`" +
-                " WHERE `start_time` >= \'" + startTime + "\'" +
-                " ORDER BY `camera_id`, `start_time`";
+                " WHERE `start_time` >= \'" + startTime + "\'";
+
+        if (toolIds.size() != 0) {
+            query += " AND (";
+            for (int i = 0; i < toolIds.size(); i++) {
+                String s = toolIds.get(i);
+                if (i > 0) {
+                    query += " OR `camera_id` = \'" + s + "\' ";
+                } else {
+                    query += " `camera_id` = \'" + s + "\'";
+                }
+            }
+            query += ")";
+        }
+
+        query += " ORDER BY `camera_id`, `start_time`";
+        System.out.println(query);
 
         Connection connection = null;
         Statement statement = null;
