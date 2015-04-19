@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Properties;
 
 import ru.zaborostroj.climate.model.Experiment;
@@ -796,5 +797,76 @@ public class DBQuery {
             }
         }
         return experiments;
+    }
+
+    public ArrayList<Experiment> findLastExperiments(ArrayList<String> toolIds) {
+        ArrayList<Experiment> lastExperiments = new ArrayList<>();
+
+        String query = "SELECT id, camera_id, end_time FROM `" + timeTableName + "`";
+        if (toolIds.size() > 0) {
+            query += " WHERE";
+            for (int i = 0; i < toolIds.size(); i++) {
+                String s = toolIds.get(i);
+                if (i == 0) {
+                    query += " camera_id = \'" + s + "\'";
+                } else {
+                    query += " OR camera_id = \'" + s + "\'";
+                }
+            }
+        }
+        query += " ORDER BY `camera_id`, `end_time`";
+        System.out.println(query);
+
+        int expCounter = 0;
+
+        Connection connection = null;
+        Statement statement = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                Experiment experiment = new Experiment();
+                experiment.setId(resultSet.getString("id"));
+
+                experiment.setEndTime(SQL_DATE_FORMAT.parse(resultSet.getString("end_time")));
+
+                experiment.setToolId(resultSet.getString("camera_id"));
+
+                if (expCounter == 0) {
+                    lastExperiments.add(experiment);
+                } else {
+                    Experiment previousExperiment = lastExperiments.get(expCounter - 1);
+                    if (previousExperiment.getToolId().equals(experiment.getToolId())) {
+                        lastExperiments.remove(expCounter - 1);
+                        lastExperiments.add(expCounter - 1, experiment);
+                        expCounter--;
+                    } else {
+                        lastExperiments.add(expCounter, experiment);
+                    }
+                }
+                expCounter++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return lastExperiments;
     }
 }

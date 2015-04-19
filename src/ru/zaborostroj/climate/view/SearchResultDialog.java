@@ -40,34 +40,61 @@ public class SearchResultDialog extends JDialog {
         JPanel toolPanel = new JPanel();
         for (int i = 0; i < searchResults.size(); i++) {
             SearchResult searchResult = searchResults.get(i);
-            if (
-                    i == 0 ||
-                    !searchResults.get(i).getToolId().equals(searchResults.get(i - 1).getToolId())
-            ) {
+            if (searchResult.getStartDateTime() != null) {
+                if (
+                        i == 0 ||
+                                !searchResults.get(i).getToolId().equals(searchResults.get(i - 1).getToolId())
+                        ) {
+                    toolPanel = new JPanel();
+                    toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
+                    toolPanel.setBorder(BorderFactory.createTitledBorder(searchResult.getToolName() + " - " + searchResult.getToolPlacement()));
+                    toolPanel.setSize(100, 50);
+                    mainPanel.add(toolPanel);
+                }
+                JPanel variantPanel = new JPanel();
+                variantPanel.setLayout(new GridBagLayout());
+
+                JLabel freeTimeLabel = new JLabel();
+                String startDateTime = DATE_TIME_FORMAT.format(searchResult.getStartDateTime());
+                String endDateTime = DATE_TIME_FORMAT.format(searchResult.getEndDateTime());
+                freeTimeLabel.setText("с   " + startDateTime + "   до " + endDateTime);
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.gridx = 0;
+                gbc.insets = INSETS;
+                variantPanel.add(freeTimeLabel, gbc);
+
+                JButton variantButton = new JButton(">>>");
+                variantButton.addActionListener(new VariantButtonListener(searchResult));
+                gbc.gridx = 1;
+                variantPanel.add(variantButton, gbc);
+                toolPanel.add(variantPanel);
+            } else {
                 toolPanel = new JPanel();
                 toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
                 toolPanel.setBorder(BorderFactory.createTitledBorder(searchResult.getToolName() + " - " + searchResult.getToolPlacement()));
                 toolPanel.setSize(100, 50);
                 mainPanel.add(toolPanel);
+
+                JPanel variantPanel = new JPanel();
+                variantPanel.setLayout(new GridBagLayout());
+
+                JLabel freeTimeLabel = new JLabel();
+                String endDateTime = DATE_TIME_FORMAT.format(searchResult.getEndDateTime());
+                freeTimeLabel.setText("после " + endDateTime);
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.gridx = 0;
+                gbc.insets = INSETS;
+                variantPanel.add(freeTimeLabel, gbc);
+
+                JButton variantButton = new JButton(">>>");
+                variantButton.addActionListener(new VariantButtonListener(searchResult));
+                gbc.gridx = 1;
+                variantPanel.add(variantButton, gbc);
+                toolPanel.add(variantPanel);
+
+                //System.out.println(searchResult.getEndDateTime());
             }
-            JPanel variantPanel = new JPanel();
-            variantPanel.setLayout(new GridBagLayout());
 
-            JLabel freeTimeLabel = new JLabel();
-            String startDateTime = DATE_TIME_FORMAT.format(searchResult.getStartDateTime());
-            String endDateTime = DATE_TIME_FORMAT.format(searchResult.getEndDateTime());
-            freeTimeLabel.setText("с   " + startDateTime + "   до " + endDateTime);
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0;
-            gbc.insets = INSETS;
-            variantPanel.add(freeTimeLabel, gbc);
-
-            JButton variantButton = new JButton(">>>");
-            variantButton.addActionListener(new VariantButtonListener(searchResult));
-            gbc.gridx = 1;
-            variantPanel.add(variantButton, gbc);
-
-            toolPanel.add(variantPanel);
         }
     }
 

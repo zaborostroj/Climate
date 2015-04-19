@@ -221,6 +221,27 @@ public class SearchToolDialog extends JDialog {
                 }
             }
         }
+
+        ArrayList<Experiment> lastExperiments = new DBQuery().findLastExperiments(toolIds);
+        for (Experiment exp : lastExperiments) {
+            //System.out.println(exp.getEndTime());
+            SearchResult sr = new SearchResult();
+            sr.setToolId(exp.getToolId());
+            sr.setEndDateTime(exp.getEndTime());
+
+            for (Tool tool : toolsData) {
+                if (exp.getToolId().equals(tool.getId())) {
+                    sr.setToolTypeId(tool.getToolTypeId());
+                    sr.setToolName(tool.getName());
+                    sr.setToolPlacement(MainWindow.toolPlacements.getPlacementNameById(tool.getPlacement()));
+                    break;
+                }
+            }
+
+            searchResults.add(sr);
+        }
+
+
         return searchResults;
     }
 }

@@ -218,8 +218,13 @@ public class NewExperimentDialog extends JDialog {
     }
 
     public void setNewExperimentData(SearchResult searchResult) {
-        startTimeSpinner.setValue(searchResult.getStartDateTime());
-        startDateChooser.setDate(searchResult.getStartDateTime());
+        if (searchResult.getStartDateTime() != null) {
+            startTimeSpinner.setValue(searchResult.getStartDateTime());
+            startDateChooser.setDate(searchResult.getStartDateTime());
+        } else {
+            startTimeSpinner.setValue(searchResult.getEndDateTime());
+            startDateChooser.setDate(searchResult.getEndDateTime());
+        }
         endTimeSpinner.setValue(searchResult.getEndDateTime());
         endDateChooser.setDate(searchResult.getEndDateTime());
 
